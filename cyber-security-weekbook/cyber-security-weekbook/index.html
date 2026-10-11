@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cyber Security Weekbook</title>
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+/* Layout: a turning cipher disk with one ring per week sits beside the page title; a ruled week index follows.
+   Each week opens to a sticky tab strip over a contents rail and a reading column. Colour identifies the week. */
+:root{
+  --bg:#eef1f5; --surface:#ffffff; --sunk:#e3e8ee; --ink:#131a24; --muted:#556072; --line:#d2d9e2;
+  --brass:#8f5806; --brass-soft:#f5e9d2;
+  --good:#17753f; --good-soft:#dcf2e4; --bad:#b3261e; --bad-soft:#fbe3e0;
+  --r1:#cdead6; --r2:#f5e7a6; --r3:#f6c88f; --r4:#f1a49b;
+  --wk-l:34%; --wk-ink-l:28%; --wk-soft-s:55%; --wk-soft-l:93%; --wk-line-l:78%; --on-wk:#ffffff;
+  --font-display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --font-body:"Atkinson Hyperlegible Next","Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d1219; --surface:#151c27; --sunk:#090d13; --ink:#e7ecf3; --muted:#98a4b6; --line:#2a3443;
+    --brass:#f0b558; --brass-soft:#2d2412;
+    --good:#62d394; --good-soft:#12301f; --bad:#ff8a7c; --bad-soft:#3a1714;
+    --r1:#1d4a30; --r2:#5a4c12; --r3:#6b3d10; --r4:#6e211b;
+    --wk-l:60%; --wk-ink-l:75%; --wk-soft-s:40%; --wk-soft-l:15%; --wk-line-l:30%; --on-wk:#0b1017;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d1219; --surface:#151c27; --sunk:#090d13; --ink:#e7ecf3; --muted:#98a4b6; --line:#2a3443;
+  --brass:#f0b558; --brass-soft:#2d2412;
+  --good:#62d394; --good-soft:#12301f; --bad:#ff8a7c; --bad-soft:#3a1714;
+  --r1:#1d4a30; --r2:#5a4c12; --r3:#6b3d10; --r4:#6e211b;
+  --wk-l:60%; --wk-ink-l:75%; --wk-soft-s:40%; --wk-soft-l:15%; --wk-line-l:30%; --on-wk:#0b1017;
+  color-scheme:dark;
+}
+.wk{
+  --wk:hsl(var(--h) 58% var(--wk-l));
+  --wk-ink:hsl(var(--h) 62% var(--wk-ink-l));
+  --wk-soft:hsl(var(--h) var(--wk-soft-s) var(--wk-soft-l));
+  --wk-line:hsl(var(--h) 36% var(--wk-line-l));
+}
+
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--font-body);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.shell{max-width:1180px;margin-inline:auto;padding-inline:clamp(16px,4vw,40px);padding-block:0 56px}
+a{color:inherit}
+h1,h2,h3,h4{font-family:var(--font-display);text-wrap:balance;margin:0}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px;border-radius:3px}
+h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus{outline:none}
+.eyebrow{font:600 .74rem/1.2 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);display:flex;flex-wrap:wrap;gap:.75em;align-items:center}
+.bin{font:600 .74rem/1 var(--font-mono);letter-spacing:.12em;padding:.3em .5em;border:1px solid var(--line);border-radius:3px;color:var(--muted)}
+.wk .bin{border-color:var(--wk-line);color:var(--wk-ink)}
+
+/* top bar */
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;padding-block:18px;border-bottom:1px solid var(--line)}
+.brand{display:inline-flex;align-items:center;gap:.6rem;font:700 1.02rem/1 var(--font-display);text-decoration:none;letter-spacing:-.01em}
+.brand-mark{width:22px;height:22px;border-radius:50%;flex:none;background:radial-gradient(circle,var(--brass) 0 22%,transparent 23% 38%,var(--ink) 39% 56%,transparent 57% 72%,var(--ink) 73% 100%)}
+.top-nav{display:flex;gap:4px}
+.top-nav a{font-weight:600;font-size:.93rem;text-decoration:none;padding:.45rem .7rem;border-radius:5px;color:var(--muted)}
+.top-nav a:hover,.top-nav a[aria-current="page"]{color:var(--ink);background:var(--sunk)}
+.boot{padding-block:64px;color:var(--muted)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-weight:600;font-size:.95rem;line-height:1.2;padding:.68rem 1.05rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;cursor:pointer;text-decoration:none}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.wk .btn.primary{background:var(--wk);border-color:var(--wk);color:var(--on-wk)}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.chip{display:inline-flex;align-items:center;font:600 .72rem/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;padding:.38em .6em;border-radius:3px;background:var(--wk-soft);color:var(--wk-ink);text-decoration:none;white-space:nowrap}
+
+/* home */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,540px);gap:24px 48px;align-items:center;padding-block:36px 28px}
+.hero-copy{display:flex;flex-direction:column;gap:18px;min-width:0}
+.hero h1{font-weight:800;font-size:clamp(2.4rem,6.2vw,4.5rem);line-height:.96;letter-spacing:-.03em}
+.lede{font-size:1.1rem;line-height:1.5;color:var(--muted);max-width:52ch}
+.stage{min-width:0;display:flex;flex-direction:column;gap:6px}
+.stage canvas{display:block;width:100%;max-width:100%;aspect-ratio:10/7.4;touch-action:pan-y;cursor:grab;border-radius:10px}
+.stage canvas.is-drag{cursor:grabbing}
+.stage-cap{font:400 .8rem/1.4 var(--font-mono);color:var(--muted);text-align:center;min-height:1.4em}
+.index h2,.sec-h{font-weight:700;font-size:1.5rem;letter-spacing:-.015em;margin-bottom:10px}
+.wk-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:6px 20px;align-items:center;padding:18px 10px;border-bottom:1px solid var(--line);position:relative}
+.row:hover,.row.is-hot{background:var(--surface)}
+.row-num{font:800 3rem/1 var(--font-display);letter-spacing:-.04em;color:var(--wk-ink);font-variant-numeric:tabular-nums}
+.row-main{min-width:0;display:flex;flex-direction:column;gap:4px;text-decoration:none}
+.row-main::after{content:"";position:absolute;inset:0}
+.row-title{font:700 1.22rem/1.2 var(--font-display);letter-spacing:-.01em}
+.row-topics{color:var(--muted);font-size:.93rem}
+.row-side{display:flex;flex-direction:column;align-items:flex-end;gap:8px;position:relative;z-index:1}
+.row-links{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.row-links a{font-weight:600;font-size:.86rem;text-decoration:none;padding:.35rem .6rem;border:1px solid var(--wk-line);border-radius:5px;color:var(--wk-ink);background:var(--bg)}
+.row-links a:hover{background:var(--wk-soft)}
+.meter{display:flex;align-items:center;gap:8px;font:400 .76rem/1 var(--font-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.meter i{display:block;width:96px;height:5px;border-radius:3px;background:var(--sunk);overflow:hidden}
+.meter i b{display:block;height:100%;background:var(--wk)}
+.next-ring{margin-top:14px;color:var(--muted);font-size:.93rem}
+.extras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:36px}
+.extra{display:flex;flex-direction:column;gap:6px;padding:20px;border:1px solid var(--line);border-radius:10px;background:var(--surface);text-decoration:none}
+.extra:hover{border-color:var(--muted)}
+.extra strong{font:700 1.15rem/1.2 var(--font-display)}
+.extra span{color:var(--muted);font-size:.95rem}
+
+/* week */
+.wk-head{display:flex;flex-direction:column;gap:12px;padding-block:26px 20px}
+.back{align-self:flex-start;font-weight:600;font-size:.9rem;color:var(--muted);text-decoration:none}
+.back:hover{color:var(--ink)}
+.wk-head h1{font-weight:800;font-size:clamp(1.9rem,4.6vw,3.1rem);line-height:1;letter-spacing:-.025em}
+.wk-head .eyebrow{color:var(--wk-ink)}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:2px;overflow-x:auto;background:var(--bg);border-bottom:1px solid var(--line);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{flex:none;font-weight:600;font-size:.96rem;text-decoration:none;color:var(--muted);padding:.85rem .9rem .7rem;border-bottom:3px solid transparent}
+.tabs a:hover{color:var(--ink)}
+.tabs a[aria-current="page"]{color:var(--wk-ink);border-bottom-color:var(--wk)}
+.wk-body{padding-block:28px 8px}
+.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:40px;padding-top:20px;border-top:1px solid var(--line)}
+
+/* notes */
+.notes{display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px;align-items:start}
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 62px);max-height:calc(100vh - 80px);overflow-y:auto}
+.rail-h{font:600 .72rem/1 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.rail button{display:flex;gap:10px;align-items:baseline;width:100%;text-align:left;background:none;border:0;padding:.42rem .5rem;border-radius:5px;cursor:pointer;color:var(--muted);font-size:.93rem;line-height:1.3}
+.rail button:hover{color:var(--ink);background:var(--sunk)}
+.rail button.is-on{color:var(--wk-ink);background:var(--wk-soft);font-weight:600}
+.rail button.is-read .tag{background:var(--wk);color:var(--on-wk);border-color:var(--wk)}
+.tag{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:1.7em;height:1.7em;padding-inline:.3em;font:700 .72rem/1 var(--font-mono);border:1px solid var(--wk-line);border-radius:3px;color:var(--wk-ink)}
+.prose{min-width:0;max-width:74ch;font-size:1.05rem;line-height:1.65;display:flex;flex-direction:column;gap:56px}
+.part{display:flex;flex-direction:column;gap:16px;scroll-margin-top:70px;min-width:0}
+.part>h2{display:flex;gap:14px;align-items:center;font-weight:800;font-size:clamp(1.5rem,3.4vw,2rem);line-height:1.1;letter-spacing:-.02em;padding-bottom:14px;border-bottom:2px solid var(--wk)}
+.part>h2 .tag{font-size:.9rem}
+.part h3{font-weight:700;font-size:1.22rem;line-height:1.25;letter-spacing:-.01em;margin-top:14px}
+.part h4{font:700 1rem/1.3 var(--font-body);margin-top:6px}
+.part ul,.part ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+.part strong{font-weight:700}
+.part code,.out code{font:400 .9em var(--font-mono);background:var(--sunk);padding:.1em .35em;border-radius:3px}
+.tw{overflow-x:auto;max-width:100%;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.tw table{border-collapse:collapse;width:100%;font-size:.93rem;line-height:1.45;min-width:520px}
+.tw table.c2{min-width:0}
+.tw th,.tw td{text-align:left;vertical-align:top;padding:.6rem .8rem;border-bottom:1px solid var(--line)}
+.tw tbody tr:last-child>*{border-bottom:0}
+.tw thead th{font:600 .7rem/1.3 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--sunk);white-space:nowrap}
+.tw tbody th{font-weight:700}
+pre.code{margin:0;overflow-x:auto;background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:14px 16px;font:400 .86rem/1.6 var(--font-mono);font-variant-numeric:tabular-nums;tab-size:2}
+pre.code code{background:none;padding:0;font:inherit}
+.note{background:var(--wk-soft);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;font-size:.98rem;line-height:1.55}
+.note-k{font:700 .7rem/1 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--wk-ink)}
+.note-warn{background:var(--brass-soft)}
+.note-warn .note-k{color:var(--brass)}
+.part-end{margin-top:6px}
+.readbtn[aria-pressed="true"]{background:var(--wk-soft);border-color:var(--wk-line);color:var(--wk-ink)}
+
+/* labs */
+.lab{border:1px solid var(--wk-line);border-radius:10px;background:var(--surface);overflow:hidden;min-width:0}
+.lab-head{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;padding:12px 16px;background:var(--wk-soft)}
+.lab-k{font:700 .7rem/1 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--wk-ink)}
+.lab-head h4{font:700 1.05rem/1.2 var(--font-display);margin:0}
+.lab-body{padding:16px;display:flex;flex-direction:column;gap:14px;font-size:.96rem;line-height:1.5;min-width:0}
+.lab-list{display:flex;flex-direction:column;gap:28px;max-width:820px}
+.lab-list>p{color:var(--muted);max-width:60ch}
+.f-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.f{display:flex;flex-direction:column;gap:5px;flex:1 1 220px;min-width:0;font:600 .72rem/1.2 var(--font-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.f.f-s{flex:0 1 130px}
+.f input,.f select,.f textarea{font:400 1rem/1.3 var(--font-mono);letter-spacing:0;text-transform:none;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:.55rem .65rem;width:100%;min-width:0}
+.hint{color:var(--muted);font-size:.9rem}
+.err{color:var(--bad);font-weight:600}
+.out{display:flex;flex-direction:column;gap:10px;min-width:0}
+.out-main{font:700 1.35rem/1.3 var(--font-mono);letter-spacing:.04em;overflow-wrap:anywhere;color:var(--wk-ink)}
+.out-sub{color:var(--muted);font-size:.9rem}
+.hex{font:400 .86rem/1.5 var(--font-mono);overflow-wrap:anywhere;background:var(--sunk);padding:8px 10px;border-radius:5px}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font:400 .93rem/1.5 var(--font-mono);font-variant-numeric:tabular-nums}
+.steps b{color:var(--wk-ink)}
+.bits{display:grid;grid-template-columns:auto repeat(8,minmax(0,38px));gap:6px;align-items:center;font-family:var(--font-mono)}
+.bits .bl{font-weight:600;font-size:.82rem;color:var(--muted);padding-right:6px;white-space:nowrap}
+.bit{height:38px;border:1px solid var(--line);border-radius:5px;background:var(--bg);font:700 1.05rem/1 var(--font-mono);display:flex;align-items:center;justify-content:center;padding:0}
+button.bit{cursor:pointer}
+button.bit[aria-pressed="true"]{background:var(--wk);border-color:var(--wk);color:var(--on-wk)}
+.bit.res{border-style:dashed;background:var(--wk-soft);border-color:var(--wk-line);color:var(--wk-ink)}
+.grid-wrap{overflow-x:auto}
+.matrix{display:grid;grid-template-columns:auto repeat(5,minmax(54px,1fr));gap:4px;min-width:420px;font:600 .68rem/1.2 var(--font-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.matrix span{display:flex;align-items:center;justify-content:center;text-align:center;padding:4px}
+.matrix span.ml{justify-content:flex-end}
+.cell{height:40px;border:1px solid transparent;border-radius:4px;cursor:pointer;font:700 .9rem/1 var(--font-mono);color:var(--ink)}
+.cell.l1{background:var(--r1)}.cell.l2{background:var(--r2)}.cell.l3{background:var(--r3)}.cell.l4{background:var(--r4)}
+.cell[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.dh{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.dh>div{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;min-width:0;font:400 .9rem/1.5 var(--font-mono);overflow-wrap:anywhere}
+.dh h5{margin:0;font:700 .7rem/1 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.perm{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.perm>div{display:flex;flex-direction:column;gap:6px;min-width:0}
+.perm h5{margin:0;font:700 .7rem/1 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.perm .pb{display:flex;gap:6px}
+.perm .bit{flex:1 1 0;min-width:0}
+.sw{display:inline-block;width:26px;height:18px;border-radius:3px;border:1px solid var(--line);vertical-align:middle}
+.lsb-hl{color:var(--wk-ink);font-weight:700;text-decoration:underline}
+
+/* quiz + cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:clamp(18px,3vw,30px);display:flex;flex-direction:column;gap:16px;max-width:780px}
+.card h2{font-weight:700;font-size:1.5rem;line-height:1.2;letter-spacing:-.015em}
+.best{color:var(--muted)}
+.q-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font:600 .78rem/1 var(--font-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-variant-numeric:tabular-nums}
+.q-score{margin-left:auto}
+.q-bar{height:4px;background:var(--sunk);border-radius:2px;overflow:hidden}
+.q-bar i{display:block;height:100%;background:var(--ink)}
+.wk .q-bar i{background:var(--wk)}
+.q-text{font:700 1.3rem/1.35 var(--font-body) !important;letter-spacing:0 !important}
+.q-text code,.opt code,.fb code{font:400 .92em var(--font-mono);background:var(--sunk);padding:.08em .3em;border-radius:3px}
+.q-opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;text-align:left;padding:.75rem .9rem;border:1px solid var(--line);border-radius:7px;background:var(--bg);cursor:pointer;font-size:1rem;line-height:1.4}
+.opt:hover:not(:disabled){border-color:var(--muted)}
+.opt:disabled{cursor:default;color:var(--ink)}
+.opt-k{font:700 .8rem/1 var(--font-mono);width:1.9em;height:1.9em;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:4px;color:var(--muted)}
+.opt-s{font:700 .68rem/1.2 var(--font-mono);letter-spacing:.06em;text-transform:uppercase}
+.opt.is-right{border-color:var(--good);background:var(--good-soft)}
+.opt.is-right .opt-s,.opt.is-right .opt-k{color:var(--good);border-color:var(--good)}
+.opt.is-wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.is-wrong .opt-s,.opt.is-wrong .opt-k{color:var(--bad);border-color:var(--bad)}
+.q-fb{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.fb{line-height:1.55}
+.fb.ok strong{color:var(--good)}.fb.no strong{color:var(--bad)}
+.score-big{font:800 clamp(3rem,10vw,5rem)/1 var(--font-display);letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.wk .score-big{color:var(--wk-ink)}
+.missed{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.missed li{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:4px}
+.missed .m-a{color:var(--good);font-weight:700}
+.missed .m-w{color:var(--muted);font-size:.95rem}
+.cards{display:flex;flex-direction:column;gap:18px;max-width:640px}
+.cards>p{color:var(--muted)}
+.fc{perspective:1400px;cursor:pointer;border-radius:12px}
+.fc-in{position:relative;min-height:290px;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.75,.2,1)}
+.fc.flip .fc-in{transform:rotateY(180deg)}
+.fc.no-tr .fc-in{transition:none}
+.fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--wk-line);border-radius:12px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;background:var(--surface);overflow:auto}
+.fc-back{transform:rotateY(180deg);background:var(--wk-soft)}
+.fc-term{font:800 clamp(1.7rem,5vw,2.5rem)/1.1 var(--font-display);letter-spacing:-.02em;color:var(--wk-ink)}
+.fc-mean{font-size:1.2rem;line-height:1.5}
+.fc-hint{font:400 .78rem/1 var(--font-mono);color:var(--muted)}
+.fc-ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.fc-n{font:600 .85rem/1 var(--font-mono);color:var(--muted);font-variant-numeric:tabular-nums;min-width:5.5em;text-align:center}
+
+/* practice, checklist, glossary */
+.practice{margin:0;padding-left:1.6em;display:flex;flex-direction:column;gap:20px;max-width:74ch;font-size:1.03rem;line-height:1.6}
+.practice li{padding-left:.3em}
+.practice li::marker{font:700 .9rem var(--font-mono);color:var(--wk-ink)}
+.practice details{margin-top:8px}
+.practice summary{cursor:pointer;font-weight:600;color:var(--wk-ink);width:max-content;max-width:100%}
+.practice .ans{margin-top:8px;background:var(--wk-soft);border-radius:8px;padding:12px 14px}
+.intro{color:var(--muted);max-width:62ch;margin-bottom:22px}
+.check{list-style:none;margin:0;padding:0;max-width:74ch;border-top:1px solid var(--line)}
+.check li{border-bottom:1px solid var(--line)}
+.check label{display:flex;gap:14px;align-items:flex-start;padding:14px 6px;cursor:pointer;font-size:1.03rem;line-height:1.5}
+.check input{flex:none;width:1.2rem;height:1.2rem;margin-top:.2rem;accent-color:var(--wk)}
+.check input:checked+span{color:var(--muted);text-decoration:line-through}
+.gl-head{display:flex;flex-direction:column;gap:14px;padding-block:28px 20px}
+.gl-head h1{font-weight:800;font-size:clamp(1.9rem,4.6vw,3rem);line-height:1;letter-spacing:-.025em}
+.gl-head .f{max-width:420px;flex:none}
+.gl{margin:0;border-top:1px solid var(--line)}
+.gl>div{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr) auto;gap:6px 24px;padding:14px 6px;border-bottom:1px solid var(--line);align-items:baseline}
+.gl dt{font-weight:700}
+.gl dd{margin:0;color:var(--muted)}
+.foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem;display:flex;flex-direction:column;gap:6px;max-width:80ch}
+
+@media (max-width:900px){
+  .hero{grid-template-columns:minmax(0,1fr);padding-block:26px 20px}
+  .stage{max-width:520px;width:100%;margin-inline:auto}
+  .notes{grid-template-columns:minmax(0,1fr);gap:28px}
+  .rail{position:static;max-height:none}
+  .rail ol{flex-direction:row;flex-wrap:wrap;gap:6px}
+  .rail button{width:auto;border:1px solid var(--line);padding:.35rem .6rem}
+}
+@media (max-width:640px){
+  .row{grid-template-columns:52px minmax(0,1fr);padding-inline:4px}
+  .row-num{font-size:2.3rem}
+  .row-side{grid-column:1/-1;align-items:flex-start}
+  .row-links{justify-content:flex-start}
+  .extras{grid-template-columns:minmax(0,1fr)}
+  .gl>div{grid-template-columns:minmax(0,1fr)}
+  .dh,.perm{grid-template-columns:minmax(0,1fr)}
+  .bits{grid-template-columns:auto repeat(8,minmax(0,1fr));gap:4px}
+  .opt{grid-template-columns:auto minmax(0,1fr)}
+  .opt-s{grid-column:2}
+}
+@media (prefers-reduced-motion:reduce){
+  *{scroll-behavior:auto !important}
+  .fc-in{transition:none}
+}
+</style>
+
+<div class="shell">
+  <header class="top">
+    <a class="brand" href="#"><span class="brand-mark" aria-hidden="true"></span>Cyber Security Weekbook</a>
+    <nav class="top-nav" aria-label="Site"><a href="#mix" data-nav="mix">Mixed quiz</a><a href="#glossary" data-nav="glossary">Glossary</a></nav>
+  </header>
+  <main id="app"><p class="boot">Loading the notes…</p></main>
+  <footer class="foot">
+    <p>A study aid written from the Week 1 to 3 lecture slides, notes and articles. Your lecturer's material comes first: if anything here differs from what you were taught, go with the course.</p>
+    <p>Quiz scores, read marks and checklist ticks are saved in this browser only.</p>
+  </footer>
+</div>
+
+<script src="vendor/three.min.js"></script>
+<script>
+/* Content helpers used by the week files. */
+window.COURSE={weeks:[],add:function(w){this.weeks.push(w)}};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function tbl(head,rows){
+  return '<div class="tw"><table class="c'+head.length+'"><thead><tr>'+head.map(function(h){return '<th scope="col">'+h+'</th>'}).join('')+
+    '</tr></thead><tbody>'+rows.map(function(r){return '<tr>'+r.map(function(c,i){return i===0?'<th scope="row">'+c+'</th>':'<td>'+c+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div>';
+}
+function pre(s){return '<pre class="code"><code>'+esc(String(s).replace(/^\n/,'').replace(/\s+$/,''))+'</code></pre>'}
+var NOTE_LABELS={key:'Key idea',warn:'Watch out',link:'Connects to',tip:'Tip',ans:'Answer',ex:'Mini-exercise',why:'Why this matters',rem:'Remember',extra:'Extra'};
+function note(kind,html){return '<aside class="note note-'+kind+'"><p class="note-k">'+(NOTE_LABELS[kind]||kind)+'</p><div>'+html+'</div></aside>'}
+function lab(id){return '<div data-lab="'+id+'"></div>'}
+</script>
+<!-- One file per week. To add a week: publish weeks/weekN.js and add one line here. -->
+<script src="weeks/week1.js"></script>
+<script src="weeks/week2.js"></script>
+<script src="weeks/week3.js"></script>
+<script>
+(function(){
+'use strict';
+var C=window.COURSE, app=document.getElementById('app');
+if(!C||!C.weeks.length){app.innerHTML='<p class="boot">The week files did not load. Reload the page to try again.</p>';return;}
+
+const weeks=C.weeks.slice().sort((a,b)=>a.n-b.n);
+weeks.forEach(w=>{
+  w.h=w.hue!=null?w.hue:Math.round((200+(w.n-1)*137.5)%360);
+  w.parts.forEach((p,i)=>{p.id='p'+i});
+  w.quiz.forEach(q=>{q.wk=w});
+});
+const $=(s,r)=>(r||document).querySelector(s);
+const $$=(s,r)=>Array.from((r||document).querySelectorAll(s));
+const bin=n=>n.toString(2).padStart(4,'0');
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const reduced=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+/* ---------- saved progress (this browser only) ---------- */
+const KEY='csweekbook.v1';
+let mem={quiz:{},check:{},read:{},last:''};
+try{const s=localStorage.getItem(KEY);if(s)mem=Object.assign(mem,JSON.parse(s))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(mem))}catch(e){}};
+function progress(w){
+  const r=(mem.read[w.n]||[]).length/w.parts.length;
+  const c=(mem.check[w.n]||[]).length/Math.max(1,w.checklist.length);
+  const q=mem.quiz['w'+w.n];
+  return Math.round((r+c+(q?q.s/q.t:0))/3*100);
+}
+
+/* ---------- routing: #w1, #w1-quiz, #glossary, #mix ---------- */
+let route=null, cleanup=[];
+function parse(r){
+  r=String(r||'').replace(/^#/,'');
+  const m=/^w(\d+)(?:-(labs|quiz|cards|practice|check))?$/.exec(r);
+  if(m){const w=weeks.find(x=>x.n===+m[1]);if(w)return{view:'week',w:w,tab:m[2]||'notes'}}
+  if(r==='glossary')return{view:'glossary'};
+  if(r==='mix')return{view:'mix'};
+  return{view:'home'};
+}
+function go(r){
+  r=String(r||'').replace(/^#/,'');
+  if(r===route)return;
+  try{if(location.hash.replace(/^#/,'')!==r)location.hash=r}catch(e){}
+  render(r);
+}
+function render(r){
+  const prev=parse(route), p=parse(r), first=route===null;
+  route=r;
+  cleanup.forEach(f=>{try{f()}catch(e){}});cleanup=[];
+  $$('[data-nav]').forEach(a=>{if(a.dataset.nav===p.view)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+  if(p.view==='week'){viewWeek(p.w,p.tab);mem.last=r;save()}
+  else if(p.view==='glossary')viewGlossary();
+  else if(p.view==='mix')viewMix();
+  else viewHome();
+  if(first)return;
+  const sameWeek=prev.view==='week'&&p.view==='week'&&prev.w===p.w;
+  const tabs=$('.tabs');
+  if(sameWeek&&tabs){if(tabs.getBoundingClientRect().top<0)tabs.scrollIntoView()}
+  else window.scrollTo(0,0);
+  const h=$('h1',app);if(h&&!sameWeek){try{h.focus({preventScroll:true})}catch(e){}}
+}
+window.addEventListener('hashchange',()=>{const r=location.hash.replace(/^#/,'');if(r!==route)render(r)});
+document.addEventListener('click',e=>{
+  const a=e.target.closest&&e.target.closest('a[href^="#"]');
+  if(!a||e.defaultPrevented||e.metaKey||e.ctrlKey)return;
+  e.preventDefault();go(a.getAttribute('href'));
+});
+
+/* ---------- home ---------- */
+let stage=null;
+function viewHome(){
+  const lp=parse(mem.last), cw=lp.view==='week'?lp.w:weeks[weeks.length-1];
+  const nextN=weeks[weeks.length-1].n+1;
+  app.innerHTML=`
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Cyber security module<span class="bin">Weeks ${weeks[0].n} to ${weeks[weeks.length-1].n}</span></p>
+      <h1 tabindex="-1">Every week adds a ring.</h1>
+      <p class="lede">Lecture notes in plain English, worked examples, quizzes and hands-on cipher tools for the module. Each week is one ring of the disk. Turn it and pick a ring, or use the list below.</p>
+      <div class="actions wk" style="--h:${cw.h}">
+        <a class="btn primary" href="#${mem.last&&lp.view==='week'?mem.last:'w'+cw.n}">${lp.view==='week'?'Continue':'Start'} Week ${cw.n}</a>
+        <a class="btn" href="#mix">Mixed quiz</a>
+        <a class="btn" href="#glossary">Glossary</a>
+      </div>
+    </div>
+    <div class="stage-slot"></div>
+  </section>
+  <section class="index" aria-labelledby="idx-h">
+    <h2 id="idx-h">Weeks</h2>
+    <ol class="wk-list">${weeks.map(w=>{
+      const q=mem.quiz['w'+w.n], pr=progress(w);
+      return `<li class="row wk" style="--h:${w.h}" data-i="${weeks.indexOf(w)}">
+        <span class="row-num" aria-hidden="true">${w.n}</span>
+        <a class="row-main" href="#w${w.n}"><span class="row-title">Week ${w.n}: ${w.title}</span><span class="row-topics">${w.topics.join(' · ')}</span></a>
+        <span class="row-side">
+          <span class="row-links"><a href="#w${w.n}-quiz">Quiz</a><a href="#w${w.n}-cards">Flashcards</a>${w.labs&&w.labs.length?`<a href="#w${w.n}-labs">Labs</a>`:''}</span>
+          <span class="meter"><i><b style="width:${pr}%"></b></i>${pr}% done${q?' · best '+q.s+'/'+q.t:''}</span>
+        </span>
+      </li>`}).join('')}</ol>
+    <p class="next-ring">Week ${nextN} will be the next ring on the disk.</p>
+  </section>
+  <section class="extras" aria-label="Across all weeks">
+    <a class="extra" href="#mix"><strong>Mixed quiz</strong><span>Random questions drawn from every week so far. Good for revision once the weeks pile up.</span></a>
+    <a class="extra" href="#glossary"><strong>Glossary</strong><span>Every key term from every week in one searchable list.</span></a>
+  </section>`;
+  if(!stage)stage=makeStage();
+  $('.stage-slot',app).replaceWith(stage.el);
+  stage.resume();
+  $$('.row',app).forEach(li=>{
+    const i=+li.dataset.i;
+    li.addEventListener('mouseenter',()=>stage.highlight(i));
+    li.addEventListener('mouseleave',()=>stage.highlight(-1));
+    li.addEventListener('focusin',()=>stage.highlight(i));
+    li.addEventListener('focusout',()=>stage.highlight(-1));
+  });
+}
+function hotRow(i){$$('.row',app).forEach(li=>li.classList.toggle('is-hot',+li.dataset.i===i))}
+
+/* ---------- the disk: one ring per week (three.js, with a flat fallback) ---------- */
+function makeStage(){
+  const el=document.createElement('div');el.className='stage';
+  el.innerHTML='<canvas aria-hidden="true"></canvas><p class="stage-cap"></p>';
+  const canvas=el.firstChild, cap=el.lastChild;
+  const n=weeks.length, nextN=weeks[n-1].n+1;
+  const DEF='Drag to turn the disk. Click a ring to open its week.';
+  cap.textContent=DEF;
+  const hubR=0.85, W=Math.max(0.44,Math.min(0.78,4.4/(n+1))), gap=0.05, stepY=0.25, rimT=0.26;
+  const R=i=>[hubR+i*W+gap/2,hubR+(i+1)*W-gap/2];
+  const outerMax=hubR+(n+1)*W;
+  const MONO='"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace';
+  const TAU=Math.PI*2;
+
+  function drawRing(g,cx,cy,sc,i){
+    const ri=R(i)[0],ro=R(i)[1],wk=weeks[i],rm=(ri+ro)/2;
+    const gr=g.createRadialGradient(cx,cy,ri*sc,cx,cy,ro*sc);
+    gr.addColorStop(0,'hsl('+wk.h+',52%,43%)');gr.addColorStop(1,'hsl('+wk.h+',58%,30%)');
+    g.beginPath();g.arc(cx,cy,ro*sc,0,TAU);g.arc(cx,cy,ri*sc,0,TAU,true);g.fillStyle=gr;g.fill();
+    g.strokeStyle='rgba(255,255,255,.4)';g.lineWidth=Math.max(1,sc*0.012);
+    g.beginPath();g.arc(cx,cy,(ro-0.045)*sc,0,TAU);g.stroke();
+    g.beginPath();g.arc(cx,cy,(ri+0.045)*sc,0,TAU);g.stroke();
+    g.fillStyle='rgba(255,255,255,.96)';g.textAlign='center';g.textBaseline='middle';
+    g.font='700 '+Math.round((ro-ri)*sc*0.5)+'px '+MONO;
+    for(let k=0;k<26;k++){
+      g.save();g.translate(cx,cy);g.rotate(k*TAU/26);g.fillText(String.fromCharCode(65+k),0,-rm*sc);g.restore();
+      g.save();g.translate(cx,cy);g.rotate((k+.5)*TAU/26);g.fillStyle='rgba(255,255,255,.5)';
+      g.fillRect(-sc*0.006,-(ro-0.045)*sc,sc*0.012,(ro-ri)*sc*0.16);g.restore();
+    }
+  }
+  function drawHub(g,cx,cy,r){
+    const gr=g.createRadialGradient(cx-r*.3,cy-r*.3,r*.1,cx,cy,r);
+    gr.addColorStop(0,'#f1cd82');gr.addColorStop(1,'#b07d24');
+    g.beginPath();g.arc(cx,cy,r,0,TAU);g.fillStyle=gr;g.fill();
+    g.fillStyle='#2a1d06';
+    g.beginPath();g.arc(cx,cy-r*.16,r*.2,0,TAU);g.fill();
+    g.beginPath();g.moveTo(cx-r*.09,cy-r*.06);g.lineTo(cx+r*.09,cy-r*.06);g.lineTo(cx+r*.17,cy+r*.42);g.lineTo(cx-r*.17,cy+r*.42);g.closePath();g.fill();
+  }
+  function drawGhost(g,cx,cy,sc){
+    const ri=R(n)[0],ro=R(n)[1],rm=(ri+ro)/2;
+    g.strokeStyle='rgba(205,215,230,.6)';g.lineWidth=Math.max(1,sc*0.014);g.setLineDash([sc*0.08,sc*0.07]);
+    g.beginPath();g.arc(cx,cy,ro*sc,0,TAU);g.stroke();
+    g.beginPath();g.arc(cx,cy,ri*sc,0,TAU);g.stroke();
+    g.setLineDash([]);
+    g.fillStyle='rgba(205,215,230,.75)';g.textAlign='center';g.textBaseline='middle';
+    g.font='700 '+Math.round((ro-ri)*sc*0.34)+'px '+MONO;
+    const label='WEEK '+nextN+' NEXT';
+    for(let rep=0;rep<3;rep++){
+      for(let c=0;c<label.length;c++){
+        g.save();g.translate(cx,cy);g.rotate(rep*TAU/3+(c-(label.length-1)/2)*0.06*(3.2/rm));g.fillText(label[c],0,-rm*sc);g.restore();
+      }
+    }
+  }
+
+  let onResume=()=>{}, setExt=()=>{};
+  function flat(){
+    const g=canvas.getContext('2d');if(!g)return;
+    cap.textContent='Click a ring to open its week.';
+    const draw=()=>{
+      const dpr=Math.min(2,window.devicePixelRatio||1),w=canvas.clientWidth,h=canvas.clientHeight;if(!w)return;
+      canvas.width=w*dpr;canvas.height=h*dpr;
+      const cx=canvas.width/2,cy=canvas.height/2,sc=Math.min(cx,cy)*0.96/outerMax;
+      g.clearRect(0,0,canvas.width,canvas.height);
+      g.beginPath();g.arc(cx,cy,outerMax*sc,0,TAU);g.fillStyle='#1f2733';g.fill();
+      drawGhost(g,cx,cy,sc);
+      for(let i=n-1;i>=0;i--)drawRing(g,cx,cy,sc,i);
+      drawHub(g,cx,cy,(hubR-gap/2)*sc);
+    };
+    const at=e=>{
+      const b=canvas.getBoundingClientRect(),sc=Math.min(b.width,b.height)/2*0.96/outerMax;
+      const d=Math.hypot(e.clientX-b.left-b.width/2,e.clientY-b.top-b.height/2)/sc;
+      for(let i=0;i<n;i++){if(d>=R(i)[0]&&d<=R(i)[1])return i}return -1;
+    };
+    canvas.style.cursor='default';
+    canvas.addEventListener('click',e=>{const i=at(e);if(i>=0)go('w'+weeks[i].n)});
+    canvas.addEventListener('mousemove',e=>{const i=at(e);canvas.style.cursor=i>=0?'pointer':'default';hotRow(i)});
+    if(window.ResizeObserver)new ResizeObserver(draw).observe(canvas);
+    onResume=draw;
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
+  }
+
+  let renderer=null;
+  if(window.THREE){try{renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true})}catch(e){renderer=null}}
+  if(!renderer){flat();return{el:el,resume:()=>onResume(),highlight:()=>{}}}
+
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  const scene=new THREE.Scene(), root=new THREE.Group();scene.add(root);
+  const cam=new THREE.PerspectiveCamera(30,1,0.1,200);
+  scene.add(new THREE.HemisphereLight(0xffffff,0x3a4658,0.82));
+  const sun=new THREE.DirectionalLight(0xffffff,0.8);sun.position.set(4,9,6);scene.add(sun);
+  const fill=new THREE.DirectionalLight(0xffe2b0,0.25);fill.position.set(-6,3,-2);scene.add(fill);
+  const TS=n>6?512:1024, aniso=renderer.capabilities.getMaxAnisotropy();
+  const canvTex=(size,paint)=>{
+    const cv=document.createElement('canvas');cv.width=cv.height=size;
+    const tex=new THREE.CanvasTexture(cv);tex.encoding=THREE.sRGBEncoding;tex.anisotropy=aniso;
+    tex.repaint=()=>{const g=cv.getContext('2d');g.clearRect(0,0,size,size);paint(g,size);tex.needsUpdate=true};
+    tex.repaint();return tex;
+  };
+  const texes=[];
+
+  const base=new THREE.Mesh(new THREE.CylinderGeometry(outerMax+0.12,outerMax+0.3,0.16,128),
+    new THREE.MeshStandardMaterial({color:0x1a212c,roughness:.8,metalness:.2}));
+  base.position.y=-0.08;root.add(base);
+
+  const ghostTex=canvTex(1024,(g,s)=>drawGhost(g,s/2,s/2,s/2/R(n)[1]));texes.push(ghostTex);
+  const ghost=new THREE.Mesh(new THREE.RingGeometry(R(n)[0]-0.02,R(n)[1],128,1),new THREE.MeshBasicMaterial({map:ghostTex,transparent:true,depthWrite:false}));
+  ghost.rotation.x=-Math.PI/2;ghost.position.y=0.012;root.add(ghost);
+
+  const hubTop=rimT+n*stepY;
+  const capTex=canvTex(256,(g,s)=>drawHub(g,s/2,s/2,s/2));texes.push(capTex);
+  const brass=new THREE.MeshStandardMaterial({color:0xb98a30,roughness:.4,metalness:.55});
+  const hub=new THREE.Mesh(new THREE.CylinderGeometry(hubR-gap/2,hubR-gap/2,hubTop,96),
+    [brass,new THREE.MeshStandardMaterial({map:capTex,roughness:.45,metalness:.3}),brass]);
+  hub.position.y=hubTop/2;root.add(hub);
+
+  const pick=[];
+  const rings=weeks.map((wk,i)=>{
+    const ri=R(i)[0],ro=R(i)[1],top=rimT+(n-1-i)*stepY,grp=new THREE.Group();
+    const tex=canvTex(TS,(g,s)=>drawRing(g,s/2,s/2,s/2/ro,i));texes.push(tex);
+    const topM=new THREE.Mesh(new THREE.RingGeometry(ri,ro,128,1),
+      new THREE.MeshStandardMaterial({map:tex,roughness:.5,metalness:.15,emissive:new THREE.Color('hsl('+wk.h+',70%,55%)'),emissiveIntensity:0}));
+    topM.rotation.x=-Math.PI/2;topM.position.y=top;
+    const wallMat=new THREE.MeshStandardMaterial({color:new THREE.Color('hsl('+wk.h+',55%,24%)'),roughness:.6,metalness:.2});
+    const wo=new THREE.Mesh(new THREE.CylinderGeometry(ro,ro,top,128,1,true),wallMat);wo.position.y=top/2;
+    const inMat=wallMat.clone();inMat.side=THREE.BackSide;
+    const wi=new THREE.Mesh(new THREE.CylinderGeometry(ri,ri,top,128,1,true),inMat);wi.position.y=top/2;
+    const bt=canvTex(128,(g,s)=>{
+      g.beginPath();g.arc(s/2,s/2,s*0.44,0,TAU);g.fillStyle='#ffffff';g.fill();
+      g.lineWidth=s*0.07;g.strokeStyle='hsl('+wk.h+',60%,34%)';g.stroke();
+      g.fillStyle='#131a24';g.textAlign='center';g.textBaseline='middle';g.font='800 '+Math.round(s*(wk.n>9?0.42:0.52))+'px '+MONO;
+      g.fillText(String(wk.n),s/2,s*0.53);
+    });texes.push(bt);
+    const badge=new THREE.Sprite(new THREE.SpriteMaterial({map:bt}));
+    const a=0.9+i*2.2, rm=(ri+ro)/2;
+    badge.position.set(Math.cos(a)*rm,top+0.3,Math.sin(a)*rm);badge.scale.set(0.5,0.5,1);
+    grp.add(topM,wo,wi,badge);
+    [topM,wo,wi].forEach(m=>{m.userData.i=i;pick.push(m)});
+    root.add(grp);
+    return{g:grp,top:topM,lift:0,rot:i*0.9,spin:(i%2?-1:1)*0.16/(1+i*0.45)};
+  });
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>texes.forEach(t=>t.repaint()));
+
+  let yaw=-0.45,pitch=0,vy=0,drag=false,moved=0,px=0,py=0,hover=-1,ext=-1,running=false,last=0,t0=0;
+  const ray=new THREE.Raycaster(),v2=new THREE.Vector2();
+  function pickAt(e){
+    const b=canvas.getBoundingClientRect();
+    v2.set((e.clientX-b.left)/b.width*2-1,-((e.clientY-b.top)/b.height*2-1));
+    ray.setFromCamera(v2,cam);
+    const hit=ray.intersectObjects(pick,false)[0];
+    return hit?hit.object.userData.i:-1;
+  }
+  function setHover(i){
+    if(i===hover)return;hover=i;
+    canvas.style.cursor=i>=0?'pointer':'';
+    cap.textContent=i>=0?'Week '+weeks[i].n+': '+weeks[i].title+'. Click to open.':DEF;
+    hotRow(i);
+  }
+  canvas.addEventListener('pointerdown',e=>{drag=true;moved=0;px=e.clientX;py=e.clientY;vy=0;canvas.classList.add('is-drag');try{canvas.setPointerCapture(e.pointerId)}catch(x){}});
+  canvas.addEventListener('pointermove',e=>{
+    if(drag){
+      const dx=e.clientX-px,dy=e.clientY-py;moved+=Math.abs(dx)+Math.abs(dy);
+      yaw+=dx*0.008;vy=dx*0.008;pitch=Math.max(-0.22,Math.min(0.42,pitch+dy*0.004));px=e.clientX;py=e.clientY;
+    }else if(e.pointerType!=='touch')setHover(pickAt(e));
+    kick();
+  });
+  const end=e=>{
+    if(!drag)return;drag=false;canvas.classList.remove('is-drag');
+    if(e.type==='pointerup'&&moved<7){const i=pickAt(e);if(i>=0){setHover(-1);go('w'+weeks[i].n)}}
+  };
+  canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
+  canvas.addEventListener('pointerleave',()=>{if(!drag)setHover(-1)});
+
+  function fit(){
+    const w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return;
+    renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));renderer.setSize(w,h,false);
+    cam.aspect=w/h;
+    const t=Math.tan(cam.fov*Math.PI/360),r=outerMax+0.3,elev=0.66;
+    const d=1.1*r/t*Math.max(1/cam.aspect,Math.sin(elev)+0.14);
+    cam.position.set(0,d*Math.sin(elev),d*Math.cos(elev));cam.lookAt(0,0.1,0);cam.updateProjectionMatrix();
+  }
+  function frame(t){
+    if(!el.isConnected||document.hidden){running=false;return}
+    const dt=Math.min(0.05,(t-last)/1000||0);last=t;
+    if(!drag){yaw+=vy;vy*=0.93;if(Math.abs(vy)<1e-4)vy=0}
+    root.rotation.y=yaw;root.rotation.x=pitch;
+    const k=reduced?0:Math.max(0,1-(t-t0)/1500), boost=1+k*k*16;
+    rings.forEach((r,i)=>{
+      if(!reduced)r.rot+=r.spin*dt*boost;
+      r.g.rotation.y=r.rot;
+      const target=(i===hover||i===ext)?0.17:0;
+      r.lift+=(target-r.lift)*Math.min(1,dt*10);
+      r.g.position.y=r.lift;r.top.material.emissiveIntensity=r.lift*1.6;
+    });
+    renderer.render(scene,cam);
+    requestAnimationFrame(frame);
+  }
+  function kick(){if(!running&&el.isConnected){running=true;last=performance.now();requestAnimationFrame(frame)}}
+  if(window.ResizeObserver)new ResizeObserver(()=>{fit();kick()}).observe(canvas);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)kick()});
+  return{el:el,resume:()=>{t0=performance.now();fit();kick()},highlight:i=>{ext=i;kick()}};
+}
+
+/* ---------- week pages ---------- */
+const TABS=[['notes','Notes'],['labs','Labs'],['quiz','Quiz'],['cards','Flashcards'],['practice','Practice'],['check','Checklist']];
+function viewWeek(w,tab){
+  const has={notes:1,labs:w.labs&&w.labs.length,quiz:w.quiz.length,cards:w.glossary.length,practice:w.practice.length,check:w.checklist.length};
+  if(!has[tab])tab='notes';
+  const i=weeks.indexOf(w),pv=weeks[i-1],nx=weeks[i+1];
+  app.innerHTML=`<div class="wk week" style="--h:${w.h}">
+    <header class="wk-head">
+      <a class="back" href="#">← All weeks</a>
+      <p class="eyebrow">Week ${w.n}<span class="bin">${bin(w.n)}</span></p>
+      <h1 tabindex="-1">${w.title}</h1>
+      <p class="lede">${w.blurb}</p>
+    </header>
+    <nav class="tabs" aria-label="Week ${w.n} sections">${TABS.filter(t=>has[t[0]]).map(t=>`<a href="#w${w.n}${t[0]==='notes'?'':'-'+t[0]}"${t[0]===tab?' aria-current="page"':''}>${t[1]}</a>`).join('')}</nav>
+    <div class="wk-body"></div>
+    <nav class="pager" aria-label="Other weeks">
+      ${pv?`<a class="btn" href="#w${pv.n}">← Week ${pv.n}: ${pv.title}</a>`:'<span></span>'}
+      ${nx?`<a class="btn" href="#w${nx.n}">Week ${nx.n}: ${nx.title} →</a>`:'<a class="btn" href="#mix">Mixed quiz across all weeks →</a>'}
+    </nav>
+  </div>`;
+  ({notes:tabNotes,labs:tabLabs,quiz:tabQuiz,cards:tabCards,practice:tabPractice,check:tabCheck})[tab](w,$('.wk-body',app));
+}
+
+function tabNotes(w,el){
+  const read=new Set(mem.read[w.n]||[]);
+  el.innerHTML=`<div class="notes">
+    <nav class="rail" aria-label="Parts of week ${w.n}"><p class="rail-h">In this week</p><ol>${w.parts.map(p=>
+      `<li><button type="button" data-p="${p.id}"${read.has(p.id)?' class="is-read"':''}><span class="tag">${p.tag}</span><span>${p.title}</span></button></li>`).join('')}</ol></nav>
+    <article class="prose">${w.parts.map(p=>
+      `<section class="part" id="${p.id}"><h2><span class="tag">${p.tag}</span>${p.title}</h2>${p.html}
+       <p class="part-end"><button type="button" class="btn readbtn" data-read="${p.id}" aria-pressed="${read.has(p.id)}">${read.has(p.id)?'Read ✓':'Mark as read'}</button></p></section>`).join('')}</article>
+  </div>`;
+  mountLabs(el,'n'+w.n);
+  $$('.rail button',el).forEach(b=>b.addEventListener('click',()=>{
+    const s=document.getElementById(b.dataset.p);if(s)s.scrollIntoView({behavior:reduced?'auto':'smooth',block:'start'});
+  }));
+  $$('.readbtn',el).forEach(b=>b.addEventListener('click',()=>{
+    const id=b.dataset.read;if(read.has(id))read.delete(id);else read.add(id);
+    mem.read[w.n]=Array.from(read);save();
+    b.setAttribute('aria-pressed',read.has(id));b.textContent=read.has(id)?'Read ✓':'Mark as read';
+    const rb=$('.rail button[data-p="'+id+'"]',el);if(rb)rb.classList.toggle('is-read',read.has(id));
+  }));
+  if(window.IntersectionObserver){
+    const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){
+      $$('.rail button',el).forEach(b=>b.classList.toggle('is-on',b.dataset.p===e.target.id));
+    }})},{rootMargin:'-15% 0px -70% 0px'});
+    $$('.part',el).forEach(s=>io.observe(s));
+    cleanup.push(()=>io.disconnect());
+  }
+}
+function tabLabs(w,el){
+  el.innerHTML=`<div class="lab-list"><p>Type your own values and watch each step. Work the example by hand first, then check it here.</p>${w.labs.map(id=>`<div data-lab="${id}"></div>`).join('')}</div>`;
+  mountLabs(el,'l'+w.n);
+}
+function tabQuiz(w,el){
+  mountQuiz(el,w.quiz,'w'+w.n,{label:'Week '+w.n+' quiz',title:w.title});
+}
+function tabCards(w,el){
+  let deck=w.glossary.map(g=>({t:g[0],m:g[1]})),i=0;
+  el.innerHTML=`<div class="cards">
+    <p>${deck.length} key terms from Week ${w.n}. Say the meaning out loud, then flip the card to check.</p>
+    <div class="fc" tabindex="0" role="button" aria-label="Flashcard. Press Space to flip, left and right arrows to move.">
+      <div class="fc-in">
+        <div class="fc-face fc-front"><span class="eyebrow">Term</span><p class="fc-term"></p><span class="fc-hint">Click or press Space to flip</span></div>
+        <div class="fc-face fc-back"><span class="eyebrow">Meaning</span><p class="fc-mean"></p><span class="fc-hint">Arrow keys move between cards</span></div>
+      </div>
+    </div>
+    <div class="fc-ctl">
+      <button type="button" class="btn" data-a="prev">← Previous</button><span class="fc-n" aria-live="polite"></span>
+      <button type="button" class="btn primary" data-a="next">Next →</button><button type="button" class="btn" data-a="mix">Shuffle</button>
+    </div>
+  </div>`;
+  const fc=$('.fc',el);
+  const show=()=>{
+    fc.classList.add('no-tr');fc.classList.remove('flip');
+    $('.fc-term',el).textContent=deck[i].t;$('.fc-mean',el).textContent=deck[i].m;
+    $('.fc-n',el).textContent=(i+1)+' / '+deck.length;
+    void fc.offsetWidth;fc.classList.remove('no-tr');
+  };
+  const move=d=>{i=(i+d+deck.length)%deck.length;show()};
+  fc.addEventListener('click',()=>fc.classList.toggle('flip'));
+  fc.addEventListener('keydown',e=>{
+    if(e.key===' '||e.key==='Enter'){e.preventDefault();fc.classList.toggle('flip')}
+    else if(e.key==='ArrowRight'){e.preventDefault();move(1)}
+    else if(e.key==='ArrowLeft'){e.preventDefault();move(-1)}
+  });
+  $('[data-a="prev"]',el).onclick=()=>move(-1);
+  $('[data-a="next"]',el).onclick=()=>move(1);
+  $('[data-a="mix"]',el).onclick=()=>{deck=shuffle(deck);i=0;show()};
+  show();
+}
+function tabPractice(w,el){
+  el.innerHTML=`<p class="intro">Written questions from the Week ${w.n} guide. Try each one on paper first, then open the answer.</p>
+  <ol class="practice">${w.practice.map(p=>`<li>${p.q}<details><summary>Show answer</summary><div class="ans">${p.a}</div></details></li>`).join('')}</ol>`;
+}
+function tabCheck(w,el){
+  const done=new Set(mem.check[w.n]||[]);
+  el.innerHTML=`<p class="intro">Tick each item once you can do it without notes. <strong class="ck-n"></strong></p>
+  <ul class="check">${w.checklist.map((c,i)=>`<li><label for="ck-w${w.n}-${i}"><input type="checkbox" id="ck-w${w.n}-${i}" data-i="${i}"${done.has(i)?' checked':''}><span>${c}</span></label></li>`).join('')}</ul>`;
+  const count=()=>{$('.ck-n',el).textContent=done.size+' of '+w.checklist.length+' ticked.'};
+  $$('input',el).forEach(c=>c.addEventListener('change',()=>{
+    const i=+c.dataset.i;if(c.checked)done.add(i);else done.delete(i);
+    mem.check[w.n]=Array.from(done);save();count();
+  }));
+  count();
+}
+
+/* ---------- quiz engine ---------- */
+function mountQuiz(el,bank,key,opts){
+  let qs,i,score,missed,locked,record;
+  function start(){
+    const b=mem.quiz[key];
+    el.innerHTML=`<div class="card quiz">
+      <p class="eyebrow">${opts.label}</p><h2>${opts.title}</h2>
+      <p>${bank.length} multiple-choice questions, each with an explanation. The questions and the order of the answers are shuffled every round.</p>
+      <p class="best">${b?'Best so far: <strong>'+b.s+'/'+b.t+'</strong>':'No attempts yet.'}</p>
+      <div class="actions">${bank.length>10?'<button type="button" class="btn primary" data-n="10">Quick round of 10</button>':''}
+      <button type="button" class="btn${bank.length>10?'':' primary'}" data-n="${bank.length}">All ${bank.length} questions</button></div>
+    </div>`;
+    $$('[data-n]',el).forEach(b=>{b.onclick=()=>begin(shuffle(bank).slice(0,+b.dataset.n),true)});
+  }
+  function begin(list,rec){
+    record=rec;
+    qs=list.map(q=>{const ord=shuffle(q.o.map((_,k)=>k));return{q:q,o:ord.map(k=>q.o[k]),a:ord.indexOf(q.a)}});
+    i=0;score=0;missed=[];show();
+  }
+  function show(){
+    locked=false;const it=qs[i];
+    el.innerHTML=`<div class="card quiz">
+      <div class="q-top"><span>Question ${i+1} of ${qs.length}</span>${opts.showWeek?`<span class="chip wk" style="--h:${it.q.wk.h}">Week ${it.q.wk.n}</span>`:''}<span class="q-score">Score ${score}</span></div>
+      <div class="q-bar"><i style="width:${i/qs.length*100}%"></i></div>
+      <h2 class="q-text" tabindex="-1">${it.q.q}</h2>
+      <div class="q-opts">${it.o.map((o,k)=>`<button type="button" class="opt" data-k="${k}"><span class="opt-k">${'ABCDEF'[k]}</span><span class="opt-t">${o}</span><span class="opt-s"></span></button>`).join('')}</div>
+      <div class="q-fb" aria-live="polite"></div>
+    </div>`;
+    $$('.opt',el).forEach(b=>{b.onclick=()=>choose(+b.dataset.k)});
+    if(i>0){try{$('.q-text',el).focus({preventScroll:true})}catch(e){}}
+  }
+  function choose(k){
+    if(locked)return;locked=true;
+    const it=qs[i],ok=k===it.a,lastQ=i===qs.length-1;
+    if(ok)score++;else missed.push(it.q);
+    $$('.opt',el).forEach((b,j)=>{
+      b.disabled=true;
+      if(j===it.a){b.classList.add('is-right');$('.opt-s',b).textContent='Correct answer'}
+      else if(j===k){b.classList.add('is-wrong');$('.opt-s',b).textContent='Your answer'}
+    });
+    $('.q-score',el).textContent='Score '+score;
+    $('.q-fb',el).innerHTML=`<p class="fb ${ok?'ok':'no'}"><strong>${ok?'Correct.':'Not quite.'}</strong> ${it.q.why}</p>
+      <button type="button" class="btn primary">${lastQ?'See results':'Next question'}</button>`;
+    const nx=$('.q-fb .btn',el);
+    nx.onclick=()=>{if(lastQ)finish();else{i++;show()}};
+    nx.focus();
+  }
+  function finish(){
+    const t=qs.length,pct=score/t;
+    if(record){const b=mem.quiz[key];if(!b||pct>b.s/b.t||(pct===b.s/b.t&&t>b.t)){mem.quiz[key]={s:score,t:t};save()}}
+    const msg=pct===1?'Full marks.':pct>=.8?'Strong round. Tidy up the ones below.':pct>=.5?'Halfway there. Reread the parts behind the ones you missed.':'Go back through the notes for this week, then try again.';
+    el.innerHTML=`<div class="card quiz">
+      <p class="eyebrow">${opts.label} · result</p>
+      <p class="score-big">${score}/${t}</p>
+      <p>${msg}</p>
+      ${missed.length?`<h2>Questions to review</h2><ul class="missed">${missed.map(q=>`<li><span>${q.q}</span><span class="m-a">${q.o[q.a]}</span><span class="m-w">${q.why}</span></li>`).join('')}</ul>`:''}
+      <div class="actions">${missed.length?'<button type="button" class="btn primary" data-a="retry">Retry the ones I missed</button>':''}
+      <button type="button" class="btn${missed.length?'':' primary'}" data-a="again">New round</button></div>
+    </div>`;
+    const m=missed.slice();
+    const r=$('[data-a="retry"]',el);if(r)r.onclick=()=>begin(shuffle(m),false);
+    $('[data-a="again"]',el).onclick=start;
+  }
+  start();
+}
+function viewMix(){
+  const bank=[].concat.apply([],weeks.map(w=>w.quiz));
+  app.innerHTML=`<header class="gl-head"><a class="back" href="#">← All weeks</a><p class="eyebrow">All weeks</p><h1 tabindex="-1">Mixed quiz</h1>
+    <p class="lede">Questions drawn at random from Weeks ${weeks[0].n} to ${weeks[weeks.length-1].n}. Each one shows which week it came from.</p></header><div class="mix-body"></div>`;
+  mountQuiz($('.mix-body',app),bank,'mix',{label:'Mixed quiz',title:'Everything so far',showWeek:true});
+}
+function viewGlossary(){
+  const all=[];weeks.forEach(w=>w.glossary.forEach(g=>all.push({t:g[0],m:g[1],w:w})));
+  all.sort((a,b)=>a.t.toLowerCase()<b.t.toLowerCase()?-1:1);
+  app.innerHTML=`<header class="gl-head"><a class="back" href="#">← All weeks</a><p class="eyebrow">All weeks</p><h1 tabindex="-1">Glossary</h1>
+    <label class="f" for="gl-q">Search ${all.length} terms<input id="gl-q" type="search" placeholder="e.g. salt, Feistel, MAC" autocomplete="off"></label></header>
+    <dl class="gl"></dl><p class="intro gl-none" hidden>No term matches that search.</p>`;
+  const dl=$('.gl',app),q=$('#gl-q',app);
+  const draw=()=>{
+    const s=q.value.trim().toLowerCase();
+    const list=all.filter(x=>!s||x.t.toLowerCase().includes(s)||x.m.toLowerCase().includes(s));
+    dl.innerHTML=list.map(x=>`<div><dt>${x.t}</dt><dd>${x.m}</dd><a class="chip wk" style="--h:${x.w.h}" href="#w${x.w.n}">Week ${x.w.n}</a></div>`).join('');
+    $('.gl-none',app).hidden=list.length>0;
+  };
+  q.addEventListener('input',draw);draw();
+}
+
+/* ---------- labs ---------- */
+const LABS={};
+function mountLabs(root,ctx){
+  $$('[data-lab]',root).forEach(slot=>{
+    const def=LABS[slot.dataset.lab];if(!def){slot.remove();return}
+    slot.className='lab';
+    slot.innerHTML='<div class="lab-head"><span class="lab-k">Try it</span><h4>'+def.title+'</h4></div><div class="lab-body"></div>';
+    def.mount($('.lab-body',slot),slot.dataset.lab+'-'+ctx);
+  });
+}
+const isPrime=n=>{if(n<2||n%1)return false;for(let i=2;i*i<=n;i++)if(n%i===0)return false;return true};
+const gcd=(a,b)=>{while(b){[a,b]=[b,a%b]}return a};
+const modpow=(b,e,m)=>{b=BigInt(b);e=BigInt(e);m=BigInt(m);let r=1n;b%=m;while(e>0n){if(e&1n)r=r*b%m;b=b*b%m;e>>=1n}return Number(r)};
+const b8=v=>v.toString(2).padStart(8,'0');
+const intOf=el=>{const v=el.value.trim();return /^\d{1,6}$/.test(v)?+v:NaN};
+const onAll=(els,fn)=>{els.forEach(x=>x.addEventListener('input',fn));fn()};
+
+const SHA_K=[],SHA_H=[];
+(function(){const fr=x=>Math.floor((x-Math.floor(x))*4294967296);let c=2;while(SHA_K.length<64){if(isPrime(c)){if(SHA_H.length<8)SHA_H.push(fr(Math.sqrt(c)));SHA_K.push(fr(Math.cbrt(c)))}c++}})();
+function sha256(msg){
+  const src=new TextEncoder().encode(msg),l=src.length,n=((l+9+63)>>6)<<6,m=new Uint8Array(n);
+  m.set(src);m[l]=0x80;
+  const dv=new DataView(m.buffer);dv.setUint32(n-8,Math.floor(l/0x20000000));dv.setUint32(n-4,(l<<3)>>>0);
+  const H=SHA_H.slice(),W=new Uint32Array(64),rr=(x,s)=>(x>>>s)|(x<<(32-s));
+  for(let o=0;o<n;o+=64){
+    for(let t=0;t<16;t++)W[t]=dv.getUint32(o+t*4);
+    for(let t=16;t<64;t++){const x=W[t-15],y=W[t-2];W[t]=(W[t-16]+(rr(x,7)^rr(x,18)^(x>>>3))+W[t-7]+(rr(y,17)^rr(y,19)^(y>>>10)))>>>0}
+    let a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+    for(let t=0;t<64;t++){
+      const t1=(h+(rr(e,6)^rr(e,11)^rr(e,25))+((e&f)^(~e&g))+SHA_K[t]+W[t])>>>0;
+      const t2=((rr(a,2)^rr(a,13)^rr(a,22))+((a&b)^(a&c)^(b&c)))>>>0;
+      h=g;g=f;f=e;e=(d+t1)>>>0;d=c;c=b;b=a;a=(t1+t2)>>>0;
+    }
+    H[0]=(H[0]+a)>>>0;H[1]=(H[1]+b)>>>0;H[2]=(H[2]+c)>>>0;H[3]=(H[3]+d)>>>0;H[4]=(H[4]+e)>>>0;H[5]=(H[5]+f)>>>0;H[6]=(H[6]+g)>>>0;H[7]=(H[7]+h)>>>0;
+  }
+  return H.map(x=>x.toString(16).padStart(8,'0')).join('');
+}
+window.__sha256=sha256;
+
+LABS.caesar={title:'Caesar and Vigenère machine',mount(el,id){
+  el.innerHTML=`<div class="f-row">
+    <label class="f" for="${id}-t">Message<input id="${id}-t" type="text" value="LIFE FINDS A WAY" maxlength="60" autocomplete="off" spellcheck="false"></label>
+    <label class="f f-s" for="${id}-k">Key<input id="${id}-k" type="text" value="3" maxlength="16" autocomplete="off" spellcheck="false"></label>
+    <label class="f f-s" for="${id}-d">Direction<select id="${id}-d"><option value="e">Encrypt</option><option value="d">Decrypt</option></select></label>
+  </div>
+  <p class="hint">A number from 0 to 25 as the key runs a Caesar shift. A word (try KEY or ALICE) runs Vigenère.</p>
+  <div class="out" aria-live="polite"></div>`;
+  const t=$('#'+id+'-t',el),k=$('#'+id+'-k',el),d=$('#'+id+'-d',el),o=$('.out',el);
+  const run=()=>{
+    const raw=k.value.trim();let key,mode;
+    if(/^\d+$/.test(raw)&&+raw<26){key=[+raw];mode='Caesar cipher, shift '+key[0]}
+    else{const kw=raw.toUpperCase().replace(/[^A-Z]/g,'');
+      if(!kw||/\d/.test(raw)){o.innerHTML='<p class="err">Use a number from 0 to 25, or a keyword made only of letters.</p>';return}
+      key=Array.from(kw).map(c=>c.charCodeAt(0)-65);mode='Vigenère cipher, keyword '+kw}
+    const dec=d.value==='d';let j=0;const cols=[];
+    const res=t.value.toUpperCase().replace(/[A-Z]/g,c=>{
+      const p=c.charCodeAt(0)-65,kk=key[j%key.length];j++;
+      const raw2=dec?p-kk:p+kk,r=((raw2%26)+26)%26,ch=String.fromCharCode(65+r);
+      if(cols.length<8)cols.push([c+' ('+p+')',kk,raw2+(raw2>25?' − 26':raw2<0?' + 26':''),ch+' ('+r+')']);
+      return ch});
+    const names=['Letter in','Key number',dec?'Subtract':'Add','Letter out'];
+    o.innerHTML='<p class="out-main">'+esc(res||' ')+'</p><p class="out-sub">'+mode+(dec?', decrypting':', encrypting')+'. A=0 … Z=25.</p>'+
+      (cols.length?'<div class="tw"><table><tbody>'+names.map((nm,r)=>'<tr><th scope="row">'+nm+'</th>'+cols.map(c=>'<td>'+c[r]+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>':'');
+  };
+  onAll([t,k,d],run);d.addEventListener('change',run);
+}};
+
+LABS.xor={title:'XOR, bit by bit',mount(el,id){
+  const P=[1,1,0,1,1,0,1,1],K=[1,1,0,0,0,1,0,1];
+  const draw=()=>{
+    const Cc=P.map((b,i)=>b^K[i]);
+    const row=(lab,arr,name)=>'<span class="bl">'+lab+'</span>'+arr.map((b,i)=>name?
+      '<button type="button" class="bit" id="'+id+'-'+name+i+'" data-r="'+name+'" data-i="'+i+'" aria-pressed="'+(b?'true':'false')+'" aria-label="'+lab+' bit '+(i+1)+', currently '+b+'">'+b+'</button>':
+      '<span class="bit res">'+b+'</span>').join('');
+    el.innerHTML='<p class="hint">Click any plaintext or key bit to flip it. The output is 1 only where the two bits differ.</p>'+
+      '<div class="bits">'+row('P',P,'p')+row('K',K,'k')+row('P ⊕ K = C',Cc)+row('C ⊕ K',Cc.map((b,i)=>b^K[i]))+'</div>'+
+      '<p class="out-sub">The last row is always the plaintext again: XOR with the same key twice cancels out.</p>';
+    $$('button.bit',el).forEach(b=>{b.onclick=()=>{const a=b.dataset.r==='p'?P:K,i=+b.dataset.i;a[i]^=1;draw();const f=$('#'+id+'-'+b.dataset.r+i,el);if(f)f.focus()}});
+  };
+  draw();
+}};
+
+LABS.risk={title:'Risk matrix and risk statement',mount(el,id){
+  const LK=['Rare','Unlikely','Possible','Likely','Certain'],IM=['Insignificant','Minor','Moderate','Major','Critical'];
+  const level=s=>s<=4?1:s<=9?2:s<=15?3:4, NAMES=['','Low','Medium','High','Most urgent'];
+  let sel=[3,3];
+  el.innerHTML=`<p class="hint">Pick where the risk sits. This is a simplified scale (likelihood × impact, 1 to 25); your lecturer may band it differently.</p>
+  <div class="grid-wrap"><div class="matrix"></div></div>
+  <p class="out-main rk-out"></p>
+  <div class="f-row">
+    <label class="f" for="${id}-a">Threat<input id="${id}-a" type="text" value="Malicious actor"></label>
+    <label class="f" for="${id}-b">Vulnerability<input id="${id}-b" type="text" value="weak password"></label>
+    <label class="f" for="${id}-c">Impact<input id="${id}-c" type="text" value="sensitive information exposed"></label>
+  </div>
+  <p class="rk-st"></p>`;
+  const mx=$('.matrix',el);
+  const draw=()=>{
+    let h='<span></span>'+LK.map(x=>'<span>'+x+'</span>').join('');
+    for(let im=4;im>=0;im--){h+='<span class="ml">'+IM[im]+'</span>';
+      for(let lk=0;lk<5;lk++){const s=(lk+1)*(im+1),on=sel[0]===lk&&sel[1]===im;
+        h+='<button type="button" class="cell l'+level(s)+'" data-l="'+lk+'" data-m="'+im+'" aria-pressed="'+on+'" aria-label="'+LK[lk]+' likelihood, '+IM[im]+' impact">'+(on?'X':s)+'</button>'}}
+    mx.innerHTML=h;
+    $$('.cell',mx).forEach(b=>{b.onclick=()=>{sel=[+b.dataset.l,+b.dataset.m];draw()}});
+    const s=(sel[0]+1)*(sel[1]+1);
+    $('.rk-out',el).textContent=LK[sel[0]]+' × '+IM[sel[1]]+' = '+s+' → '+NAMES[level(s)];
+    st();
+  };
+  const A=$('#'+id+'-a',el),B=$('#'+id+'-b',el),Cc=$('#'+id+'-c',el);
+  const st=()=>{$('.rk-st',el).innerHTML='<strong>Risk statement:</strong> '+esc(A.value||'<threat>')+' exploiting '+esc(B.value||'<vulnerability>')+' resulting in '+esc(Cc.value||'<impact>')+'.'};
+  [A,B,Cc].forEach(x=>x.addEventListener('input',st));
+  draw();
+}};
+
+LABS.hash={title:'SHA-256 fingerprints',mount(el,id){
+  el.innerHTML=`<div class="f-row">
+    <label class="f" for="${id}-a">Input 1<input id="${id}-a" type="text" value="this is an arbitrary length string" autocomplete="off" spellcheck="false"></label>
+    <label class="f" for="${id}-b">Input 2<input id="${id}-b" type="text" value="this is an arbitrary length strinG" autocomplete="off" spellcheck="false"></label>
+  </div><div class="out" aria-live="polite"></div>`;
+  const a=$('#'+id+'-a',el),b=$('#'+id+'-b',el),o=$('.out',el);
+  onAll([a,b],()=>{
+    const ha=sha256(a.value),hb=sha256(b.value);let diff=0;
+    for(let i=0;i<64;i++){let x=parseInt(ha[i],16)^parseInt(hb[i],16);while(x){diff+=x&1;x>>=1}}
+    o.innerHTML='<p class="hex">'+ha.toUpperCase()+'</p><p class="hex">'+hb.toUpperCase()+'</p>'+
+      '<p>'+(a.value===b.value?'Same input, same digest every time. That is <strong>deterministic</strong>.':
+      '<strong>'+diff+' of 256 bits differ.</strong> A tiny change to the input changes about half the digest, and both digests are always 64 hex characters long.')+'</p>';
+  });
+}};
+
+LABS.rsa={title:'Toy RSA calculator',mount(el,id){
+  el.innerHTML=`<div class="f-row">
+    <label class="f f-s" for="${id}-p">Prime p<input id="${id}-p" type="text" inputmode="numeric" value="5"></label>
+    <label class="f f-s" for="${id}-q">Prime q<input id="${id}-q" type="text" inputmode="numeric" value="11"></label>
+    <label class="f f-s" for="${id}-e">Public e<input id="${id}-e" type="text" inputmode="numeric" value="7"></label>
+    <label class="f f-s" for="${id}-b">Block B<input id="${id}-b" type="text" inputmode="numeric" value="2"></label>
+  </div><div class="out" aria-live="polite"></div>`;
+  const f=k=>$('#'+id+'-'+k,el),o=$('.out',el);
+  onAll(['p','q','e','b'].map(f),()=>{
+    const p=intOf(f('p')),q=intOf(f('q')),e=intOf(f('e')),B=intOf(f('b'));
+    const bad=m=>{o.innerHTML='<p class="err">'+m+'</p>'};
+    if(!isPrime(p)||!isPrime(q)||p>9973||q>9973)return bad('p and q must both be prime numbers (up to 9973).');
+    if(p===q)return bad('p and q must be different primes.');
+    const n=p*q,phi=(p-1)*(q-1);
+    if(!(e>1&&e<phi)||gcd(e,phi)!==1)return bad('e must be between 2 and '+(phi-1)+' and share no factor with φ(n) = '+phi+'.');
+    if(!(B>=0&&B<n))return bad('The block B must be a number smaller than n = '+n+'.');
+    let d=1;while((d*e)%phi!==1)d++;
+    const c=modpow(B,e,n),back=modpow(c,d,n);
+    o.innerHTML='<ol class="steps">'+
+      '<li>n = p × q = '+p+' × '+q+' = <b>'+n+'</b></li>'+
+      '<li>φ(n) = (p − 1)(q − 1) = '+(p-1)+' × '+(q-1)+' = <b>'+phi+'</b></li>'+
+      '<li>e = '+e+' shares no factor with '+phi+'</li>'+
+      '<li>d = <b>'+d+'</b>, because '+e+' × '+d+' = '+(e*d)+' = '+Math.floor(e*d/phi)+' × '+phi+' + 1</li>'+
+      '<li>Public key (e, n) = <b>('+e+', '+n+')</b> · Private key (d, n) = <b>('+d+', '+n+')</b></li>'+
+      '<li>Encrypt: C = '+B+'^'+e+' mod '+n+' = <b>'+c+'</b></li>'+
+      '<li>Decrypt: '+c+'^'+d+' mod '+n+' = <b>'+back+'</b></li></ol>';
+  });
+}};
+
+LABS.dh={title:'Diffie-Hellman exchange',mount(el,id){
+  el.innerHTML=`<div class="f-row">
+    <label class="f f-s" for="${id}-p">Prime p<input id="${id}-p" type="text" inputmode="numeric" value="23"></label>
+    <label class="f f-s" for="${id}-g">Generator g<input id="${id}-g" type="text" inputmode="numeric" value="5"></label>
+    <label class="f f-s" for="${id}-a">Alice's secret a<input id="${id}-a" type="text" inputmode="numeric" value="6"></label>
+    <label class="f f-s" for="${id}-b">Bob's secret b<input id="${id}-b" type="text" inputmode="numeric" value="15"></label>
+  </div><div class="out" aria-live="polite"></div>`;
+  const f=k=>$('#'+id+'-'+k,el),o=$('.out',el);
+  onAll(['p','g','a','b'].map(f),()=>{
+    const p=intOf(f('p')),g=intOf(f('g')),a=intOf(f('a')),b=intOf(f('b'));
+    const bad=m=>{o.innerHTML='<p class="err">'+m+'</p>'};
+    if(!isPrime(p)||p>99991)return bad('p must be a prime number (up to 99991).');
+    if(!(g>1&&g<p))return bad('g must be between 2 and '+(p-1)+'.');
+    if(!(a>0)||!(b>0))return bad('The secrets a and b must be whole numbers above 0.');
+    const A=modpow(g,a,p),B=modpow(g,b,p),ka=modpow(B,a,p),kb=modpow(A,b,p);
+    let root='';
+    if(p<=5000){const seen=new Set();let x=1;for(let i=1;i<p;i++){x=x*g%p;seen.add(x)}
+      root=seen.size===p-1?g+' is a primitive root of '+p+': its powers hit every value from 1 to '+(p-1)+'.':
+        g+' is not a primitive root of '+p+': its powers only reach '+seen.size+' of the '+(p-1)+' possible values.'}
+    o.innerHTML='<div class="dh">'+
+      '<div><h5>Alice</h5><span>secret a = '+a+'</span><span>A = '+g+'^'+a+' mod '+p+' = <b>'+A+'</b></span><span>K = '+B+'^'+a+' mod '+p+' = <b>'+ka+'</b></span></div>'+
+      '<div><h5>Public (Eve sees)</h5><span>p = '+p+', g = '+g+'</span><span>A = '+A+'</span><span>B = '+B+'</span></div>'+
+      '<div><h5>Bob</h5><span>secret b = '+b+'</span><span>B = '+g+'^'+b+' mod '+p+' = <b>'+B+'</b></span><span>K = '+A+'^'+b+' mod '+p+' = <b>'+kb+'</b></span></div></div>'+
+      '<p class="out-main">Shared key: '+ka+'</p>'+(root?'<p class="out-sub">'+root+'</p>':'');
+  });
+}};
+
+LABS.entropy={title:'Password entropy calculator',mount(el,id){
+  el.innerHTML=`<div class="f-row"><label class="f" for="${id}-t">Example password<input id="${id}-t" type="text" value="password123" maxlength="64" autocomplete="off" spellcheck="false"></label></div>
+  <p class="hint">Use a made-up example, not a real password. Nothing typed here leaves this page.</p><div class="out" aria-live="polite"></div>`;
+  const t=$('#'+id+'-t',el),o=$('.out',el);
+  onAll([t],()=>{
+    const s=t.value,l=Array.from(s).length;
+    if(!l){o.innerHTML='<p class="err">Type an example password.</p>';return}
+    const parts=[];let n=0;
+    if(/[a-z]/.test(s)){n+=26;parts.push('lowercase 26')}
+    if(/[A-Z]/.test(s)){n+=26;parts.push('uppercase 26')}
+    if(/[0-9]/.test(s)){n+=10;parts.push('digits 10')}
+    if(/[^a-zA-Z0-9]/.test(s)){n+=32;parts.push('symbols 32')}
+    const bits=l*Math.log2(n),sh=4.7+2.3*Math.min(l-1,7)+1.5*Math.max(l-8,0);
+    const m=Math.max(0,l-8),mid=Math.min(l-1,7);
+    o.innerHTML='<ol class="steps">'+
+      '<li>Length l = <b>'+l+'</b> · alphabet n = '+parts.join(' + ')+' = <b>'+n+'</b></li>'+
+      '<li>Formula: l × log₂(n) = '+l+' × '+Math.log2(n).toFixed(2)+' = <b>'+bits.toFixed(1)+' bits</b> (about '+Math.pow(2,bits).toExponential(1).replace('e+',' × 10^')+' possible passwords)</li>'+
+      '<li>Shannon: 4.7'+(mid?' + ('+mid+' × 2.3)':'')+(m?' + ('+m+' × 1.5)':'')+' = <b>'+sh.toFixed(1)+' bits</b></li></ol>'+
+      '<p class="out-sub">The formula assumes every character was picked at random. A common password scores well here and is still one of the first an attacker tries.</p>';
+  });
+}};
+
+LABS.chmod={title:'Unix permissions, letters and numbers',mount(el,id){
+  let bits=[1,1,1,1,1,0,1,0,0];
+  const WHO=['Owner','Group','World'],L=['r','w','x'],NM=['read','write','execute'];
+  const draw=(focus)=>{
+    const str=bits.map((b,i)=>b?L[i%3]:'-').join('');
+    const oct=[0,1,2].map(g=>bits[g*3]*4+bits[g*3+1]*2+bits[g*3+2]).join('');
+    el.innerHTML='<p class="hint">Click a letter to switch that permission on or off.</p><div class="perm">'+WHO.map((w,g)=>
+      '<div><h5>'+w+'</h5><div class="pb">'+L.map((c,k)=>{const i=g*3+k;return '<button type="button" class="bit" id="'+id+'-'+i+'" data-i="'+i+'" aria-pressed="'+(bits[i]?'true':'false')+'" aria-label="'+w+' '+NM[k]+'">'+(bits[i]?c:'-')+'</button>'}).join('')+
+      '</div><span class="out-sub">'+[4,2,1].map((v,k)=>bits[g*3+k]?v:0).join(' + ')+' = '+oct[g]+'</span></div>').join('')+'</div>'+
+      '<p class="out-main">'+str+' = '+oct+'</p><p><code>chmod '+oct+' filename</code></p>';
+    $$('button.bit',el).forEach(b=>{b.onclick=()=>{bits[+b.dataset.i]^=1;draw(+b.dataset.i)}});
+    if(focus!=null){const f=$('#'+id+'-'+focus,el);if(f)f.focus()}
+  };
+  draw();
+}};
+
+LABS.lsb=(function(){return{title:'Hide a byte with LSB',mount(el,id){
+  const cover=[164,180,91,202,54,111,145,226],pay=[1,0,1,0,1,1,0,1];
+  const draw=(focus)=>{
+    const stego=cover.map((c,i)=>(c&~1)|pay[i]);
+    const hl=s=>s.slice(0,7)+'<span class="lsb-hl">'+s[7]+'</span>';
+    el.innerHTML='<p class="hint">Click the payload bits to change the secret byte. Each one replaces the last bit of one cover byte.</p>'+
+      '<div class="bits"><span class="bl">Payload</span>'+pay.map((b,i)=>'<button type="button" class="bit" id="'+id+'-'+i+'" data-i="'+i+'" aria-pressed="'+(b?'true':'false')+'" aria-label="Payload bit '+(i+1)+', currently '+b+'">'+b+'</button>').join('')+'</div>'+
+      '<div class="tw"><table><thead><tr><th>#</th><th>Cover byte</th><th>Value</th><th>Bit</th><th>Stego byte</th><th>Value</th><th>Change</th><th>Before / after</th></tr></thead><tbody>'+
+      cover.map((c,i)=>{const s=stego[i],d=s-c;return '<tr><th scope="row">'+(i+1)+'</th><td><code>'+hl(b8(c))+'</code></td><td>'+c+'</td><td>'+pay[i]+'</td><td><code>'+hl(b8(s))+'</code></td><td>'+s+'</td><td>'+(d>0?'+1':d<0?'−1':'0')+
+        '</td><td><span class="sw" style="background:rgb('+c+','+c+','+c+')"></span> <span class="sw" style="background:rgb('+s+','+s+','+s+')"></span></td></tr>'}).join('')+
+      '</tbody></table></div>'+
+      '<p>Read the last bit of each stego byte in order: <strong>'+stego.map(s=>s&1).join('')+'</strong>. That is the payload back. No value moved by more than 1, so the grey swatches look the same.</p>'+
+      '<p class="out-sub">Compare a flipped top bit: <span class="sw" style="background:rgb(165,0,0)"></span> 165 → <span class="sw" style="background:rgb(164,0,0)"></span> 164 (LSB) → <span class="sw" style="background:rgb(37,0,0)"></span> 37 (MSB).</p>';
+    $$('button.bit',el).forEach(b=>{b.onclick=()=>{pay[+b.dataset.i]^=1;draw(+b.dataset.i)}});
+    if(focus!=null){const f=$('#'+id+'-'+focus,el);if(f)f.focus()}
+  };
+  draw();
+}}})();
+
+render(location.hash.replace(/^#/,''));
+})();
+</script>
+</body>
+</html>
