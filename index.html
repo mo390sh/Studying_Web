@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cyber Security Weekbook</title>
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+/* Layout: a 3D cipher-disk vault (one ring per week) leads the home page, followed by the player's run
+   (level, streak, today's goal, focus), daily missions, the week index and badges.
+   Each week opens to a sticky tab strip over a contents rail and a reading column. Colour identifies the week;
+   brass marks rewards (XP, levels, badges). */
+:root{
+  --bg:#eef1f5; --surface:#ffffff; --sunk:#e3e8ee; --ink:#131a24; --muted:#556072; --line:#d2d9e2;
+  --brass:#8f5806; --brass-soft:#f5e9d2; --flame:#d9480f;
+  --good:#17753f; --good-soft:#dcf2e4; --bad:#b3261e; --bad-soft:#fbe3e0;
+  --r1:#cdead6; --r2:#f5e7a6; --r3:#f6c88f; --r4:#f1a49b;
+  --heat0:#e3e8ee; --heat1:#f1dfb8; --heat2:#e2b864; --heat3:#c48a1e; --heat4:#8f5806;
+  --gold1:#f8dc8f; --gold2:#c9922f; --gold3:#7d5512; --gold-ink:#3b2a08;
+  --lock1:#d5dbe3; --lock2:#97a1ae; --lock3:#5d6774; --lock-ink:#2b323c;
+  --scrim:rgba(10,14,20,.55); --shadow:0 10px 30px rgba(15,23,36,.16);
+  --wk-l:34%; --wk-ink-l:28%; --wk-soft-s:55%; --wk-soft-l:93%; --wk-line-l:78%; --on-wk:#ffffff;
+  --font-display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --font-body:"Atkinson Hyperlegible Next","Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d1219; --surface:#151c27; --sunk:#090d13; --ink:#e7ecf3; --muted:#98a4b6; --line:#2a3443;
+    --brass:#f0b558; --brass-soft:#2d2412; --flame:#ff8a3d;
+    --good:#62d394; --good-soft:#12301f; --bad:#ff8a7c; --bad-soft:#3a1714;
+    --r1:#1d4a30; --r2:#5a4c12; --r3:#6b3d10; --r4:#6e211b;
+    --heat0:#1b2330; --heat1:#3a2f17; --heat2:#6b5121; --heat3:#a77a2a; --heat4:#f0b558;
+    --scrim:rgba(0,0,0,.6); --shadow:0 10px 30px rgba(0,0,0,.45);
+    --wk-l:60%; --wk-ink-l:75%; --wk-soft-s:40%; --wk-soft-l:15%; --wk-line-l:30%; --on-wk:#0b1017;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d1219; --surface:#151c27; --sunk:#090d13; --ink:#e7ecf3; --muted:#98a4b6; --line:#2a3443;
+  --brass:#f0b558; --brass-soft:#2d2412; --flame:#ff8a3d;
+  --good:#62d394; --good-soft:#12301f; --bad:#ff8a7c; --bad-soft:#3a1714;
+  --r1:#1d4a30; --r2:#5a4c12; --r3:#6b3d10; --r4:#6e211b;
+  --heat0:#1b2330; --heat1:#3a2f17; --heat2:#6b5121; --heat3:#a77a2a; --heat4:#f0b558;
+  --scrim:rgba(0,0,0,.6); --shadow:0 10px 30px rgba(0,0,0,.45);
+  --wk-l:60%; --wk-ink-l:75%; --wk-soft-s:40%; --wk-soft-l:15%; --wk-line-l:30%; --on-wk:#0b1017;
+  color-scheme:dark;
+}
+.wk{
+  --wk:hsl(var(--h) 58% var(--wk-l));
+  --wk-ink:hsl(var(--h) 62% var(--wk-ink-l));
+  --wk-soft:hsl(var(--h) var(--wk-soft-s) var(--wk-soft-l));
+  --wk-line:hsl(var(--h) 36% var(--wk-line-l));
+}
+
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--font-body);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.shell{max-width:1180px;margin-inline:auto;padding-inline:clamp(16px,4vw,40px);padding-block:0 56px}
+a{color:inherit}
+h1,h2,h3,h4{font-family:var(--font-display);text-wrap:balance;margin:0}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+svg{display:block}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px;border-radius:3px}
+h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus{outline:none}
+.eyebrow{font:600 .74rem/1.2 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);display:flex;flex-wrap:wrap;gap:.75em;align-items:center}
+.bin{font:600 .74rem/1 var(--font-mono);letter-spacing:.12em;padding:.3em .5em;border:1px solid var(--line);border-radius:3px;color:var(--muted)}
+.wk .bin{border-color:var(--wk-line);color:var(--wk-ink)}
+.sec-h{font-weight:700;font-size:1.5rem;letter-spacing:-.015em}
+.sec-top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px;margin-bottom:12px}
+.sec-top .hint{font-size:.88rem}
+.sec{margin-top:40px}
+
+/* top bar + HUD */
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-block:16px;border-bottom:1px solid var(--line)}
+.brand{display:inline-flex;align-items:center;gap:.6rem;font:700 1.02rem/1 var(--font-display);text-decoration:none;letter-spacing:-.01em;margin-right:auto}
+.brand-mark{width:22px;height:22px;border-radius:50%;flex:none;background:radial-gradient(circle,var(--brass) 0 22%,transparent 23% 38%,var(--ink) 39% 56%,transparent 57% 72%,var(--ink) 73% 100%)}
+.top-nav{display:flex;gap:2px}
+.top-nav a{font-weight:600;font-size:.92rem;text-decoration:none;padding:.45rem .65rem;border-radius:5px;color:var(--muted)}
+.top-nav a:hover,.top-nav a[aria-current="page"]{color:var(--ink);background:var(--sunk)}
+.hud{display:flex;align-items:center;gap:8px}
+.hud-btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 .75rem;border:1px solid var(--line);border-radius:17px;background:var(--surface);font:700 .84rem/1 var(--font-mono);color:var(--ink);text-decoration:none;cursor:pointer;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hud-btn svg{width:16px;height:16px;flex:none}
+.hud-btn:hover{border-color:var(--muted)}
+.hud-btn.is-on{border-color:var(--brass);color:var(--brass);background:var(--brass-soft)}
+.hud-streak svg{color:var(--flame)}
+.hud-lvl .lv-bar{display:block;width:46px;height:5px;border-radius:3px;background:var(--sunk);overflow:hidden}
+.hud-lvl .lv-bar i{display:block;height:100%;background:var(--brass)}
+.focus-wrap{position:relative}
+.pop{position:absolute;right:0;top:calc(100% + 8px);z-index:30;width:270px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+.pop h3{font-size:1.05rem}
+.pop .hint{font-size:.86rem}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;height:38px;border:1px solid var(--line);border-radius:6px;background:var(--bg);font:700 .9rem var(--font-mono);cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--brass);background:var(--brass-soft);color:var(--brass)}
+.boot{padding-block:64px;color:var(--muted)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-weight:600;font-size:.95rem;line-height:1.2;padding:.68rem 1.05rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;cursor:pointer;text-decoration:none}
+.btn:hover{border-color:var(--muted)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn svg{width:16px;height:16px}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.btn.gold{background:var(--brass);border-color:var(--brass);color:var(--bg)}
+.wk .btn.primary{background:var(--wk);border-color:var(--wk);color:var(--on-wk)}
+.btn.small{padding:.42rem .7rem;font-size:.86rem}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.chip{display:inline-flex;align-items:center;gap:.35em;font:600 .72rem/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;padding:.38em .6em;border-radius:3px;background:var(--wk-soft);color:var(--wk-ink);text-decoration:none;white-space:nowrap}
+.chip.gold{background:var(--brass-soft);color:var(--brass)}
+
+/* home hero */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,560px);gap:20px 48px;align-items:center;padding-block:30px 22px}
+.hero-copy{display:flex;flex-direction:column;gap:18px;min-width:0}
+.hero h1{font-weight:800;font-size:clamp(2.5rem,6.6vw,4.8rem);line-height:.94;letter-spacing:-.035em}
+.hero h1 em{font-style:normal;color:var(--brass)}
+.lede{font-size:1.1rem;line-height:1.5;color:var(--muted);max-width:52ch}
+.stage{min-width:0;display:flex;flex-direction:column;gap:6px}
+.stage canvas{display:block;width:100%;max-width:100%;aspect-ratio:10/7.6;touch-action:pan-y;cursor:grab;border-radius:10px}
+.stage canvas.is-drag{cursor:grabbing}
+.stage-cap{font:400 .8rem/1.4 var(--font-mono);color:var(--muted);text-align:center;min-height:2.8em}
+
+/* run tiles */
+.run{display:grid;grid-template-columns:1.35fr 1fr 1fr 1fr;gap:14px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;gap:14px;align-items:center;min-width:0;text-decoration:none;color:inherit}
+a.tile:hover{border-color:var(--muted)}
+.tile-body{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;flex:1}
+.tile-body .xpbar{align-self:stretch}
+.t-k{font:600 .68rem/1.2 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.t-big{font:800 1.35rem/1.1 var(--font-display);letter-spacing:-.015em}
+.t-sub{font:400 .8rem/1.3 var(--font-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.xpbar{display:block;height:7px;border-radius:4px;background:var(--sunk);overflow:hidden}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold2),var(--brass));border-radius:4px}
+.flame-big{width:40px;height:40px;color:var(--flame);flex:none}
+.flame-big svg{width:40px;height:40px}
+.flame-big.cold{color:var(--lock2)}
+.dots{display:flex;gap:4px;margin-top:2px}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--sunk)}
+.dots i.on{background:var(--flame)}
+.dots i.today{box-shadow:0 0 0 2px var(--surface),0 0 0 3px var(--muted)}
+.mring{flex:none;color:var(--brass)}
+.mring-wrap{position:relative;flex:none;display:flex;align-items:center;justify-content:center}
+.mring-wrap span{position:absolute;font:700 .78rem/1 var(--font-mono);font-variant-numeric:tabular-nums}
+.tile-focus .clock{width:38px;height:38px;color:var(--brass);flex:none}
+.tile-focus .clock svg{width:38px;height:38px}
+
+/* missions */
+.mission-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.mission{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:14px 8px;border-bottom:1px solid var(--line)}
+.m-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;color:transparent;flex:none}
+.m-dot svg{width:16px;height:16px}
+.mission.done .m-dot{background:var(--good);border-color:var(--good);color:var(--surface)}
+.m-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.m-text b{font-weight:600}
+.mission.done .m-text b{color:var(--muted);text-decoration:line-through}
+.m-text small{color:var(--muted);font-size:.84rem;font-variant-numeric:tabular-nums}
+.m-xp{font:700 .82rem var(--font-mono);color:var(--brass);white-space:nowrap}
+.sweep{margin-top:10px;font-size:.9rem;color:var(--muted)}
+.sweep b{color:var(--brass)}
+
+/* week index */
+.wk-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:6px 20px;align-items:center;padding:18px 10px;border-bottom:1px solid var(--line);position:relative}
+.row:hover,.row.is-hot{background:var(--surface)}
+.row-num{font:800 3rem/1 var(--font-display);letter-spacing:-.04em;color:var(--wk-ink);font-variant-numeric:tabular-nums}
+.row-main{min-width:0;display:flex;flex-direction:column;gap:4px;text-decoration:none}
+.row-main::after{content:"";position:absolute;inset:0}
+.row-title{font:700 1.22rem/1.2 var(--font-display);letter-spacing:-.01em}
+.row-topics{color:var(--muted);font-size:.93rem}
+.row-side{display:flex;flex-direction:column;align-items:flex-end;gap:8px;position:relative;z-index:1}
+.row-links{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.row-links a{font-weight:600;font-size:.86rem;text-decoration:none;padding:.35rem .6rem;border:1px solid var(--wk-line);border-radius:5px;color:var(--wk-ink);background:var(--bg)}
+.row-links a:hover{background:var(--wk-soft)}
+.meter{display:flex;align-items:center;gap:8px;font:400 .76rem/1 var(--font-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.meter i{display:block;width:96px;height:5px;border-radius:3px;background:var(--sunk);overflow:hidden}
+.meter i b{display:block;height:100%;background:var(--wk)}
+.meter .chip{font-size:.66rem}
+.next-ring{margin-top:14px;color:var(--muted);font-size:.93rem}
+.extras{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.extra{display:flex;flex-direction:column;gap:6px;padding:18px;border:1px solid var(--line);border-radius:12px;background:var(--surface);text-decoration:none}
+.extra:hover{border-color:var(--muted)}
+.extra strong{font:700 1.12rem/1.2 var(--font-display);display:flex;gap:8px;align-items:center}
+.extra strong svg{width:18px;height:18px;color:var(--brass)}
+.extra span{color:var(--muted);font-size:.93rem}
+
+/* 3D coins (badges, level) */
+.coin{--s:60px;width:var(--s);height:var(--s);position:relative;transform-style:preserve-3d;flex:none;display:inline-block;
+  --c1:var(--gold1);--c2:var(--gold2);--c3:var(--gold3);--ci:var(--gold-ink)}
+.coin.locked{--c1:var(--lock1);--c2:var(--lock2);--c3:var(--lock3);--ci:var(--lock-ink)}
+.coin>i{position:absolute;inset:0;border-radius:50%;background:var(--c3)}
+.coin>i:nth-child(1){transform:translateZ(-4px)}.coin>i:nth-child(2){transform:translateZ(-3px)}.coin>i:nth-child(3){transform:translateZ(-2px)}
+.coin>i:nth-child(4){transform:translateZ(-1px)}.coin>i:nth-child(5){transform:translateZ(0)}.coin>i:nth-child(6){transform:translateZ(1px)}
+.coin>i:nth-child(7){transform:translateZ(2px)}.coin>i:nth-child(8){transform:translateZ(3px)}.coin>i:nth-child(9){transform:translateZ(4px)}
+.coin .cf{position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 34% 28%,var(--c1),var(--c2) 72%);color:var(--ci);
+  box-shadow:inset 0 0 0 calc(var(--s)*.05) rgba(255,255,255,.35),inset 0 0 0 calc(var(--s)*.1) rgba(0,0,0,.1);
+  transform:translateZ(5px);backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.coin .cf.back{transform:rotateY(180deg) translateZ(5px)}
+.coin .cf svg{width:46%;height:46%}
+.coin .cf b{font:800 calc(var(--s)*.42)/1 var(--font-display);letter-spacing:-.04em}
+.spin3d{animation:spin3d 5s linear infinite}
+.badge:hover .coin:not(.locked),.coin-row>span:hover .coin:not(.locked),.coin.flip-once{animation:spin3d 1.4s cubic-bezier(.3,.6,.3,1)}
+@keyframes spin3d{from{transform:rotateY(0)}to{transform:rotateY(360deg)}}
+.coin-wrap{perspective:600px;display:inline-flex;flex:none}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.badge{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:18px 10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);perspective:600px;min-width:0}
+.badge h4{font:700 .96rem/1.2 var(--font-display)}
+.badge p{font-size:.82rem;line-height:1.35;color:var(--muted)}
+.badge small{font:400 .7rem var(--font-mono);color:var(--muted)}
+.badge.locked h4{color:var(--muted)}
+.coin-row{display:flex;flex-wrap:wrap;gap:12px;perspective:600px}
+.coin-row>span{display:inline-flex}
+.coin-row .coin{--s:46px}
+
+/* week */
+.wk-head{display:flex;flex-direction:column;gap:12px;padding-block:26px 18px}
+.back{align-self:flex-start;font-weight:600;font-size:.9rem;color:var(--muted);text-decoration:none}
+.back:hover{color:var(--ink)}
+.wk-head h1{font-weight:800;font-size:clamp(1.9rem,4.6vw,3.1rem);line-height:1;letter-spacing:-.025em}
+.wk-head .eyebrow{color:var(--wk-ink)}
+.wk-stats{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:4px}
+.wk-stats .mring{color:var(--wk)}
+.wk-stats .ms{display:flex;align-items:center;gap:10px}
+.wk-stats .ms b{font:800 1.15rem/1 var(--font-display)}
+.wk-stats .ms small{display:block;font-size:.82rem;color:var(--muted)}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:2px;overflow-x:auto;background:var(--bg);border-bottom:1px solid var(--line);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{flex:none;font-weight:600;font-size:.96rem;text-decoration:none;color:var(--muted);padding:.85rem .9rem .7rem;border-bottom:3px solid transparent}
+.tabs a:hover{color:var(--ink)}
+.tabs a[aria-current="page"]{color:var(--wk-ink);border-bottom-color:var(--wk)}
+.wk-body{padding-block:28px 8px}
+.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:40px;padding-top:20px;border-top:1px solid var(--line)}
+
+/* notes */
+.notes{display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px;align-items:start}
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 62px);max-height:calc(100vh - 80px);overflow-y:auto}
+.rail-h{font:600 .72rem/1 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.rail button{display:flex;gap:10px;align-items:baseline;width:100%;text-align:left;background:none;border:0;padding:.42rem .5rem;border-radius:5px;cursor:pointer;color:var(--muted);font-size:.93rem;line-height:1.3}
+.rail button:hover{color:var(--ink);background:var(--sunk)}
+.rail button.is-on{color:var(--wk-ink);background:var(--wk-soft);font-weight:600}
+.rail button.is-read .tag{background:var(--wk);color:var(--on-wk);border-color:var(--wk)}
+.tag{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:1.7em;height:1.7em;padding-inline:.3em;font:700 .72rem/1 var(--font-mono);border:1px solid var(--wk-line);border-radius:3px;color:var(--wk-ink)}
+.prose{min-width:0;max-width:74ch;font-size:1.05rem;line-height:1.65;display:flex;flex-direction:column;gap:56px}
+.part{display:flex;flex-direction:column;gap:16px;scroll-margin-top:70px;min-width:0}
+.part>h2{display:flex;gap:14px;align-items:center;font-weight:800;font-size:clamp(1.5rem,3.4vw,2rem);line-height:1.1;letter-spacing:-.02em;padding-bottom:14px;border-bottom:2px solid var(--wk)}
+.part>h2 .tag{font-size:.9rem}
+.part h3{font-weight:700;font-size:1.22rem;line-height:1.25;letter-spacing:-.01em;margin-top:14px}
+.part h4{font:700 1rem/1.3 var(--font-body);margin-top:6px}
+.part ul,.part ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+.part strong{font-weight:700}
+.part code,.out code{font:400 .9em var(--font-mono);background:var(--sunk);padding:.1em .35em;border-radius:3px}
+.tw{overflow-x:auto;max-width:100%;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.tw table{border-collapse:collapse;width:100%;font-size:.93rem;line-height:1.45;min-width:520px}
+.tw table.c2{min-width:0}
+.tw th,.tw td{text-align:left;vertical-align:top;padding:.6rem .8rem;border-bottom:1px solid var(--line)}
+.tw tbody tr:last-child>*{border-bottom:0}
+.tw thead th{font:600 .7rem/1.3 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--sunk);white-space:nowrap}
+.tw tbody th{font-weight:700}
+pre.code{margin:0;overflow-x:auto;background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:14px 16px;font:400 .86rem/1.6 var(--font-mono);font-variant-numeric:tabular-nums;tab-size:2}
+pre.code code{background:none;padding:0;font:inherit}
+.note{background:var(--wk-soft);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;font-size:.98rem;line-height:1.55}
+.note-k{font:700 .7rem/1 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--wk-ink)}
+.note-warn{background:var(--brass-soft)}
+.note-warn .note-k{color:var(--brass)}
+.part-end{margin-top:6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.part-end small{font:600 .78rem var(--font-mono);color:var(--brass)}
+.readbtn[aria-pressed="true"]{background:var(--wk-soft);border-color:var(--wk-line);color:var(--wk-ink)}
+
+/* labs */
+.lab{border:1px solid var(--wk-line);border-radius:10px;background:var(--surface);overflow:hidden;min-width:0}
+.lab-head{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;padding:12px 16px;background:var(--wk-soft)}
+.lab-k{font:700 .7rem/1 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--wk-ink)}
+.lab-head h4{font:700 1.05rem/1.2 var(--font-display);margin:0}
+.lab-head small{margin-left:auto;font:600 .72rem var(--font-mono);color:var(--brass)}
+.lab-body{padding:16px;display:flex;flex-direction:column;gap:14px;font-size:.96rem;line-height:1.5;min-width:0}
+.lab-list{display:flex;flex-direction:column;gap:28px;max-width:820px}
+.lab-list>p{color:var(--muted);max-width:60ch}
+.f-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.f{display:flex;flex-direction:column;gap:5px;flex:1 1 220px;min-width:0;font:600 .72rem/1.2 var(--font-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.f.f-s{flex:0 1 130px}
+.f input,.f select,.f textarea{font:400 1rem/1.3 var(--font-mono);letter-spacing:0;text-transform:none;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:.55rem .65rem;width:100%;min-width:0}
+.f textarea{min-height:84px;font-size:.8rem;resize:vertical}
+.hint{color:var(--muted);font-size:.9rem}
+.err{color:var(--bad);font-weight:600}
+.out{display:flex;flex-direction:column;gap:10px;min-width:0}
+.out-main{font:700 1.35rem/1.3 var(--font-mono);letter-spacing:.04em;overflow-wrap:anywhere;color:var(--wk-ink)}
+.out-sub{color:var(--muted);font-size:.9rem}
+.hex{font:400 .86rem/1.5 var(--font-mono);overflow-wrap:anywhere;background:var(--sunk);padding:8px 10px;border-radius:5px}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font:400 .93rem/1.5 var(--font-mono);font-variant-numeric:tabular-nums}
+.steps b{color:var(--wk-ink)}
+.bits{display:grid;grid-template-columns:auto repeat(8,minmax(0,38px));gap:6px;align-items:center;font-family:var(--font-mono)}
+.bits .bl{font-weight:600;font-size:.82rem;color:var(--muted);padding-right:6px;white-space:nowrap}
+.bit{height:38px;border:1px solid var(--line);border-radius:5px;background:var(--bg);font:700 1.05rem/1 var(--font-mono);display:flex;align-items:center;justify-content:center;padding:0}
+button.bit{cursor:pointer}
+button.bit[aria-pressed="true"]{background:var(--wk);border-color:var(--wk);color:var(--on-wk)}
+.bit.res{border-style:dashed;background:var(--wk-soft);border-color:var(--wk-line);color:var(--wk-ink)}
+.grid-wrap{overflow-x:auto}
+.matrix{display:grid;grid-template-columns:auto repeat(5,minmax(54px,1fr));gap:4px;min-width:420px;font:600 .68rem/1.2 var(--font-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.matrix span{display:flex;align-items:center;justify-content:center;text-align:center;padding:4px}
+.matrix span.ml{justify-content:flex-end}
+.cell{height:40px;border:1px solid transparent;border-radius:4px;cursor:pointer;font:700 .9rem/1 var(--font-mono);color:var(--ink)}
+.cell.l1{background:var(--r1)}.cell.l2{background:var(--r2)}.cell.l3{background:var(--r3)}.cell.l4{background:var(--r4)}
+.cell[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.dh{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.dh>div{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;min-width:0;font:400 .9rem/1.5 var(--font-mono);overflow-wrap:anywhere}
+.dh h5{margin:0;font:700 .7rem/1 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.perm{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.perm>div{display:flex;flex-direction:column;gap:6px;min-width:0}
+.perm h5{margin:0;font:700 .7rem/1 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.perm .pb{display:flex;gap:6px}
+.perm .bit{flex:1 1 0;min-width:0}
+.sw{display:inline-block;width:26px;height:18px;border-radius:3px;border:1px solid var(--line);vertical-align:middle}
+.lsb-hl{color:var(--wk-ink);font-weight:700;text-decoration:underline}
+
+/* quiz */
+.modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;max-width:980px}
+.mode{display:flex;flex-direction:column;gap:10px;padding:20px;background:var(--surface);border:1px solid var(--line);border-radius:12px;min-width:0}
+.mode .mode-ic{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--brass-soft);color:var(--brass)}
+.wk .mode .mode-ic{background:var(--wk-soft);color:var(--wk-ink)}
+.mode .mode-ic svg{width:22px;height:22px}
+.mode h3{font:700 1.2rem/1.2 var(--font-display)}
+.mode p{color:var(--muted);font-size:.94rem;flex:1}
+.mode p strong{color:var(--ink)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:clamp(18px,3vw,30px);display:flex;flex-direction:column;gap:16px;max-width:780px}
+.card h2{font-weight:700;font-size:1.5rem;line-height:1.2;letter-spacing:-.015em}
+.enter{animation:qin .42s cubic-bezier(.2,.8,.2,1)}
+@keyframes qin{from{transform:perspective(900px) rotateX(-28deg) translateY(12px);opacity:0}}
+.q-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font:600 .78rem/1 var(--font-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-variant-numeric:tabular-nums}
+.q-score{margin-left:auto}
+.combo{color:var(--flame);display:inline-flex;align-items:center;gap:4px}
+.combo svg{width:14px;height:14px}
+.combo.bump{animation:bump .35s ease-out}
+@keyframes bump{40%{transform:scale(1.35)}}
+.q-bar{height:4px;background:var(--sunk);border-radius:2px;overflow:hidden}
+.q-bar i{display:block;height:100%;background:var(--ink);transition:width .3s}
+.wk .q-bar i{background:var(--wk)}
+.q-bar.timer{height:6px}
+.q-bar.timer i,.wk .q-bar.timer i{background:var(--brass);transition:none}
+.q-bar.timer.low i,.wk .q-bar.timer.low i{background:var(--bad)}
+.sp-time{font:800 1.6rem/1 var(--font-display);color:var(--ink);letter-spacing:-.02em}
+.sp-time.low{color:var(--bad)}
+.q-text{font:700 1.3rem/1.35 var(--font-body) !important;letter-spacing:0 !important}
+.q-text code,.opt code,.fb code,.missed code{font:400 .92em var(--font-mono);background:var(--sunk);padding:.08em .3em;border-radius:3px}
+.q-opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;text-align:left;padding:.75rem .9rem;border:1px solid var(--line);border-radius:7px;background:var(--bg);cursor:pointer;font-size:1rem;line-height:1.4}
+.opt:hover:not(:disabled){border-color:var(--muted)}
+.opt:disabled{cursor:default;color:var(--ink)}
+.opt-k{font:700 .8rem/1 var(--font-mono);width:1.9em;height:1.9em;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:4px;color:var(--muted)}
+.opt-s{font:700 .68rem/1.2 var(--font-mono);letter-spacing:.06em;text-transform:uppercase}
+.opt.is-right{border-color:var(--good);background:var(--good-soft)}
+.opt.is-right .opt-s,.opt.is-right .opt-k{color:var(--good);border-color:var(--good)}
+.opt.is-wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.is-wrong .opt-s,.opt.is-wrong .opt-k{color:var(--bad);border-color:var(--bad)}
+.q-fb{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.fb{line-height:1.55}
+.fb.ok strong{color:var(--good)}.fb.no strong{color:var(--bad)}
+.score-big{font:800 clamp(3rem,10vw,5rem)/1 var(--font-display);letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.wk .score-big{color:var(--wk-ink)}
+.res-stats{display:flex;flex-wrap:wrap;gap:8px}
+.missed{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.missed li{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:4px}
+.missed .m-a{color:var(--good);font-weight:700}
+.missed .m-w{color:var(--muted);font-size:.95rem}
+
+/* flashcards */
+.cards{display:flex;flex-direction:column;gap:18px;max-width:640px}
+.cards>p{color:var(--muted)}
+.fc{perspective:1400px;cursor:pointer;border-radius:12px}
+.fc-in{position:relative;min-height:290px;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.75,.2,1)}
+.fc.flip .fc-in{transform:rotateY(180deg)}
+.fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--wk-line);border-radius:12px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;background:var(--surface);overflow:auto}
+.fc-back{transform:rotateY(180deg);background:var(--wk-soft)}
+.fc-term{font:800 clamp(1.7rem,5vw,2.5rem)/1.1 var(--font-display);letter-spacing:-.02em;color:var(--wk-ink)}
+.fc-mean{font-size:1.2rem;line-height:1.5}
+.fc-hint{font:400 .78rem/1 var(--font-mono);color:var(--muted)}
+.fc-ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.fc-n{font:600 .85rem/1 var(--font-mono);color:var(--muted);font-variant-numeric:tabular-nums;margin-left:auto}
+.deckbar{display:flex;gap:3px}
+.deckbar i{flex:1;height:6px;border-radius:2px;background:var(--sunk)}
+.deckbar i.k{background:var(--wk)}
+
+/* practice, checklist, glossary, profile */
+.practice{margin:0;padding-left:1.6em;display:flex;flex-direction:column;gap:20px;max-width:74ch;font-size:1.03rem;line-height:1.6}
+.practice li{padding-left:.3em}
+.practice li::marker{font:700 .9rem var(--font-mono);color:var(--wk-ink)}
+.practice details{margin-top:8px}
+.practice summary{cursor:pointer;font-weight:600;color:var(--wk-ink);width:max-content;max-width:100%}
+.practice .ans{margin-top:8px;background:var(--wk-soft);border-radius:8px;padding:12px 14px}
+.intro{color:var(--muted);max-width:62ch;margin-bottom:22px}
+.check{list-style:none;margin:0;padding:0;max-width:74ch;border-top:1px solid var(--line)}
+.check li{border-bottom:1px solid var(--line)}
+.check label{display:flex;gap:14px;align-items:flex-start;padding:14px 6px;cursor:pointer;font-size:1.03rem;line-height:1.5}
+.check input{flex:none;width:1.2rem;height:1.2rem;margin-top:.2rem;accent-color:var(--wk)}
+.check input:checked+span{color:var(--muted);text-decoration:line-through}
+.gl-head{display:flex;flex-direction:column;gap:14px;padding-block:28px 20px}
+.gl-head h1{font-weight:800;font-size:clamp(1.9rem,4.6vw,3rem);line-height:1;letter-spacing:-.025em}
+.gl-head .f{max-width:420px;flex:none}
+.gl{margin:0;border-top:1px solid var(--line)}
+.gl>div{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr) auto;gap:6px 24px;padding:14px 6px;border-bottom:1px solid var(--line);align-items:baseline}
+.gl dt{font-weight:700}
+.gl dd{margin:0;color:var(--muted)}
+.me-head{display:flex;flex-wrap:wrap;gap:28px;align-items:center;padding-block:30px 22px}
+.me-head .coin{--s:120px}
+.me-head .tile-body{gap:8px;min-width:min(100%,280px)}
+.me-head h1{font-weight:800;font-size:clamp(2rem,5vw,3.2rem);line-height:1;letter-spacing:-.025em}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.stat b{font:800 1.6rem/1.1 var(--font-display);font-variant-numeric:tabular-nums}
+.heat-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.heat{display:grid;grid-template-rows:repeat(7,13px);grid-auto-flow:column;grid-auto-columns:13px;gap:3px;width:max-content}
+.heat i{border-radius:3px;background:var(--heat0)}
+.heat i.h1{background:var(--heat1)}.heat i.h2{background:var(--heat2)}.heat i.h3{background:var(--heat3)}.heat i.h4{background:var(--heat4)}
+.heat-key{display:flex;gap:4px;align-items:center;margin-top:10px;font:400 .74rem var(--font-mono);color:var(--muted)}
+.heat-key i{width:11px;height:11px;border-radius:2px}
+.settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.settings .card{max-width:none;align-self:start}
+.card>.f{flex:none}
+.toggle{display:flex;align-items:center;gap:10px;font-weight:600;cursor:pointer}
+.toggle input{width:1.15rem;height:1.15rem;accent-color:var(--brass)}
+.foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem;display:flex;flex-direction:column;gap:6px;max-width:80ch}
+
+/* feedback layer */
+.toasts{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;flex-direction:column;gap:10px;align-items:flex-end;pointer-events:none;max-width:calc(100vw - 32px)}
+.toast{pointer-events:auto;display:flex;gap:14px;align-items:center;background:var(--ink);color:var(--bg);border-radius:12px;padding:12px 16px 12px 12px;box-shadow:var(--shadow);animation:tin .4s cubic-bezier(.2,.8,.2,1);max-width:380px;perspective:500px}
+.toast .coin{--s:44px}
+.toast .t-ic{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--brass);color:var(--ink);flex:none}
+.toast .t-ic svg{width:22px;height:22px}
+.toast strong{display:block;font:700 .98rem/1.25 var(--font-display)}
+.toast .t-txt{display:block;font-size:.86rem;opacity:.85}
+.toast.out{animation:tout .3s ease-in forwards}
+@keyframes tin{from{transform:translateY(18px) scale(.96);opacity:0}}
+@keyframes tout{to{transform:translateX(30px);opacity:0}}
+.xp-pop{position:fixed;z-index:70;pointer-events:none;font:800 1.02rem/1 var(--font-mono);color:var(--brass);background:var(--surface);border:1px solid var(--brass);border-radius:12px;padding:4px 8px;transform:translate(-50%,-50%);animation:xpup 1.1s ease-out forwards;white-space:nowrap}
+@keyframes xpup{0%{transform:translate(-50%,-30%) scale(.8);opacity:0}15%{transform:translate(-50%,-60%) scale(1.08);opacity:1}100%{transform:translate(-50%,-190%) scale(1);opacity:0}}
+.fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:80}
+.modal{position:fixed;inset:0;z-index:90;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-card{background:var(--surface);border-radius:18px;padding:34px 28px 28px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;max-width:380px;width:100%;perspective:800px;animation:pop .5s cubic-bezier(.2,.9,.3,1.25);box-shadow:var(--shadow)}
+.modal-card .coin{--s:130px;margin-bottom:10px}
+.modal-card h2{font:800 2rem/1.05 var(--font-display);letter-spacing:-.02em}
+.modal-card p{color:var(--muted)}
+@keyframes pop{from{transform:scale(.7) rotateX(30deg);opacity:0}}
+
+@media (max-width:980px){
+  .run{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .modes{grid-template-columns:minmax(0,1fr);max-width:640px}
+}
+@media (max-width:900px){
+  .hero{grid-template-columns:minmax(0,1fr);padding-block:24px 18px}
+  .stage{max-width:540px;width:100%;margin-inline:auto}
+  .notes{grid-template-columns:minmax(0,1fr);gap:28px}
+  .rail{position:static;max-height:none}
+  .rail ol{flex-direction:row;flex-wrap:wrap;gap:6px}
+  .rail button{width:auto;border:1px solid var(--line);padding:.35rem .6rem}
+  .extras,.settings{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:640px){
+  .top-nav{order:3;width:100%}
+  .hud{margin-left:auto}
+  .run{grid-template-columns:minmax(0,1fr)}
+  .row{grid-template-columns:52px minmax(0,1fr);padding-inline:4px}
+  .row-num{font-size:2.3rem}
+  .row-side{grid-column:1/-1;align-items:flex-start}
+  .row-links{justify-content:flex-start}
+  .mission{grid-template-columns:auto minmax(0,1fr) auto;padding-inline:4px}
+  .mission .btn,.mission .chip.gold{grid-column:2/-1;justify-self:start}
+  .gl>div{grid-template-columns:minmax(0,1fr)}
+  .dh,.perm{grid-template-columns:minmax(0,1fr)}
+  .bits{grid-template-columns:auto repeat(8,minmax(0,1fr));gap:4px}
+  .opt{grid-template-columns:auto minmax(0,1fr)}
+  .opt-s{grid-column:2}
+  .hud-lvl .lv-bar{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *{scroll-behavior:auto !important}
+  .fc-in{transition:none}
+  .spin3d,.badge:hover .coin,.coin-row>span:hover .coin,.coin.flip-once,.enter,.toast,.modal-card,.combo.bump,.xp-pop{animation:none !important}
+}
+</style>
+
+<div class="shell">
+  <header class="top">
+    <a class="brand" href="#"><span class="brand-mark" aria-hidden="true"></span>Cyber Security Weekbook</a>
+    <nav class="top-nav" aria-label="Site"><a href="#mix" data-nav="mix">Quiz arena</a><a href="#glossary" data-nav="glossary">Glossary</a><a href="#me" data-nav="me">Profile</a></nav>
+    <div class="hud" aria-label="Your progress">
+      <div class="focus-wrap">
+        <button type="button" class="hud-btn" id="focus-btn" aria-expanded="false" aria-controls="focus-pop"></button>
+        <div class="pop" id="focus-pop" hidden></div>
+      </div>
+      <a class="hud-btn hud-streak" id="hud-streak" href="#me"></a>
+      <a class="hud-btn hud-lvl" id="hud-lvl" href="#me"></a>
+    </div>
+  </header>
+  <main id="app"><p class="boot">Loading the notes…</p></main>
+  <footer class="foot">
+    <p>A study aid written from the lecture slides, notes and articles. Your lecturer's material comes first: if anything here differs from what you were taught, go with the course.</p>
+    <p>XP, streaks, badges and quiz scores are saved in this browser only. Use the backup code on your profile to move them to another device.</p>
+  </footer>
+</div>
+<div class="toasts" aria-live="polite"></div>
+
+<script src="vendor/three.min.js"></script>
+<script>
+/* Content helpers used by the week files. */
+window.COURSE={weeks:[],add:function(w){this.weeks.push(w)}};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function tbl(head,rows){
+  return '<div class="tw"><table class="c'+head.length+'"><thead><tr>'+head.map(function(h){return '<th scope="col">'+h+'</th>'}).join('')+
+    '</tr></thead><tbody>'+rows.map(function(r){return '<tr>'+r.map(function(c,i){return i===0?'<th scope="row">'+c+'</th>':'<td>'+c+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div>';
+}
+function pre(s){return '<pre class="code"><code>'+esc(String(s).replace(/^\n/,'').replace(/\s+$/,''))+'</code></pre>'}
+var NOTE_LABELS={key:'Key idea',warn:'Watch out',link:'Connects to',tip:'Tip',ans:'Answer',ex:'Mini-exercise',why:'Why this matters',rem:'Remember',extra:'Extra'};
+function note(kind,html){return '<aside class="note note-'+kind+'"><p class="note-k">'+(NOTE_LABELS[kind]||kind)+'</p><div>'+html+'</div></aside>'}
+function lab(id){return '<div data-lab="'+id+'"></div>'}
+</script>
+<!-- One file per week. To add a week: add weeks/weekN.js and one line here. -->
+<script src="weeks/week1.js"></script>
+<script src="weeks/week2.js"></script>
+<script src="weeks/week3.js"></script>
+<script>
+(function(){
+'use strict';
+var C=window.COURSE, app=document.getElementById('app');
+if(!C||!C.weeks.length){app.innerHTML='<p class="boot">The week files did not load. Reload the page to try again.</p>';return;}
+
+/* ================= basics ================= */
+const weeks=C.weeks.slice().sort((a,b)=>a.n-b.n);
+weeks.forEach(w=>{
+  w.h=w.hue!=null?w.hue:Math.round((200+(w.n-1)*137.5)%360);
+  w.parts.forEach((p,i)=>{p.id='p'+i});
+  w.quiz.forEach((q,i)=>{q.wk=w;q.id='w'+w.n+'-'+i});
+  w.labs=w.labs||[];
+});
+const ALL_LABS=Array.from(new Set([].concat.apply([],weeks.map(w=>w.labs))));
+const $=(s,r)=>(r||document).querySelector(s);
+const $$=(s,r)=>Array.from((r||document).querySelectorAll(s));
+const bin=n=>n.toString(2).padStart(4,'0');
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const reduced=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+const pad2=n=>String(n).padStart(2,'0');
+const dayKey=d=>d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+const today=()=>dayKey(new Date());
+const plural=(n,w)=>n+' '+w+(n===1?'':'s');
+
+/* ================= icons ================= */
+const ic=d=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d+'</svg>';
+const ICON={
+  bolt:ic('<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>'),
+  book:ic('<path d="M2 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2z"/><path d="M22 5h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z"/>'),
+  check:ic('<path d="m4 12 5 5L20 6"/>'),
+  star:ic('<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/>'),
+  flame:ic('<path d="M12 22c4.2 0 7-2.8 7-6.8 0-3.6-2.4-5.8-3.6-8.7-.9 1.7-1.9 2.7-3.2 3.1.2-2.8-.8-5.3-2.9-7.6.2 3.6-1.5 5.6-3.1 7.6C5 11.3 5 13 5 15.2 5 19.2 7.8 22 12 22z"/>'),
+  clock:ic('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
+  wrench:ic('<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/>'),
+  list:ic('<path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"/>'),
+  target:ic('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>'),
+  calendar:ic('<path d="M4 6h16v14H4z"/><path d="M4 10h16M8 3v4M16 3v4"/>'),
+  moon:ic('<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>'),
+  sun:ic('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
+  shield:ic('<path d="M12 3 20 6v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/>'),
+  ring:ic('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 3v4.5"/>'),
+  key:ic('<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 6l3 3M14 9l2 2"/>'),
+  trophy:ic('<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M10 17h4v4h-4z"/>'),
+  lock:ic('<path d="M6 11h12v9H6z"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'),
+  crown:ic('<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/>'),
+  cards:ic('<path d="M7 4h11a2 2 0 0 1 2 2v12"/><path d="M4 8h11a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/>'),
+  play:ic('<path d="M7 4v16l13-8z"/>')
+};
+function coin(inner,opts){
+  opts=opts||{};
+  return '<span class="coin'+(opts.locked?' locked':'')+(opts.spin&&!reduced?' spin3d':'')+(opts.flip?' flip-once':'')+'"'+(opts.size?' style="--s:'+opts.size+'px"':'')+' aria-hidden="true">'+
+    '<i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><span class="cf">'+inner+'</span><span class="cf back">'+inner+'</span></span>';
+}
+function ringSVG(p,size,sw){
+  const r=(size-sw)/2,c=2*Math.PI*r,h=size/2;
+  return '<svg class="mring" width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" aria-hidden="true"><circle cx="'+h+'" cy="'+h+'" r="'+r+'" fill="none" stroke="var(--sunk)" stroke-width="'+sw+'"/>'+
+    (p>0?'<circle cx="'+h+'" cy="'+h+'" r="'+r+'" fill="none" stroke="currentColor" stroke-width="'+sw+'" stroke-linecap="round" stroke-dasharray="'+(c*Math.min(100,p)/100).toFixed(2)+' '+c.toFixed(2)+'" transform="rotate(-90 '+h+' '+h+')"/>':'')+'</svg>';
+}
+
+/* ================= saved state (this browser only) ================= */
+const KEY='csweekbook.v1';
+const fresh=()=>({quiz:{},check:{},read:{},last:'',xp:0,log:{},badges:{},seen:{part:{},chk:{},lab:{}},mistakes:{},speed:{},
+  bestCombo:0,focus:{end:null,mins:25,done:0},goal:100,missions:null,name:'',sound:false,
+  stats:{answered:0,correct:0,rounds:0,perfect:0,fixed:0,sweeps:0,decks:0,owl:0,lark:0}});
+let mem=fresh();
+function load(raw){
+  const m=fresh(),s=raw||{};
+  Object.keys(m).forEach(k=>{if(s[k]===undefined)return;
+    m[k]=(m[k]&&typeof m[k]==='object'&&!Array.isArray(m[k])&&s[k]&&typeof s[k]==='object')?Object.assign(m[k],s[k]):s[k]});
+  m.seen=Object.assign({part:{},chk:{},lab:{}},m.seen);
+  return m;
+}
+try{const s=localStorage.getItem(KEY);if(s)mem=load(JSON.parse(s))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(mem))}catch(e){}};
+
+function progress(w){
+  const r=(mem.read[w.n]||[]).length/w.parts.length;
+  const c=(mem.check[w.n]||[]).length/Math.max(1,w.checklist.length);
+  const q=mem.quiz['w'+w.n];
+  return Math.round((r+c+(q?q.s/q.t:0))/3*100);
+}
+const ALIGN=80;
+
+/* ================= levels, streaks ================= */
+const RANKS=['Recruit','Plaintext','Bit Flipper','Key Holder','Hash Hunter','Salt Miner','Cipher Smith','Key Exchanger','Cryptanalyst','Vault Breaker','Root Access','Grandmaster'];
+const needXP=L=>50*L*(L-1);
+function level(xp){let L=1;while(xp>=needXP(L+1))L++;return{L:L,rank:RANKS[Math.min(L,RANKS.length)-1],cur:xp-needXP(L),span:needXP(L+1)-needXP(L)}}
+function streak(){const d=new Date();let n=0;if(!(mem.log[dayKey(d)]>0))d.setDate(d.getDate()-1);while(mem.log[dayKey(d)]>0){n++;d.setDate(d.getDate()-1)}return n}
+function longest(){
+  const ks=Object.keys(mem.log).filter(k=>mem.log[k]>0).sort();let best=0,run=0,prev=null;
+  ks.forEach(k=>{const d=new Date(k+'T12:00:00');run=(prev&&Math.round((d-prev)/864e5)===1)?run+1:1;best=Math.max(best,run);prev=d});return best;
+}
+const todayXP=()=>mem.log[today()]||0;
+
+/* ================= feedback: sound, pops, toasts, confetti, modal ================= */
+let actx=null;
+function sound(kind){
+  if(!mem.sound)return;
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    const seq={ok:[660,880],no:[220,165],lvl:[523,659,784,1047],badge:[784,988,1175,1568],tick:[880]}[kind]||[660];
+    const t0=actx.currentTime;
+    seq.forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain(),t=t0+i*0.09;o.type='triangle';o.frequency.value=f;
+      g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.16,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+0.24);
+      o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+0.26)});
+  }catch(e){}
+}
+function popXP(n,at){
+  let x=window.innerWidth-90,y=70;
+  if(at&&at.getBoundingClientRect){const b=at.getBoundingClientRect();if(b.width||b.height){x=b.left+b.width/2;y=b.top+Math.min(b.height/2,30)}}
+  const s=document.createElement('span');s.className='xp-pop';s.textContent='+'+n+' XP';
+  s.style.left=Math.max(40,Math.min(window.innerWidth-40,x))+'px';s.style.top=Math.max(30,Math.min(window.innerHeight-20,y))+'px';
+  document.body.appendChild(s);setTimeout(()=>s.remove(),1200);
+}
+const toastBox=$('.toasts');
+function toast(title,text,iconHTML){
+  const t=document.createElement('div');t.className='toast';
+  t.innerHTML=(iconHTML||'<span class="t-ic">'+ICON.bolt+'</span>')+'<div><strong></strong><span class="t-txt"></span></div>';
+  $('strong',t).textContent=title;$('.t-txt',t).textContent=text||'';
+  toastBox.appendChild(t);
+  while(toastBox.children.length>4)toastBox.firstChild.remove();
+  setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),320)},4200);
+}
+const fx=(function(){
+  let cv=null,g=null,parts=[],run=false;
+  function size(){const d=Math.min(2,window.devicePixelRatio||1);cv.width=innerWidth*d;cv.height=innerHeight*d;g.setTransform(d,0,0,d,0,0)}
+  function tick(){
+    g.clearRect(0,0,innerWidth,innerHeight);
+    parts=parts.filter(p=>p.life<240&&p.y<innerHeight+40);
+    parts.forEach(p=>{p.life++;p.vy+=0.22;p.vx*=0.985;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.flip+=p.vf;
+      g.save();g.translate(p.x,p.y);g.rotate(p.rot);g.scale(1,Math.cos(p.flip));g.globalAlpha=Math.min(1,(240-p.life)/40);
+      g.fillStyle=p.c;if(p.round){g.beginPath();g.arc(0,0,p.w/2,0,7);g.fill()}else g.fillRect(-p.w/2,-p.h/2,p.w,p.h);g.restore()});
+    if(parts.length)requestAnimationFrame(tick);else{run=false;g.clearRect(0,0,innerWidth,innerHeight)}
+  }
+  return{burst(x,y,count){
+    if(reduced)return;
+    if(!cv){cv=document.createElement('canvas');cv.className='fx';cv.setAttribute('aria-hidden','true');document.body.appendChild(cv);g=cv.getContext('2d');size();addEventListener('resize',size)}
+    x=x==null?innerWidth/2:x;y=y==null?innerHeight/3:y;
+    const cols=weeks.map(w=>'hsl('+w.h+',70%,55%)').concat(['#f2c14e','#f8dc8f','#ffffff']);
+    for(let i=0;i<(count||140);i++){const a=Math.random()*Math.PI*2,sp=4+Math.random()*9;
+      parts.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-6,rot:Math.random()*6,vr:(Math.random()-.5)*.35,flip:Math.random()*6,vf:.08+Math.random()*.2,
+        w:5+Math.random()*6,h:8+Math.random()*9,c:cols[i%cols.length],life:0,round:Math.random()<.2})}
+    if(!run){run=true;requestAnimationFrame(tick)}
+  }};
+})();
+function modal(html){
+  const m=document.createElement('div');m.className='modal';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');
+  m.innerHTML='<div class="modal-card">'+html+'<button type="button" class="btn gold" data-close>Keep going</button></div>';
+  const back=document.activeElement;
+  document.body.appendChild(m);
+  const close=()=>{m.remove();document.removeEventListener('keydown',key);if(back&&back.isConnected){try{back.focus({preventScroll:true})}catch(e){}}};
+  const key=e=>{if(e.key==='Escape')close()};
+  m.addEventListener('click',e=>{if(e.target===m||e.target.closest('[data-close]'))close()});
+  document.addEventListener('keydown',key);
+  try{$('[data-close]',m).focus({preventScroll:true})}catch(e){}
+}
+
+/* ================= XP, badges, missions ================= */
+function gain(n,at,quiet){
+  if(!n)return;
+  const before=level(mem.xp).L,h=new Date().getHours();
+  mem.xp+=n;const k=today();mem.log[k]=(mem.log[k]||0)+n;
+  if(h<4)mem.stats.owl=1;
+  if(h>=5&&h<7)mem.stats.lark=1;
+  const goalHit=mem.log[k]>=mem.goal&&mem.log[k]-n<mem.goal;
+  save();
+  if(!quiet)popXP(n,at);
+  hud();
+  const after=level(mem.xp);
+  if(after.L>before){
+    sound('lvl');fx.burst(null,null,180);
+    modal(coin('<b>'+after.L+'</b>',{spin:true})+'<p class="eyebrow">Level up</p><h2>'+after.rank+'</h2><p>You reached level '+after.L+'. '+(after.L<RANKS.length?'Next rank: '+RANKS[after.L]+'.':'Top rank. Keep the streak alive.')+'</p>');
+  }
+  if(goalHit){toast('Daily goal reached',mem.goal+' XP today. Your streak is safe.','<span class="t-ic">'+ICON.target+'</span>');fx.burst(null,null,90)}
+  checkBadges();
+  refreshHome();
+}
+const BADGES=[
+  {id:'first',name:'First Bits',desc:'Earn your first XP',icon:'bolt',test:()=>mem.xp>0},
+  {id:'reader',name:'Bookworm',desc:'Read every part of one week',icon:'book',test:()=>weeks.some(w=>(mem.read[w.n]||[]).length>=w.parts.length)},
+  {id:'scholar',name:'Scholar',desc:'Read every part of every week',icon:'book',test:()=>weeks.every(w=>(mem.read[w.n]||[]).length>=w.parts.length)},
+  {id:'quiz1',name:'Quiz Initiate',desc:'Finish a practice round',icon:'check',test:()=>mem.stats.rounds>0},
+  {id:'perfect',name:'Flawless',desc:'Full marks on a round of 10 or more',icon:'star',test:()=>mem.stats.perfect>0},
+  {id:'combo5',name:'On a Roll',desc:'5 correct answers in a row',icon:'flame',test:()=>mem.bestCombo>=5},
+  {id:'combo10',name:'Unstoppable',desc:'10 correct answers in a row',icon:'flame',test:()=>mem.bestCombo>=10},
+  {id:'speed',name:'Overclocked',desc:'Score 12 or more in a speed round',icon:'clock',test:()=>Object.keys(mem.speed).some(k=>mem.speed[k]>=12)},
+  {id:'fixer',name:'Bug Fixer',desc:'Clear 5 questions from your mistakes',icon:'shield',test:()=>mem.stats.fixed>=5},
+  {id:'labs',name:'Tinkerer',desc:'Try every lab tool',icon:'wrench',test:()=>ALL_LABS.length>0&&ALL_LABS.every(id=>mem.seen.lab[id])},
+  {id:'check',name:'Checked Out',desc:'Tick a whole week’s checklist',icon:'list',test:()=>weeks.some(w=>(mem.check[w.n]||[]).length>=w.checklist.length)},
+  {id:'deck',name:'Card Shark',desc:'Clear a flashcard deck',icon:'cards',test:()=>mem.stats.decks>0},
+  {id:'focus1',name:'Deep Work',desc:'Finish a focus session',icon:'target',test:()=>mem.focus.done>=1},
+  {id:'focus5',name:'In the Zone',desc:'Finish 5 focus sessions',icon:'target',test:()=>mem.focus.done>=5},
+  {id:'streak3',name:'Warming Up',desc:'Study 3 days in a row',icon:'calendar',test:()=>streak()>=3},
+  {id:'streak7',name:'Week Warrior',desc:'Study 7 days in a row',icon:'flame',test:()=>streak()>=7},
+  {id:'mission',name:'Daily Sweep',desc:'Finish all of a day’s missions',icon:'trophy',test:()=>mem.stats.sweeps>0},
+  {id:'owl',name:'Night Owl',desc:'Earn XP between midnight and 4am',icon:'moon',test:()=>mem.stats.owl>0},
+  {id:'lark',name:'Early Bird',desc:'Earn XP between 5am and 7am',icon:'sun',test:()=>mem.stats.lark>0},
+  {id:'aligned',name:'Ring Aligned',desc:'Master a week ('+ALIGN+'% or more)',icon:'ring',test:()=>weeks.some(w=>progress(w)>=ALIGN)},
+  {id:'vault',name:'Vault Cracked',desc:'Align every ring on the disk',icon:'key',test:()=>weeks.every(w=>progress(w)>=ALIGN)},
+  {id:'lvl5',name:'Level 5',desc:'Reach level 5',icon:'crown',test:()=>level(mem.xp).L>=5},
+  {id:'lvl10',name:'Level 10',desc:'Reach level 10',icon:'crown',test:()=>level(mem.xp).L>=10}
+];
+function checkBadges(){
+  BADGES.forEach(b=>{
+    if(mem.badges[b.id]||!b.test())return;
+    mem.badges[b.id]=Date.now();save();
+    sound('badge');
+    toast('Badge unlocked: '+b.name,b.desc,'<span class="coin-wrap">'+coin(ICON[b.icon],{size:44,flip:true})+'</span>');
+    fx.burst(innerWidth-160,innerHeight-80,90);
+  });
+}
+function ensureMissions(){
+  const d=today();
+  if(mem.missions&&mem.missions.date===d)return;
+  const c=[];
+  for(const w of weeks){const r=new Set(mem.read[w.n]||[]);const p=w.parts.find(x=>!r.has(x.id));
+    if(p){c.push({k:'read',w:w.n,p:p.id,text:'Read Week '+w.n+', Part '+p.tag+': '+p.title,href:'#w'+w.n,xp:30,need:1});break}}
+  const weak=weeks.map(w=>{const b=mem.quiz['w'+w.n];return{w:w,pct:b?b.s/b.t:-1}}).sort((a,b)=>a.pct-b.pct)[0].w;
+  c.push({k:'quiz',w:weak.n,text:'Score 7 or more in a 10-question Week '+weak.n+' practice round',href:'#w'+weak.n+'-quiz',xp:40,need:1});
+  const nm=Object.keys(mem.mistakes).length,odd=new Date().getDate()%2;
+  if(nm>=3)c.push({k:'fix',text:'Clear 3 questions from your mistakes',href:'#mix',xp:35,need:3});
+  c.push(odd?{k:'speed',text:'Score 8 or more in any speed round',href:'#mix',xp:35,need:1}:{k:'focus',text:'Finish a focus session',href:'',xp:35,need:1});
+  c.push({k:'cards',text:'Clear a flashcard deck',href:'#w'+weeks[weeks.length-1].n+'-cards',xp:25,need:1});
+  c.push(odd?{k:'focus',text:'Finish a focus session',href:'',xp:35,need:1}:{k:'speed',text:'Score 8 or more in any speed round',href:'#mix',xp:35,need:1});
+  const seen=new Set(),list=[];
+  c.forEach(m=>{if(list.length<3&&!seen.has(m.k)){seen.add(m.k);m.n=0;m.done=false;list.push(m)}});
+  mem.missions={date:d,list:list,swept:false};save();
+}
+function emit(k,d,at){
+  ensureMissions();const M=mem.missions;let any=false;
+  M.list.forEach(m=>{
+    if(m.done||m.k!==k)return;
+    let hit=true;
+    if(k==='read')hit=d.w===m.w&&d.p===m.p;
+    else if(k==='quiz')hit=d.w===m.w&&d.t>=10&&d.s>=7;
+    else if(k==='speed')hit=d.s>=8;
+    if(!hit)return;
+    m.n=(m.n||0)+1;
+    if(m.n>=m.need){m.done=true;any=true;save();toast('Mission complete',m.text,'<span class="t-ic">'+ICON.check+'</span>');gain(m.xp,at)}
+  });
+  if(any&&!M.swept&&M.list.every(m=>m.done)){
+    M.swept=true;mem.stats.sweeps++;save();
+    toast('Daily sweep','All three missions done. Bonus 50 XP.','<span class="t-ic">'+ICON.trophy+'</span>');
+    fx.burst(null,null,200);gain(50,null);
+  }
+  save();refreshHome();
+}
+
+/* ================= HUD + focus timer ================= */
+const focusBtn=$('#focus-btn'),focusPop=$('#focus-pop');
+function hud(){
+  const lv=level(mem.xp),s=streak();
+  $('#hud-lvl').innerHTML='Lv '+lv.L+'<span class="lv-bar"><i style="width:'+Math.round(lv.cur/lv.span*100)+'%"></i></span>';
+  $('#hud-lvl').setAttribute('aria-label','Level '+lv.L+', '+lv.rank+', '+mem.xp+' XP. Open profile');
+  $('#hud-streak').innerHTML=ICON.flame+s;
+  $('#hud-streak').setAttribute('aria-label',plural(s,'day')+' streak. Open profile');
+  focusLabel();
+}
+function focusLabel(){
+  const f=mem.focus;
+  if(f.end){const left=Math.max(0,f.end-Date.now()),m=Math.floor(left/60000),s=Math.floor(left%60000/1000);
+    focusBtn.innerHTML=ICON.clock+m+':'+pad2(s);focusBtn.classList.add('is-on');focusBtn.setAttribute('aria-label','Focus session running, '+m+' minutes left')}
+  else{focusBtn.innerHTML=ICON.clock+'Focus';focusBtn.classList.remove('is-on');focusBtn.setAttribute('aria-label','Start a focus session')}
+}
+function drawFocusPop(){
+  const f=mem.focus;
+  if(f.end){
+    focusPop.innerHTML='<h3>Focus session running</h3><p class="hint">Stay on the notes until the timer ends. You earn '+(f.mins*2)+' XP when it finishes.</p><button type="button" class="btn" data-stop>End early (no XP)</button>';
+    $('[data-stop]',focusPop).onclick=()=>{mem.focus.end=null;save();focusLabel();drawFocusPop();refreshHome()};
+  }else{
+    focusPop.innerHTML='<h3>Start a focus session</h3><p class="hint">Pick a length, then study without switching tabs. Finishing earns 2 XP per minute and counts towards missions.</p>'+
+      '<div class="seg">'+[15,25,45].map(m=>'<button type="button" data-m="'+m+'" aria-pressed="'+(f.mins===m)+'">'+m+'m</button>').join('')+'</div>'+
+      '<button type="button" class="btn gold" data-go>'+ICON.play+'Start '+f.mins+' minutes</button>';
+    $$('[data-m]',focusPop).forEach(b=>{b.onclick=()=>{mem.focus.mins=+b.dataset.m;save();drawFocusPop()}});
+    $('[data-go]',focusPop).onclick=()=>{startFocus();focusPop.hidden=true;focusBtn.setAttribute('aria-expanded','false')};
+  }
+}
+function startFocus(){
+  if(mem.focus.end){toast('Focus session already running','Check the timer in the top bar.','<span class="t-ic">'+ICON.clock+'</span>');return}
+  mem.focus.end=Date.now()+mem.focus.mins*60000;save();focusLabel();sound('tick');refreshHome();
+  toast('Focus session started',mem.focus.mins+' minutes. The timer is in the top bar.','<span class="t-ic">'+ICON.clock+'</span>');
+}
+focusBtn.addEventListener('click',e=>{e.stopPropagation();if(focusPop.hidden){drawFocusPop();focusPop.hidden=false;focusBtn.setAttribute('aria-expanded','true')}else{focusPop.hidden=true;focusBtn.setAttribute('aria-expanded','false')}});
+document.addEventListener('click',e=>{if(!focusPop.hidden&&!e.target.closest('.focus-wrap')){focusPop.hidden=true;focusBtn.setAttribute('aria-expanded','false')}});
+app.addEventListener('click',e=>{const b=e.target.closest('[data-focus]');if(b)startFocus()});
+setInterval(()=>{
+  const f=mem.focus;if(!f.end)return;
+  if(Date.now()>=f.end){
+    const mins=f.mins;f.end=null;f.done=(f.done||0)+1;save();focusLabel();
+    sound('lvl');fx.burst(null,null,120);
+    toast('Focus session complete',mins+' minutes of deep work. +'+(mins*2)+' XP','<span class="t-ic">'+ICON.target+'</span>');
+    gain(mins*2,focusBtn);emit('focus',{});
+  }else focusLabel();
+},1000);
+
+/* ================= routing ================= */
+let route=null,cleanup=[];
+function parse(r){
+  r=String(r||'').replace(/^#/,'');
+  const m=/^w(\d+)(?:-(labs|quiz|cards|practice|check))?$/.exec(r);
+  if(m){const w=weeks.find(x=>x.n===+m[1]);if(w)return{view:'week',w:w,tab:m[2]||'notes'}}
+  if(r==='glossary'||r==='mix'||r==='me')return{view:r};
+  return{view:'home'};
+}
+function go(r){
+  r=String(r||'').replace(/^#/,'');
+  if(r===route){window.scrollTo(0,0);return}
+  try{if(location.hash.replace(/^#/,'')!==r)location.hash=r}catch(e){}
+  render(r);
+}
+function render(r){
+  const prev=parse(route),p=parse(r),first=route===null;
+  route=r;
+  cleanup.forEach(f=>{try{f()}catch(e){}});cleanup=[];
+  $$('[data-nav]').forEach(a=>{if(a.dataset.nav===p.view)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+  if(p.view==='week'){viewWeek(p.w,p.tab);mem.last=r;save()}
+  else if(p.view==='glossary')viewGlossary();
+  else if(p.view==='mix')viewMix();
+  else if(p.view==='me')viewMe();
+  else viewHome();
+  if(first)return;
+  const sameWeek=prev.view==='week'&&p.view==='week'&&prev.w===p.w;
+  const tabs=$('.tabs');
+  if(sameWeek&&tabs){if(tabs.getBoundingClientRect().top<0)tabs.scrollIntoView()}
+  else window.scrollTo(0,0);
+  const h=$('h1',app);if(h&&!sameWeek){try{h.focus({preventScroll:true})}catch(e){}}
+}
+window.addEventListener('hashchange',()=>{const r=location.hash.replace(/^#/,'');if(r!==route)render(r)});
+document.addEventListener('click',e=>{
+  const a=e.target.closest&&e.target.closest('a[href^="#"]');
+  if(!a||e.defaultPrevented||e.metaKey||e.ctrlKey)return;
+  e.preventDefault();go(a.getAttribute('href'));
+});
+
+/* ================= home ================= */
+let stage=null;
+function refreshHome(){
+  if(parse(route).view!=='home')return;
+  const r=$('#run');if(r)r.innerHTML=runHTML();
+  const m=$('#missions');if(m)m.innerHTML=missionsHTML();
+}
+function runHTML(){
+  const lv=level(mem.xp),s=streak(),t=todayXP(),pct=Math.min(100,Math.round(t/mem.goal*100));
+  const days=[];for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push('<i class="'+(mem.log[dayKey(d)]>0?'on':'')+(i===0?' today':'')+'"></i>')}
+  return `<a class="tile" href="#me"><span class="coin-wrap">${coin('<b>'+lv.L+'</b>',{size:58})}</span>
+      <span class="tile-body"><span class="t-k">Level ${lv.L}</span><span class="t-big">${lv.rank}</span>
+      <span class="xpbar"><i style="width:${Math.round(lv.cur/lv.span*100)}%"></i></span><span class="t-sub">${lv.cur} / ${lv.span} XP to level ${lv.L+1}</span></span></a>
+    <div class="tile"><span class="flame-big${s?'':' cold'}">${ICON.flame}</span><span class="tile-body"><span class="t-k">Streak</span><span class="t-big">${plural(s,'day')}</span>
+      <span class="dots" role="img" aria-label="Days studied in the last 14 days">${days.join('')}</span></span></div>
+    <div class="tile"><span class="mring-wrap">${ringSVG(pct,54,6)}<span>${pct}%</span></span><span class="tile-body"><span class="t-k">Today</span><span class="t-big">${t} XP</span>
+      <span class="t-sub">${t>=mem.goal?'Daily goal reached':'Daily goal '+mem.goal+' XP'}</span></span></div>
+    <div class="tile tile-focus"><span class="clock">${ICON.clock}</span><span class="tile-body"><span class="t-k">Focus</span><span class="t-big">${plural(mem.focus.done||0,'session')}</span>
+      ${mem.focus.end?'<span class="t-sub">Session running</span>':'<button type="button" class="btn small gold" data-focus>Start '+mem.focus.mins+' min</button>'}</span></div>`;
+}
+function missionsHTML(){
+  ensureMissions();const M=mem.missions;
+  return `<ul class="mission-list">${M.list.map(m=>`<li class="mission${m.done?' done':''}">
+      <span class="m-dot">${ICON.check}</span>
+      <span class="m-text"><b>${esc(m.text)}</b>${m.need>1?'<small>'+Math.min(m.n||0,m.need)+' of '+m.need+'</small>':''}</span>
+      <span class="m-xp">+${m.xp} XP</span>
+      ${m.done?'<span class="chip gold">Done</span>':(m.href?`<a class="btn small" href="${m.href}">Go</a>`:(mem.focus.end?'<span class="chip gold">Running</span>':'<button type="button" class="btn small" data-focus>Start</button>'))}
+    </li>`).join('')}</ul>
+    <p class="sweep">${M.swept?'<b>Daily sweep complete.</b> New missions arrive at midnight.':'Finish all three for a <b>+50 XP</b> sweep bonus. New missions arrive at midnight.'}</p>`;
+}
+function viewHome(){
+  ensureMissions();
+  const lp=parse(mem.last),cw=lp.view==='week'?lp.w:weeks[weeks.length-1];
+  const nextN=weeks[weeks.length-1].n+1;
+  const al=weeks.filter(w=>progress(w)>=ALIGN).length;
+  const nb=Object.keys(mem.badges).length,nm=Object.keys(mem.mistakes).length;
+  app.innerHTML=`
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Cyber security module<span class="bin">Weeks ${weeks[0].n} to ${weeks[weeks.length-1].n}</span></p>
+      <h1 tabindex="-1">Crack the <em>vault</em>.</h1>
+      <p class="lede">Each week is a ring on the lock. Read the notes, beat the quiz and tick the checklist to align its ring. Align every ring to open the vault, and a new ring arrives each week.</p>
+      <div class="actions wk" style="--h:${cw.h}">
+        <a class="btn primary" href="#${lp.view==='week'?mem.last:'w'+cw.n}">${lp.view==='week'?'Continue':'Start'} Week ${cw.n}</a>
+        <a class="btn" href="#mix">${ICON.bolt}Quiz arena</a>
+      </div>
+      <p class="t-sub">${al} of ${weeks.length} rings aligned · ${nb} of ${BADGES.length} badges</p>
+    </div>
+    <div class="stage-slot"></div>
+  </section>
+  <section class="run" id="run" aria-label="Your run">${runHTML()}</section>
+  <section class="sec" aria-labelledby="mis-h"><div class="sec-top"><h2 class="sec-h" id="mis-h">Today's missions</h2><span class="hint">Picked from what you haven't done yet</span></div><div id="missions">${missionsHTML()}</div></section>
+  <section class="sec" aria-labelledby="idx-h">
+    <div class="sec-top"><h2 class="sec-h" id="idx-h">Weeks</h2><span class="hint">A ring aligns at ${ALIGN}% mastery: notes read, checklist ticked, quiz best</span></div>
+    <ol class="wk-list">${weeks.map(w=>{
+      const q=mem.quiz['w'+w.n],pr=progress(w);
+      return `<li class="row wk" style="--h:${w.h}" data-i="${weeks.indexOf(w)}">
+        <span class="row-num" aria-hidden="true">${w.n}</span>
+        <a class="row-main" href="#w${w.n}"><span class="row-title">Week ${w.n}: ${w.title}</span><span class="row-topics">${w.topics.join(' · ')}</span></a>
+        <span class="row-side">
+          <span class="row-links"><a href="#w${w.n}-quiz">Quiz</a><a href="#w${w.n}-cards">Flashcards</a>${w.labs.length?`<a href="#w${w.n}-labs">Labs</a>`:''}</span>
+          <span class="meter">${pr>=ALIGN?'<span class="chip gold">Aligned</span>':''}<i><b style="width:${pr}%"></b></i>${pr}% mastered${q?' · best '+q.s+'/'+q.t:''}</span>
+        </span>
+      </li>`}).join('')}</ol>
+    <p class="next-ring">Week ${nextN} will be the next ring on the disk.</p>
+  </section>
+  <section class="sec" aria-labelledby="bd-h">
+    <div class="sec-top"><h2 class="sec-h" id="bd-h">Badges · ${nb} of ${BADGES.length}</h2><a class="hint" href="#me">See what each one needs</a></div>
+    <div class="coin-row">${BADGES.map(b=>{const got=!!mem.badges[b.id];return '<span title="'+esc(b.name+': '+b.desc+(got?'':' (locked)'))+'">'+coin(got?ICON[b.icon]:ICON.lock,{locked:!got})+'</span>'}).join('')}</div>
+  </section>
+  <section class="sec extras" aria-label="Across all weeks">
+    <a class="extra" href="#mix"><strong>${ICON.bolt}Quiz arena</strong><span>Practice rounds, 60-second speed rounds and mistake fixing, with questions from every week.</span></a>
+    <a class="extra" href="#mix"><strong>${ICON.shield}Fix my mistakes</strong><span>${nm?plural(nm,'question')+' waiting. Get each one right to clear it.':'Questions you get wrong collect here so you can fix them later.'}</span></a>
+    <a class="extra" href="#glossary"><strong>${ICON.book}Glossary</strong><span>Every key term from every week in one searchable list.</span></a>
+  </section>`;
+  if(!stage)stage=makeStage();
+  $('.stage-slot',app).replaceWith(stage.el);
+  stage.setMastery(weeks.map(progress));
+  stage.resume();
+  $$('.row',app).forEach(li=>{
+    const i=+li.dataset.i;
+    li.addEventListener('mouseenter',()=>stage.highlight(i));
+    li.addEventListener('mouseleave',()=>stage.highlight(-1));
+    li.addEventListener('focusin',()=>stage.highlight(i));
+    li.addEventListener('focusout',()=>stage.highlight(-1));
+  });
+}
+function hotRow(i){$$('.row',app).forEach(li=>li.classList.toggle('is-hot',+li.dataset.i===i))}
+
+/* ================= the vault: one ring per week (three.js, with a flat fallback) ================= */
+function makeStage(){
+  const el=document.createElement('div');el.className='stage';
+  el.innerHTML='<canvas aria-hidden="true"></canvas><p class="stage-cap"></p>';
+  const canvas=el.firstChild,cap=el.lastChild;
+  const n=weeks.length,nextN=weeks[n-1].n+1;
+  let mastery=weeks.map(()=>0),aligned=weeks.map(()=>false),vault=false,hover=-1;
+  const defCap=()=>vault?'The vault is open. Every ring is aligned.':aligned.filter(Boolean).length+' of '+n+' rings aligned. Drag to turn the disk, click a ring to open its week.';
+  const setCap=()=>{cap.textContent=hover>=0?'Week '+weeks[hover].n+': '+weeks[hover].title+' · '+Math.round(mastery[hover]*100)+'% mastered. Click to open.':defCap()};
+  const hubR=0.85,W=Math.max(0.44,Math.min(0.78,4.4/(n+1))),gap=0.05,stepY=0.25,rimT=0.26;
+  const R=i=>[hubR+i*W+gap/2,hubR+(i+1)*W-gap/2];
+  const outerMax=hubR+(n+1)*W;
+  const MONO='"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace';
+  const TAU=Math.PI*2;
+
+  function drawRing(g,cx,cy,sc,i){
+    const ri=R(i)[0],ro=R(i)[1],wk=weeks[i],rm=(ri+ro)/2;
+    const gr=g.createRadialGradient(cx,cy,ri*sc,cx,cy,ro*sc);
+    gr.addColorStop(0,'hsl('+wk.h+',52%,43%)');gr.addColorStop(1,'hsl('+wk.h+',58%,30%)');
+    g.beginPath();g.arc(cx,cy,ro*sc,0,TAU);g.arc(cx,cy,ri*sc,0,TAU,true);g.fillStyle=gr;g.fill();
+    g.strokeStyle='rgba(255,255,255,.4)';g.lineWidth=Math.max(1,sc*0.012);
+    g.beginPath();g.arc(cx,cy,(ro-0.045)*sc,0,TAU);g.stroke();
+    g.beginPath();g.arc(cx,cy,(ri+0.045)*sc,0,TAU);g.stroke();
+    g.fillStyle='rgba(255,255,255,.96)';g.textAlign='center';g.textBaseline='middle';
+    g.font='700 '+Math.round((ro-ri)*sc*0.5)+'px '+MONO;
+    for(let k=0;k<26;k++){
+      g.save();g.translate(cx,cy);g.rotate(k*TAU/26);g.fillText(String.fromCharCode(65+k),0,-rm*sc);g.restore();
+      g.save();g.translate(cx,cy);g.rotate((k+.5)*TAU/26);g.fillStyle='rgba(255,255,255,.5)';
+      g.fillRect(-sc*0.006,-(ro-0.045)*sc,sc*0.012,(ro-ri)*sc*0.16);g.restore();
+    }
+  }
+  function drawHub(g,cx,cy,r){
+    const gr=g.createRadialGradient(cx-r*.3,cy-r*.3,r*.1,cx,cy,r);
+    gr.addColorStop(0,'#f1cd82');gr.addColorStop(1,'#b07d24');
+    g.beginPath();g.arc(cx,cy,r,0,TAU);g.fillStyle=gr;g.fill();
+    g.strokeStyle='rgba(60,40,5,.35)';g.lineWidth=r*0.05;g.beginPath();g.arc(cx,cy,r*0.86,0,TAU);g.stroke();
+    g.fillStyle='#2a1d06';
+    g.beginPath();g.arc(cx,cy-r*.16,r*.2,0,TAU);g.fill();
+    g.beginPath();g.moveTo(cx-r*.09,cy-r*.06);g.lineTo(cx+r*.09,cy-r*.06);g.lineTo(cx+r*.17,cy+r*.42);g.lineTo(cx-r*.17,cy+r*.42);g.closePath();g.fill();
+  }
+  function drawGhost(g,cx,cy,sc){
+    const ri=R(n)[0],ro=R(n)[1],rm=(ri+ro)/2;
+    g.strokeStyle='rgba(205,215,230,.6)';g.lineWidth=Math.max(1,sc*0.014);g.setLineDash([sc*0.08,sc*0.07]);
+    g.beginPath();g.arc(cx,cy,ro*sc,0,TAU);g.stroke();
+    g.beginPath();g.arc(cx,cy,ri*sc,0,TAU);g.stroke();
+    g.setLineDash([]);
+    g.fillStyle='rgba(205,215,230,.75)';g.textAlign='center';g.textBaseline='middle';
+    g.font='700 '+Math.round((ro-ri)*sc*0.34)+'px '+MONO;
+    const label='WEEK '+nextN+' NEXT';
+    for(let rep=0;rep<3;rep++)for(let c=0;c<label.length;c++){
+      g.save();g.translate(cx,cy);g.rotate(rep*TAU/3+(c-(label.length-1)/2)*0.06*(3.2/rm));g.fillText(label[c],0,-rm*sc);g.restore();
+    }
+  }
+  function drawBadge(g,s,i){
+    const wk=weeks[i],al=aligned[i];
+    g.clearRect(0,0,s,s);
+    g.beginPath();g.arc(s/2,s/2,s*0.44,0,TAU);g.fillStyle=al?'#f3c35b':'#ffffff';g.fill();
+    g.lineWidth=s*0.07;g.strokeStyle=al?'#8f5806':'hsl('+wk.h+',60%,34%)';g.stroke();
+    g.fillStyle='#131a24';g.textAlign='center';g.textBaseline='middle';g.font='800 '+Math.round(s*(wk.n>9?0.42:0.52))+'px '+MONO;
+    g.fillText(String(wk.n),s/2,s*0.53);
+  }
+
+  const api={el:el,resume(){},highlight(){},setMastery(ms){mastery=ms.map(m=>m/100);aligned=ms.map(m=>m>=ALIGN);vault=n>0&&aligned.every(Boolean);setCap()}};
+  setCap();
+
+  function flat(){
+    const g=canvas.getContext('2d');if(!g)return api;
+    const draw=()=>{
+      const dpr=Math.min(2,window.devicePixelRatio||1),w=canvas.clientWidth,h=canvas.clientHeight;if(!w)return;
+      canvas.width=w*dpr;canvas.height=h*dpr;
+      const cx=canvas.width/2,cy=canvas.height/2,sc=Math.min(cx,cy)*0.96/outerMax;
+      g.clearRect(0,0,canvas.width,canvas.height);
+      g.beginPath();g.arc(cx,cy,outerMax*sc,0,TAU);g.fillStyle='#1f2733';g.fill();
+      drawGhost(g,cx,cy,sc);
+      for(let i=n-1;i>=0;i--){
+        drawRing(g,cx,cy,sc,i);
+        if(mastery[i]>0){g.strokeStyle=aligned[i]?'#f3c35b':'#d9a441';g.lineWidth=sc*0.06;g.lineCap='round';
+          g.beginPath();g.arc(cx,cy,(R(i)[1]-0.02)*sc,-Math.PI/2,-Math.PI/2+TAU*Math.min(1,mastery[i]));g.stroke()}
+      }
+      drawHub(g,cx,cy,(hubR-gap/2)*sc);
+    };
+    const at=e=>{
+      const b=canvas.getBoundingClientRect(),sc=Math.min(b.width,b.height)/2*0.96/outerMax;
+      const d=Math.hypot(e.clientX-b.left-b.width/2,e.clientY-b.top-b.height/2)/sc;
+      for(let i=0;i<n;i++){if(d>=R(i)[0]&&d<=R(i)[1])return i}return -1;
+    };
+    canvas.style.cursor='default';
+    canvas.addEventListener('click',e=>{const i=at(e);if(i>=0)go('w'+weeks[i].n)});
+    canvas.addEventListener('mousemove',e=>{const i=at(e);canvas.style.cursor=i>=0?'pointer':'default';if(i!==hover){hover=i;setCap();hotRow(i)}});
+    canvas.addEventListener('mouseleave',()=>{hover=-1;setCap();hotRow(-1)});
+    if(window.ResizeObserver)new ResizeObserver(draw).observe(canvas);
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
+    const set0=api.setMastery;
+    api.resume=draw;api.setMastery=ms=>{set0(ms);draw()};
+    return api;
+  }
+
+  let renderer=null;
+  if(window.THREE){try{renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true})}catch(e){renderer=null}}
+  if(!renderer)return flat();
+
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  const scene=new THREE.Scene(),root=new THREE.Group();scene.add(root);
+  const cam=new THREE.PerspectiveCamera(30,1,0.1,200);
+  scene.add(new THREE.HemisphereLight(0xffffff,0x3a4658,0.82));
+  const sun=new THREE.DirectionalLight(0xffffff,0.8);sun.position.set(4,9,6);scene.add(sun);
+  const fill=new THREE.DirectionalLight(0xffe2b0,0.25);fill.position.set(-6,3,-2);scene.add(fill);
+  const TS=n>6?512:1024,aniso=renderer.capabilities.getMaxAnisotropy();
+  const canvTex=(size,paint)=>{
+    const cv=document.createElement('canvas');cv.width=cv.height=size;
+    const tex=new THREE.CanvasTexture(cv);tex.encoding=THREE.sRGBEncoding;tex.anisotropy=aniso;
+    tex.repaint=()=>{const g=cv.getContext('2d');g.clearRect(0,0,size,size);paint(g,size);tex.needsUpdate=true};
+    tex.repaint();return tex;
+  };
+  const texes=[];
+
+  const base=new THREE.Mesh(new THREE.CylinderGeometry(outerMax+0.12,outerMax+0.3,0.16,128),
+    new THREE.MeshStandardMaterial({color:0x1a212c,roughness:.8,metalness:.2}));
+  base.position.y=-0.08;root.add(base);
+  const brass=new THREE.MeshStandardMaterial({color:0xb98a30,roughness:.4,metalness:.55});
+  const marker=new THREE.Mesh(new THREE.ConeGeometry(0.14,0.34,3),brass);
+  marker.rotation.x=Math.PI/2;marker.position.set(0,0.1,-(outerMax+0.02));root.add(marker);
+
+  const ghostTex=canvTex(1024,(g,s)=>drawGhost(g,s/2,s/2,s/2/R(n)[1]));texes.push(ghostTex);
+  const ghost=new THREE.Mesh(new THREE.RingGeometry(R(n)[0]-0.02,R(n)[1],128,1),new THREE.MeshBasicMaterial({map:ghostTex,transparent:true,depthWrite:false}));
+  ghost.rotation.x=-Math.PI/2;ghost.position.y=0.012;root.add(ghost);
+
+  const hubTop=rimT+n*stepY,capR=hubR-gap/2-0.04;
+  const hub=new THREE.Mesh(new THREE.CylinderGeometry(hubR-gap/2,hubR-gap/2,hubTop,96),brass);
+  hub.position.y=hubTop/2;root.add(hub);
+  const glowMat=new THREE.MeshStandardMaterial({color:0xffd27a,emissive:0xffb020,emissiveIntensity:0,roughness:.3});
+  const glow=new THREE.Mesh(new THREE.CircleGeometry(capR*0.92,48),glowMat);glow.rotation.x=-Math.PI/2;glow.position.y=hubTop+0.004;root.add(glow);
+  const capTex=canvTex(256,(g,s)=>drawHub(g,s/2,s/2,s/2));texes.push(capTex);
+  const capM=new THREE.Mesh(new THREE.CylinderGeometry(capR,capR,0.1,64),[brass,new THREE.MeshStandardMaterial({map:capTex,roughness:.45,metalness:.3}),brass]);
+  capM.position.y=hubTop+0.05;root.add(capM);
+  const beam=new THREE.Mesh(new THREE.CylinderGeometry(capR*0.85,capR*1.5,4,40,1,true),
+    new THREE.MeshBasicMaterial({color:0xffc861,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+  beam.position.y=hubTop+2;root.add(beam);
+  const vlight=new THREE.PointLight(0xffc861,0,8);vlight.position.set(0,hubTop+0.6,0);root.add(vlight);
+
+  const pick=[];
+  const goldMat=on=>new THREE.MeshStandardMaterial({color:on?0xffd36b:0xd9a441,emissive:on?0xffa920:0x8a5a10,emissiveIntensity:on?0.9:0.35,metalness:.6,roughness:.3});
+  const rings=weeks.map((wk,i)=>{
+    const ri=R(i)[0],ro=R(i)[1],top=rimT+(n-1-i)*stepY,grp=new THREE.Group();
+    const tex=canvTex(TS,(g,s)=>drawRing(g,s/2,s/2,s/2/ro,i));texes.push(tex);
+    const topM=new THREE.Mesh(new THREE.RingGeometry(ri,ro,128,1),
+      new THREE.MeshStandardMaterial({map:tex,roughness:.5,metalness:.15,emissive:new THREE.Color('hsl('+wk.h+',70%,55%)'),emissiveIntensity:0}));
+    topM.rotation.x=-Math.PI/2;topM.position.y=top;
+    const wallMat=new THREE.MeshStandardMaterial({color:new THREE.Color('hsl('+wk.h+',55%,24%)'),roughness:.6,metalness:.2});
+    const wo=new THREE.Mesh(new THREE.CylinderGeometry(ro,ro,top,128,1,true),wallMat);wo.position.y=top/2;
+    const inMat=wallMat.clone();inMat.side=THREE.BackSide;
+    const wi=new THREE.Mesh(new THREE.CylinderGeometry(ri,ri,top,128,1,true),inMat);wi.position.y=top/2;
+    const bt=canvTex(128,(g,s)=>drawBadge(g,s,i));texes.push(bt);
+    const badge=new THREE.Sprite(new THREE.SpriteMaterial({map:bt}));
+    const a=0.9+i*2.2,rm=(ri+ro)/2;
+    badge.position.set(Math.cos(a)*rm,top+0.3,Math.sin(a)*rm);badge.scale.set(0.5,0.5,1);
+    grp.add(topM,wo,wi,badge);
+    [topM,wo,wi].forEach(m=>{m.userData.i=i;pick.push(m)});
+    root.add(grp);
+    return{g:grp,top:topM,y:top,ro:ro,badgeTex:bt,arc:null,arcKey:'',lift:0,rot:i*0.9+1.3,spin:(i%2?-1:1)*0.16/(1+i*0.45)};
+  });
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>texes.forEach(t=>t.repaint()));
+
+  function applyMastery(){
+    rings.forEach((r,i)=>{
+      const m=Math.min(1,mastery[i]),key=m.toFixed(3)+aligned[i];
+      if(key===r.arcKey)return;r.arcKey=key;
+      if(r.arc){r.g.remove(r.arc);r.arc.geometry.dispose();r.arc.material.dispose();r.arc=null}
+      if(m>0){
+        const mesh=new THREE.Mesh(new THREE.TorusGeometry(r.ro-0.025,0.04,10,180,Math.max(0.03,TAU*m)),goldMat(aligned[i]));
+        mesh.rotation.x=-Math.PI/2;mesh.rotation.z=Math.PI/2;mesh.position.y=r.y+0.02;r.g.add(mesh);r.arc=mesh;
+      }
+      r.badgeTex.repaint();
+    });
+  }
+
+  let yaw=-0.45,pitch=0,vy=0,drag=false,moved=0,px=0,py=0,ext=-1,running=false,last=0,t0=0,openT=0;
+  const ray=new THREE.Raycaster(),v2=new THREE.Vector2();
+  function pickAt(e){
+    const b=canvas.getBoundingClientRect();
+    v2.set((e.clientX-b.left)/b.width*2-1,-((e.clientY-b.top)/b.height*2-1));
+    ray.setFromCamera(v2,cam);
+    const hit=ray.intersectObjects(pick,false)[0];
+    return hit?hit.object.userData.i:-1;
+  }
+  function setHover(i){if(i===hover)return;hover=i;canvas.style.cursor=i>=0?'pointer':'';setCap();hotRow(i)}
+  canvas.addEventListener('pointerdown',e=>{drag=true;moved=0;px=e.clientX;py=e.clientY;vy=0;canvas.classList.add('is-drag');try{canvas.setPointerCapture(e.pointerId)}catch(x){}});
+  canvas.addEventListener('pointermove',e=>{
+    if(drag){const dx=e.clientX-px,dy=e.clientY-py;moved+=Math.abs(dx)+Math.abs(dy);
+      yaw+=dx*0.008;vy=dx*0.008;pitch=Math.max(-0.22,Math.min(0.42,pitch+dy*0.004));px=e.clientX;py=e.clientY;}
+    else if(e.pointerType!=='touch')setHover(pickAt(e));
+    kick();
+  });
+  const end=e=>{
+    if(!drag)return;drag=false;canvas.classList.remove('is-drag');
+    if(e.type==='pointerup'&&moved<7){const i=pickAt(e);if(i>=0){setHover(-1);go('w'+weeks[i].n)}}
+  };
+  canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
+  canvas.addEventListener('pointerleave',()=>{if(!drag)setHover(-1)});
+
+  function fit(){
+    const w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return;
+    renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));renderer.setSize(w,h,false);
+    cam.aspect=w/h;
+    const t=Math.tan(cam.fov*Math.PI/360),r=outerMax+0.3,elev=0.66;
+    const d=1.1*r/t*Math.max(1/cam.aspect,Math.sin(elev)+0.2);
+    cam.position.set(0,d*Math.sin(elev),d*Math.cos(elev));cam.lookAt(0,0.25,0);cam.updateProjectionMatrix();
+  }
+  function frame(t){
+    if(!el.isConnected||document.hidden){running=false;return}
+    const dt=Math.min(0.05,(t-last)/1000||0);last=t;
+    if(!drag){yaw+=vy;vy*=0.93;if(Math.abs(vy)<1e-4)vy=0}
+    root.rotation.y=yaw;root.rotation.x=pitch;
+    const k=reduced?0:Math.max(0,1-(t-t0)/1500),boost=1+k*k*16;
+    rings.forEach((r,i)=>{
+      if(aligned[i]){const target=Math.round(r.rot/TAU)*TAU;r.rot+=(target-r.rot)*Math.min(1,dt*(reduced?60:2.5))}
+      else if(!reduced)r.rot+=r.spin*dt*boost;
+      r.g.rotation.y=r.rot;
+      const lt=(i===hover||i===ext)?0.17:0;
+      r.lift+=(lt-r.lift)*Math.min(1,dt*10);
+      r.g.position.y=r.lift;r.top.material.emissiveIntensity=r.lift*1.6;
+    });
+    openT+=((vault?1:0)-openT)*Math.min(1,dt*(reduced?60:1.6));
+    capM.position.y=hubTop+0.05+openT*0.8;capM.rotation.y=openT*Math.PI*1.25;capM.rotation.x=openT*0.32;
+    beam.material.opacity=openT*0.28*(0.85+0.15*Math.sin(t/300));glowMat.emissiveIntensity=openT*1.6;vlight.intensity=openT*1.5;
+    renderer.render(scene,cam);
+    requestAnimationFrame(frame);
+  }
+  function kick(){if(!running&&el.isConnected){running=true;last=performance.now();requestAnimationFrame(frame)}}
+  if(window.ResizeObserver)new ResizeObserver(()=>{fit();kick()}).observe(canvas);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)kick()});
+  const set0=api.setMastery;
+  api.setMastery=ms=>{set0(ms);applyMastery();kick()};
+  api.resume=()=>{t0=performance.now();fit();kick()};
+  api.highlight=i=>{ext=i;kick()};
+  return api;
+}
+
+/* ================= week pages ================= */
+const TABS=[['notes','Notes'],['labs','Labs'],['quiz','Quiz'],['cards','Flashcards'],['practice','Practice'],['check','Checklist']];
+function viewWeek(w,tab){
+  const has={notes:1,labs:w.labs.length,quiz:w.quiz.length,cards:w.glossary.length,practice:w.practice.length,check:w.checklist.length};
+  if(!has[tab])tab='notes';
+  const i=weeks.indexOf(w),pv=weeks[i-1],nx=weeks[i+1];
+  app.innerHTML=`<div class="wk week" style="--h:${w.h}">
+    <header class="wk-head">
+      <a class="back" href="#">← All weeks</a>
+      <p class="eyebrow">Week ${w.n}<span class="bin">${bin(w.n)}</span></p>
+      <h1 tabindex="-1">${w.title}</h1>
+      <p class="lede">${w.blurb}</p>
+      <div class="wk-stats"></div>
+    </header>
+    <nav class="tabs" aria-label="Week ${w.n} sections">${TABS.filter(t=>has[t[0]]).map(t=>`<a href="#w${w.n}${t[0]==='notes'?'':'-'+t[0]}"${t[0]===tab?' aria-current="page"':''}>${t[1]}</a>`).join('')}</nav>
+    <div class="wk-body"></div>
+    <nav class="pager" aria-label="Other weeks">
+      ${pv?`<a class="btn" href="#w${pv.n}">← Week ${pv.n}: ${pv.title}</a>`:'<span></span>'}
+      ${nx?`<a class="btn" href="#w${nx.n}">Week ${nx.n}: ${nx.title} →</a>`:'<a class="btn" href="#mix">Quiz arena across all weeks →</a>'}
+    </nav>
+  </div>`;
+  weekStats(w);
+  ({notes:tabNotes,labs:tabLabs,quiz:tabQuiz,cards:tabCards,practice:tabPractice,check:tabCheck})[tab](w,$('.wk-body',app));
+}
+function weekStats(w){
+  const el=$('.wk-stats',app);if(!el)return;
+  const pr=progress(w),q=mem.quiz['w'+w.n];
+  el.innerHTML=`<span class="ms"><span class="mring-wrap">${ringSVG(pr,46,5)}</span><span><b>${pr}%</b><small>${pr>=ALIGN?'Ring aligned':'mastered · '+ALIGN+'% aligns the ring'}</small></span></span>
+    <span class="chip">Read ${(mem.read[w.n]||[]).length}/${w.parts.length}</span>
+    <span class="chip">Checklist ${(mem.check[w.n]||[]).length}/${w.checklist.length}</span>
+    <span class="chip">Quiz best ${q?q.s+'/'+q.t:'none yet'}</span>`;
+}
+
+function tabNotes(w,el){
+  const read=new Set(mem.read[w.n]||[]);
+  el.innerHTML=`<div class="notes">
+    <nav class="rail" aria-label="Parts of week ${w.n}"><p class="rail-h">In this week</p><ol>${w.parts.map(p=>
+      `<li><button type="button" data-p="${p.id}"${read.has(p.id)?' class="is-read"':''}><span class="tag">${p.tag}</span><span>${p.title}</span></button></li>`).join('')}</ol></nav>
+    <article class="prose">${w.parts.map(p=>{const seen=mem.seen.part[w.n+':'+p.id];
+      return `<section class="part" id="${p.id}"><h2><span class="tag">${p.tag}</span>${p.title}</h2>${p.html}
+       <p class="part-end"><button type="button" class="btn readbtn" data-read="${p.id}" aria-pressed="${read.has(p.id)}">${read.has(p.id)?'Read ✓':'Mark as read'}</button>${seen?'':'<small>+15 XP</small>'}</p></section>`}).join('')}</article>
+  </div>`;
+  mountLabs(el,'n'+w.n);
+  $$('.rail button',el).forEach(b=>b.addEventListener('click',()=>{
+    const s=document.getElementById(b.dataset.p);if(s)s.scrollIntoView({behavior:reduced?'auto':'smooth',block:'start'});
+  }));
+  $$('.readbtn',el).forEach(b=>b.addEventListener('click',()=>{
+    const id=b.dataset.read,on=!read.has(id);
+    if(on)read.add(id);else read.delete(id);
+    mem.read[w.n]=Array.from(read);save();
+    b.setAttribute('aria-pressed',on);b.textContent=on?'Read ✓':'Mark as read';
+    const rb=$('.rail button[data-p="'+id+'"]',el);if(rb)rb.classList.toggle('is-read',on);
+    weekStats(w);
+    if(on){
+      const k=w.n+':'+id;
+      if(!mem.seen.part[k]){mem.seen.part[k]=1;save();const sm=b.nextElementSibling;if(sm)sm.remove();gain(15,b)}
+      else checkBadges();
+      emit('read',{w:w.n,p:id},b);
+    }
+  }));
+  if(window.IntersectionObserver){
+    const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){
+      $$('.rail button',el).forEach(b=>b.classList.toggle('is-on',b.dataset.p===e.target.id));
+    }})},{rootMargin:'-15% 0px -70% 0px'});
+    $$('.part',el).forEach(s=>io.observe(s));
+    cleanup.push(()=>io.disconnect());
+  }
+}
+function tabLabs(w,el){
+  el.innerHTML=`<div class="lab-list"><p>Type your own values and watch each step. Work the example by hand first, then check it here. Each tool earns 15 XP the first time you use it.</p>${w.labs.map(id=>`<div data-lab="${id}"></div>`).join('')}</div>`;
+  mountLabs(el,'l'+w.n);
+}
+function tabQuiz(w,el){mountQuiz(el,w.quiz,'w'+w.n,{week:w})}
+function tabCards(w,el){
+  const all=w.glossary.map(g=>({t:g[0],m:g[1]}));
+  let queue,known,flipped;
+  function reset(sh){queue=sh?shuffle(all):all.slice();known=0;draw(false)}
+  function draw(focus){
+    if(!queue.length){
+      el.innerHTML=`<div class="cards"><div class="card enter"><p class="eyebrow">Deck cleared</p><p class="score-big">${all.length}/${all.length}</p>
+        <p>You know every term in the Week ${w.n} deck. +25 XP</p><div class="actions"><button type="button" class="btn primary" data-a="again">Shuffle and go again</button><a class="btn" href="#w${w.n}-quiz">Take the quiz</a></div></div></div>`;
+      $('[data-a="again"]',el).onclick=()=>reset(true);
+      return;
+    }
+    flipped=false;
+    const c=queue[0];
+    el.innerHTML=`<div class="cards">
+      <p>Say the meaning out loud, then flip the card. Mark the ones you know; the rest come back until the deck is clear.</p>
+      <div class="deckbar" aria-hidden="true">${all.map((_,i)=>'<i'+(i<known?' class="k"':'')+'></i>').join('')}</div>
+      <div class="fc" tabindex="0" role="button" aria-label="Flashcard. Press Space to flip.">
+        <div class="fc-in">
+          <div class="fc-face fc-front"><span class="eyebrow">Term</span><p class="fc-term"></p><span class="fc-hint">Click or press Space to flip</span></div>
+          <div class="fc-face fc-back"><span class="eyebrow">Meaning</span><p class="fc-mean"></p><span class="fc-hint">Right arrow: got it · Left arrow: still learning</span></div>
+        </div>
+      </div>
+      <div class="fc-ctl">
+        <button type="button" class="btn" data-a="again" disabled>Still learning</button>
+        <button type="button" class="btn primary" data-a="got" disabled>${ICON.check}Got it</button>
+        <span class="fc-n" aria-live="polite">${queue.length} left · ${known} known</span>
+      </div>
+    </div>`;
+    $('.fc-term',el).textContent=c.t;$('.fc-mean',el).textContent=c.m;
+    const fc=$('.fc',el),bA=$('[data-a="again"]',el),bG=$('[data-a="got"]',el);
+    if(focus){try{fc.focus({preventScroll:true})}catch(e){}}
+    const flip=()=>{fc.classList.toggle('flip');flipped=true;bA.disabled=false;bG.disabled=false};
+    const got=()=>{if(!flipped)return;queue.shift();known++;sound('ok');
+      if(!queue.length){mem.stats.decks++;save();fx.burst(null,null,150);gain(25,bG);emit('cards',{},bG)}draw(true)};
+    const again=()=>{if(!flipped)return;queue.push(queue.shift());draw(true)};
+    fc.addEventListener('click',flip);
+    fc.addEventListener('keydown',e=>{
+      if(e.key===' '||e.key==='Enter'){e.preventDefault();flip()}
+      else if(e.key==='ArrowRight'){e.preventDefault();got()}
+      else if(e.key==='ArrowLeft'){e.preventDefault();again()}
+    });
+    bG.onclick=got;bA.onclick=again;
+  }
+  reset(false);
+}
+function tabPractice(w,el){
+  el.innerHTML=`<p class="intro">Written questions from the Week ${w.n} guide. Try each one on paper first, then open the answer.</p>
+  <ol class="practice">${w.practice.map(p=>`<li>${p.q}<details><summary>Show answer</summary><div class="ans">${p.a}</div></details></li>`).join('')}</ol>`;
+}
+function tabCheck(w,el){
+  const done=new Set(mem.check[w.n]||[]);
+  el.innerHTML=`<p class="intro">Tick each item once you can do it without notes. Each new tick earns 10 XP and moves the ring closer to aligned. <strong class="ck-n"></strong></p>
+  <ul class="check">${w.checklist.map((c,i)=>`<li><label for="ck-w${w.n}-${i}"><input type="checkbox" id="ck-w${w.n}-${i}" data-i="${i}"${done.has(i)?' checked':''}><span>${c}</span></label></li>`).join('')}</ul>`;
+  const count=()=>{$('.ck-n',el).textContent=done.size+' of '+w.checklist.length+' ticked.'};
+  $$('input',el).forEach(c=>c.addEventListener('change',()=>{
+    const i=+c.dataset.i;if(c.checked)done.add(i);else done.delete(i);
+    mem.check[w.n]=Array.from(done);save();count();weekStats(w);
+    const k=w.n+':'+i;
+    if(c.checked&&!mem.seen.chk[k]){mem.seen.chk[k]=1;save();gain(10,c)}else checkBadges();
+    if(c.checked&&done.size===w.checklist.length)fx.burst(null,null,120);
+  }));
+  count();
+}
+
+/* ================= quiz engine: practice, speed, fix ================= */
+function copyText(text,btn){
+  const label=btn.innerHTML;
+  const ok=()=>{btn.textContent='Copied';setTimeout(()=>{btn.innerHTML=label},1600)};
+  const fallback=()=>{
+    const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
+    let done=false;try{done=document.execCommand('copy')}catch(e){}ta.remove();
+    if(done)ok();else{const p=document.createElement('p');p.className='hint';p.textContent='Copy this: '+text;btn.insertAdjacentElement('afterend',p)}
+  };
+  try{navigator.clipboard.writeText(text).then(ok,fallback)}catch(e){fallback()}
+}
+function challenge(what){
+  const lv=level(mem.xp),s=streak();
+  return (mem.name?mem.name+' ':'I ')+what+' on Cyber Security Weekbook (level '+lv.L+' '+lv.rank+(s>1?', '+s+'-day streak':'')+'). Your turn: beat it!';
+}
+function mountQuiz(el,bank,key,opts){
+  let timer=null;
+  const stopTimer=()=>{if(timer){clearInterval(timer);timer=null}};
+  cleanup.push(stopTimer);
+  const scope=opts.week?'Week '+opts.week.n:'All weeks';
+  function answer(q,ok,at,combo){
+    mem.stats.answered++;
+    if(ok){mem.stats.correct++;if(combo>mem.bestCombo)mem.bestCombo=combo}
+    const wasMistake=!!mem.mistakes[q.id];
+    if(ok&&wasMistake){delete mem.mistakes[q.id];mem.stats.fixed++}
+    if(!ok)mem.mistakes[q.id]=1;
+    save();
+    if(ok){sound('ok');gain(10+Math.min(Math.max(combo-1,0),5)*2,at)}else{sound('no');checkBadges()}
+    if(ok&&wasMistake)emit('fix',{},at);
+  }
+  function menu(){
+    stopTimer();
+    const b=mem.quiz[key],sp=mem.speed[key]||0,mist=bank.filter(q=>mem.mistakes[q.id]);
+    el.innerHTML=`<div class="modes">
+      <div class="mode enter"><span class="mode-ic">${ICON.check}</span><h3>Practice round</h3>
+        <p>Your own pace, with an explanation after every answer. 10 XP per correct answer, more on a streak. ${b?'Best: <strong>'+b.s+'/'+b.t+'</strong>':'No attempts yet.'}</p>
+        <div class="actions">${bank.length>10?'<button type="button" class="btn primary" data-go="10">10 questions</button>':''}<button type="button" class="btn${bank.length>10?'':' primary'}" data-go="all">All ${bank.length}</button></div></div>
+      <div class="mode enter"><span class="mode-ic">${ICON.bolt}</span><h3>Speed round</h3>
+        <p>60 seconds on the clock. Answer as many as you can; chains of correct answers earn bonus XP. Best: <strong>${sp}</strong></p>
+        <div class="actions"><button type="button" class="btn primary" data-go="speed">${ICON.play}Start the clock</button></div></div>
+      <div class="mode enter"><span class="mode-ic">${ICON.shield}</span><h3>Fix my mistakes</h3>
+        <p>${mist.length?'<strong>'+plural(mist.length,'question')+'</strong> you got wrong before. Get each one right to clear it.':'Nothing to fix yet. Questions you get wrong collect here.'}</p>
+        <div class="actions"><button type="button" class="btn" data-go="fix"${mist.length?'':' disabled'}>Fix ${mist.length||''}</button></div></div>
+    </div>`;
+    $$('[data-go]',el).forEach(btn=>{btn.onclick=()=>{const g=btn.dataset.go;
+      if(g==='speed')speed();
+      else if(g==='fix')practice(shuffle(bank.filter(q=>mem.mistakes[q.id])),'fix');
+      else practice(shuffle(bank).slice(0,g==='all'?bank.length:10),'practice')}});
+  }
+  function practice(list,mode){
+    const qs=list.map(q=>{const ord=shuffle(q.o.map((_,k)=>k));return{q:q,o:ord.map(k=>q.o[k]),a:ord.indexOf(q.a)}});
+    let i=0,score=0,combo=0;const xp0=mem.xp,missed=[];
+    function show(){
+      const it=qs[i];
+      el.innerHTML=`<div class="card quiz enter">
+        <div class="q-top"><span>${mode==='fix'?'Fixing':'Question'} ${i+1} of ${qs.length}</span>${opts.week?'':`<span class="chip wk" style="--h:${it.q.wk.h}">Week ${it.q.wk.n}</span>`}
+          <span class="combo"${combo>1?'':' hidden'}>${ICON.flame}<span>Combo ×${combo}</span></span><span class="q-score">Score ${score}</span></div>
+        <div class="q-bar"><i style="width:${i/qs.length*100}%"></i></div>
+        <h2 class="q-text" tabindex="-1">${it.q.q}</h2>
+        <div class="q-opts">${it.o.map((o,k)=>`<button type="button" class="opt" data-k="${k}"><span class="opt-k">${'ABCDEF'[k]}</span><span class="opt-t">${o}</span><span class="opt-s"></span></button>`).join('')}</div>
+        <div class="q-fb" aria-live="polite"></div>
+      </div>`;
+      $$('.opt',el).forEach(b=>{b.onclick=()=>choose(+b.dataset.k,b)});
+      if(i>0){try{$('.q-text',el).focus({preventScroll:true})}catch(e){}}
+    }
+    function choose(k,btn){
+      const it=qs[i],ok=k===it.a,lastQ=i===qs.length-1;
+      $$('.opt',el).forEach((b,j)=>{b.disabled=true;
+        if(j===it.a){b.classList.add('is-right');$('.opt-s',b).textContent='Correct answer'}
+        else if(j===k){b.classList.add('is-wrong');$('.opt-s',b).textContent='Your answer'}});
+      if(ok){score++;combo++}else{combo=0;missed.push(it.q)}
+      answer(it.q,ok,btn,combo);
+      const cb=$('.combo',el);cb.hidden=combo<2;$('span',cb).textContent='Combo ×'+combo;cb.classList.remove('bump');void cb.offsetWidth;if(combo>1)cb.classList.add('bump');
+      $('.q-score',el).textContent='Score '+score;
+      $('.q-fb',el).innerHTML=`<p class="fb ${ok?'ok':'no'}"><strong>${ok?(combo>2?'Correct, '+combo+' in a row.':'Correct.'):'Not quite.'}</strong> ${it.q.why}</p>
+        <button type="button" class="btn primary">${lastQ?'See results':'Next question'}</button>`;
+      const nx=$('.q-fb .btn',el);nx.onclick=()=>{if(lastQ)finish();else{i++;show()}};
+      try{nx.focus({preventScroll:true})}catch(e){}
+    }
+    function finish(){
+      const t=qs.length,pct=score/t;
+      if(mode==='practice'){
+        mem.stats.rounds++;
+        const b=mem.quiz[key];if(!b||pct>b.s/b.t||(pct===b.s/b.t&&t>b.t)){mem.quiz[key]={s:score,t:t}}
+        if(pct===1&&t>=10)mem.stats.perfect++;
+        save();
+        gain(20,null,true);
+        toast('Round complete','+20 XP for finishing'+(pct===1&&t>=10?'. Flawless!':'.'),'<span class="t-ic">'+ICON.check+'</span>');
+        if(opts.week)emit('quiz',{w:opts.week.n,s:score,t:t});
+        if(pct>=.8)fx.burst(null,null,pct===1?220:120);
+      }
+      const msg=mode==='fix'?(missed.length?'Some are still on your list. Read the explanations and try again.':'All cleared. Nice work.'):
+        pct===1?'Full marks.':pct>=.8?'Strong round. Tidy up the ones below.':pct>=.5?'Halfway there. Reread the parts behind the ones you missed.':'Go back through the notes for this week, then try again.';
+      el.innerHTML=`<div class="card quiz enter">
+        <p class="eyebrow">${scope} · ${mode==='fix'?'mistakes':'practice'} · result</p>
+        <p class="score-big">${score}/${t}</p>
+        <div class="res-stats"><span class="chip gold">+${mem.xp-xp0} XP</span>${mem.bestCombo>1?'<span class="chip gold">Best combo ever ×'+mem.bestCombo+'</span>':''}<span class="chip gold">${plural(Object.keys(mem.mistakes).length,'mistake')} left to fix</span></div>
+        <p>${msg}</p>
+        ${missed.length?`<h2>Questions to review</h2><ul class="missed">${missed.map(q=>`<li><span>${q.q}</span><span class="m-a">${q.o[q.a]}</span><span class="m-w">${q.why}</span></li>`).join('')}</ul>`:''}
+        <div class="actions">${missed.length?'<button type="button" class="btn primary" data-a="retry">Retry the ones I missed</button>':''}
+          <button type="button" class="btn${missed.length?'':' primary'}" data-a="menu">Back to modes</button>
+          ${mode==='practice'?'<button type="button" class="btn" data-a="share">Copy a challenge for friends</button>':''}</div>
+      </div>`;
+      const r=$('[data-a="retry"]',el);if(r)r.onclick=()=>practice(shuffle(missed),'fix');
+      $('[data-a="menu"]',el).onclick=menu;
+      const sh=$('[data-a="share"]',el);if(sh)sh.onclick=()=>copyText(challenge('scored '+score+'/'+t+' in the '+scope+' quiz'),sh);
+    }
+    show();
+  }
+  function speed(){
+    stopTimer();
+    let pool=shuffle(bank),qi=0,score=0,combo=0,best=0,locked=false,cur=null;const xp0=mem.xp,missed=[],END=Date.now()+60000;
+    el.innerHTML=`<div class="card quiz enter">
+      <div class="q-top"><span class="sp-time">60</span><span>seconds</span><span class="combo" hidden>${ICON.flame}<span></span></span><span class="q-score">Score 0</span></div>
+      <div class="q-bar timer"><i style="width:100%"></i></div>
+      <div class="sp-q"></div></div>`;
+    const tEl=$('.sp-time',el),bar=$('.q-bar',el),fillEl=$('.q-bar i',el),qEl=$('.sp-q',el),cb=$('.combo',el);
+    function next(){
+      if(qi>=pool.length){pool=shuffle(bank);qi=0}
+      const q=pool[qi++],ord=shuffle(q.o.map((_,k)=>k));cur={q:q,o:ord.map(k=>q.o[k]),a:ord.indexOf(q.a)};locked=false;
+      qEl.innerHTML=`<h2 class="q-text" style="margin-bottom:14px">${opts.week?'':`<span class="chip wk" style="--h:${q.wk.h};vertical-align:middle;margin-right:8px">Week ${q.wk.n}</span>`}${q.q}</h2><div class="q-opts">${cur.o.map((o,k)=>`<button type="button" class="opt" data-k="${k}"><span class="opt-k">${'ABCDEF'[k]}</span><span class="opt-t">${o}</span><span class="opt-s"></span></button>`).join('')}</div>`;
+      $$('.opt',qEl).forEach(b=>{b.onclick=()=>pick(+b.dataset.k,b)});
+    }
+    function pick(k,btn){
+      if(locked||!timer)return;locked=true;
+      const ok=k===cur.a,all=$$('.opt',qEl);
+      all.forEach(b=>{b.disabled=true});
+      all[cur.a].classList.add('is-right');
+      if(ok){score++;combo++;best=Math.max(best,combo)}else{combo=0;btn.classList.add('is-wrong');missed.push(cur.q)}
+      answer(cur.q,ok,btn,combo);
+      cb.hidden=combo<2;$('span',cb).textContent='Combo ×'+combo;cb.classList.remove('bump');void cb.offsetWidth;if(combo>1)cb.classList.add('bump');
+      $('.q-score',el).textContent='Score '+score;
+      setTimeout(()=>{if(timer)next()},ok?280:900);
+    }
+    timer=setInterval(()=>{
+      const left=Math.max(0,END-Date.now());
+      tEl.textContent=Math.ceil(left/1000);fillEl.style.width=(left/600)+'%';
+      const low=left<10000;tEl.classList.toggle('low',low);bar.classList.toggle('low',low);
+      if(left<=0){stopTimer();done()}
+    },100);
+    next();
+    function done(){
+      const prevBest=mem.speed[key]||0,isBest=score>prevBest;
+      if(isBest)mem.speed[key]=score;save();
+      emit('speed',{s:score});checkBadges();
+      if(isBest&&score>0){fx.burst(null,null,160);sound('badge')}
+      const uniq=Array.from(new Set(missed));
+      el.innerHTML=`<div class="card quiz enter">
+        <p class="eyebrow">${scope} · speed round · result</p>
+        <p class="score-big">${score}</p>
+        <div class="res-stats"><span class="chip gold">+${mem.xp-xp0} XP</span>${isBest?'<span class="chip gold">New best</span>':'<span class="chip gold">Best '+prevBest+'</span>'}<span class="chip gold">Longest chain ×${best}</span></div>
+        <p>${score>=12?'Lightning. That is a badge-level score.':score>=8?'Quick and accurate. Try to beat it tomorrow.':'Warm-up done. Practise the week, then race the clock again.'}</p>
+        ${uniq.length?`<h2>Missed this round</h2><ul class="missed">${uniq.map(q=>`<li><span>${q.q}</span><span class="m-a">${q.o[q.a]}</span></li>`).join('')}</ul>`:''}
+        <div class="actions"><button type="button" class="btn primary" data-a="again">${ICON.play}Play again</button><button type="button" class="btn" data-a="menu">Back to modes</button>
+        <button type="button" class="btn" data-a="share">Copy a challenge for friends</button></div></div>`;
+      $('[data-a="again"]',el).onclick=speed;$('[data-a="menu"]',el).onclick=menu;
+      const sh=$('[data-a="share"]',el);sh.onclick=()=>copyText(challenge('scored '+score+' in a 60-second '+scope+' speed round'),sh);
+    }
+  }
+  menu();
+}
+function viewMix(){
+  const bank=[].concat.apply([],weeks.map(w=>w.quiz));
+  app.innerHTML=`<header class="gl-head"><a class="back" href="#">← All weeks</a><p class="eyebrow">All weeks</p><h1 tabindex="-1">Quiz arena</h1>
+    <p class="lede">${bank.length} questions from Weeks ${weeks[0].n} to ${weeks[weeks.length-1].n}. Each one shows which week it came from.</p></header><div class="mix-body"></div>`;
+  mountQuiz($('.mix-body',app),bank,'mix',{});
+}
+function viewGlossary(){
+  const all=[];weeks.forEach(w=>w.glossary.forEach(g=>all.push({t:g[0],m:g[1],w:w})));
+  all.sort((a,b)=>a.t.toLowerCase()<b.t.toLowerCase()?-1:1);
+  app.innerHTML=`<header class="gl-head"><a class="back" href="#">← All weeks</a><p class="eyebrow">All weeks</p><h1 tabindex="-1">Glossary</h1>
+    <label class="f" for="gl-q">Search ${all.length} terms<input id="gl-q" type="search" placeholder="e.g. salt, Feistel, MAC" autocomplete="off"></label></header>
+    <dl class="gl"></dl><p class="intro gl-none" hidden>No term matches that search.</p>`;
+  const dl=$('.gl',app),q=$('#gl-q',app);
+  const draw=()=>{
+    const s=q.value.trim().toLowerCase();
+    const list=all.filter(x=>!s||x.t.toLowerCase().includes(s)||x.m.toLowerCase().includes(s));
+    dl.innerHTML=list.map(x=>`<div><dt>${x.t}</dt><dd>${x.m}</dd><a class="chip wk" style="--h:${x.w.h}" href="#w${x.w.n}">Week ${x.w.n}</a></div>`).join('');
+    $('.gl-none',app).hidden=list.length>0;
+  };
+  q.addEventListener('input',draw);draw();
+}
+
+/* ================= profile ================= */
+function viewMe(){
+  const lv=level(mem.xp),s=streak(),acc=mem.stats.answered?Math.round(mem.stats.correct/mem.stats.answered*100):0;
+  const cells=[];const end=new Date();end.setHours(23,59,59,0);
+  const start=new Date();start.setHours(12,0,0,0);start.setDate(start.getDate()-77-((start.getDay()+6)%7));
+  for(const d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
+    const x=mem.log[dayKey(d)]||0,h=x<=0?0:x<25?1:x<60?2:x<120?3:4;
+    cells.push('<i class="'+(h?'h'+h:'')+'" title="'+d.toLocaleDateString(undefined,{day:'numeric',month:'short'})+': '+x+' XP"></i>');
+  }
+  app.innerHTML=`<header class="me-head">
+      <span class="coin-wrap">${coin('<b>'+lv.L+'</b>',{spin:true})}</span>
+      <div class="tile-body"><a class="back" href="#">← All weeks</a><p class="eyebrow">${mem.name?esc(mem.name)+' · ':''}Level ${lv.L}</p><h1 tabindex="-1">${lv.rank}</h1>
+        <span class="xpbar"><i style="width:${Math.round(lv.cur/lv.span*100)}%"></i></span>
+        <span class="t-sub">${mem.xp} XP total · ${lv.span-lv.cur} XP to level ${lv.L+1}${lv.L<RANKS.length?' ('+RANKS[lv.L]+')':''}</span></div>
+    </header>
+    <section class="stats" aria-label="Stats">
+      <div class="stat"><span class="t-k">Current streak</span><b>${plural(s,'day')}</b></div>
+      <div class="stat"><span class="t-k">Longest streak</span><b>${plural(longest(),'day')}</b></div>
+      <div class="stat"><span class="t-k">Questions answered</span><b>${mem.stats.answered}</b></div>
+      <div class="stat"><span class="t-k">Accuracy</span><b>${acc}%</b></div>
+      <div class="stat"><span class="t-k">Best combo</span><b>×${mem.bestCombo}</b></div>
+      <div class="stat"><span class="t-k">Focus sessions</span><b>${mem.focus.done||0}</b></div>
+      <div class="stat"><span class="t-k">Mistakes to fix</span><b>${Object.keys(mem.mistakes).length}</b></div>
+      <div class="stat"><span class="t-k">Rings aligned</span><b>${weeks.filter(w=>progress(w)>=ALIGN).length} / ${weeks.length}</b></div>
+    </section>
+    <section class="sec" aria-labelledby="ht-h"><div class="sec-top"><h2 class="sec-h" id="ht-h">Last 12 weeks</h2><span class="hint">Each square is a day, Monday at the top; brighter means more XP</span></div>
+      <div class="heat-wrap"><div class="heat">${cells.join('')}</div>
+      <div class="heat-key">Less <i style="background:var(--heat0)"></i><i style="background:var(--heat1)"></i><i style="background:var(--heat2)"></i><i style="background:var(--heat3)"></i><i style="background:var(--heat4)"></i> More</div></div></section>
+    <section class="sec" aria-labelledby="bg-h"><div class="sec-top"><h2 class="sec-h" id="bg-h">Badges · ${Object.keys(mem.badges).length} of ${BADGES.length}</h2><span class="hint">Hover a gold coin to spin it</span></div>
+      <div class="badges">${BADGES.map(b=>{const t=mem.badges[b.id];return `<div class="badge${t?'':' locked'}">${coin(t?ICON[b.icon]:ICON.lock,{locked:!t})}<h4>${b.name}</h4><p>${b.desc}</p><small>${t?'Earned '+new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short'}):'Locked'}</small></div>`}).join('')}</div></section>
+    <section class="sec settings" aria-label="Settings">
+      <div class="card"><h2>Settings</h2>
+        <label class="f" for="me-name">Your name (used in challenges)<input id="me-name" type="text" maxlength="24" autocomplete="nickname"></label>
+        <label class="f" for="me-goal">Daily XP goal<select id="me-goal">${[50,100,150,200,300].map(g=>'<option value="'+g+'"'+(mem.goal===g?' selected':'')+'>'+g+' XP</option>').join('')}</select></label>
+        <label class="toggle" for="me-sound"><input type="checkbox" id="me-sound"${mem.sound?' checked':''}> Sound effects</label>
+      </div>
+      <div class="card"><h2>Backup</h2>
+        <p class="hint">Progress lives in this browser. Copy the code to move it to another device or browser, then paste it there.</p>
+        <div class="actions"><button type="button" class="btn" data-a="copy">Copy backup code</button></div>
+        <label class="f" for="me-restore">Restore from a code<textarea id="me-restore" spellcheck="false" placeholder="Paste a backup code"></textarea></label>
+        <div class="actions"><button type="button" class="btn" data-a="restore">Restore</button><button type="button" class="btn" data-a="reset">Reset all progress</button></div>
+        <p class="hint me-msg" aria-live="polite"></p>
+      </div>
+    </section>`;
+  const nm=$('#me-name',app);nm.value=mem.name||'';
+  nm.addEventListener('change',()=>{mem.name=nm.value.trim().slice(0,24);save()});
+  $('#me-goal',app).addEventListener('change',e=>{mem.goal=+e.target.value;save();hud()});
+  $('#me-sound',app).addEventListener('change',e=>{mem.sound=e.target.checked;save();sound('ok')});
+  const msg=$('.me-msg',app);
+  $('[data-a="copy"]',app).onclick=e=>{let code='';try{code=btoa(unescape(encodeURIComponent(JSON.stringify(mem))))}catch(x){}copyText(code,e.currentTarget)};
+  $('[data-a="restore"]',app).onclick=()=>{
+    try{const raw=JSON.parse(decodeURIComponent(escape(atob($('#me-restore',app).value.trim()))));
+      if(typeof raw!=='object'||raw===null||typeof raw.xp!=='number')throw 0;
+      mem=load(raw);save();hud();viewMe();$('.me-msg',app).textContent='Progress restored.';
+    }catch(x){msg.textContent='That code could not be read. Copy the whole code and paste it again.'}
+  };
+  let armed=false;
+  $('[data-a="reset"]',app).onclick=e=>{
+    if(!armed){armed=true;e.currentTarget.textContent='Click again to erase everything';msg.textContent='This removes XP, badges, scores and ticks from this browser.';return}
+    mem=fresh();save();hud();viewMe();$('.me-msg',app).textContent='Progress reset.';
+  };
+}
+
+/* ================= labs ================= */
+const LABS={};
+function mountLabs(root,ctx){
+  $$('[data-lab]',root).forEach(slot=>{
+    const id=slot.dataset.lab,def=LABS[id];if(!def){slot.remove();return}
+    slot.className='lab';
+    slot.innerHTML='<div class="lab-head"><span class="lab-k">Try it</span><h4>'+def.title+'</h4>'+(mem.seen.lab[id]?'':'<small>+15 XP on first use</small>')+'</div><div class="lab-body"></div>';
+    def.mount($('.lab-body',slot),id+'-'+ctx);
+    const touch=()=>{if(mem.seen.lab[id])return;mem.seen.lab[id]=1;save();const sm=$('.lab-head small',slot);if(sm)sm.remove();gain(15,$('.lab-head',slot))};
+    slot.addEventListener('input',touch);slot.addEventListener('click',e=>{if(e.target.closest('button'))touch()});
+  });
+}
+const isPrime=n=>{if(n<2||n%1)return false;for(let i=2;i*i<=n;i++)if(n%i===0)return false;return true};
+const gcd=(a,b)=>{while(b){[a,b]=[b,a%b]}return a};
+const modpow=(b,e,m)=>{b=BigInt(b);e=BigInt(e);m=BigInt(m);let r=1n;b%=m;while(e>0n){if(e&1n)r=r*b%m;b=b*b%m;e>>=1n}return Number(r)};
+const b8=v=>v.toString(2).padStart(8,'0');
+const intOf=el=>{const v=el.value.trim();return /^\d{1,6}$/.test(v)?+v:NaN};
+const onAll=(els,fn)=>{els.forEach(x=>x.addEventListener('input',fn));fn()};
+
+const SHA_K=[],SHA_H=[];
+(function(){const fr=x=>Math.floor((x-Math.floor(x))*4294967296);let c=2;while(SHA_K.length<64){if(isPrime(c)){if(SHA_H.length<8)SHA_H.push(fr(Math.sqrt(c)));SHA_K.push(fr(Math.cbrt(c)))}c++}})();
+function sha256(msg){
+  const src=new TextEncoder().encode(msg),l=src.length,n=((l+9+63)>>6)<<6,m=new Uint8Array(n);
+  m.set(src);m[l]=0x80;
+  const dv=new DataView(m.buffer);dv.setUint32(n-8,Math.floor(l/0x20000000));dv.setUint32(n-4,(l<<3)>>>0);
+  const H=SHA_H.slice(),W=new Uint32Array(64),rr=(x,s)=>(x>>>s)|(x<<(32-s));
+  for(let o=0;o<n;o+=64){
+    for(let t=0;t<16;t++)W[t]=dv.getUint32(o+t*4);
+    for(let t=16;t<64;t++){const x=W[t-15],y=W[t-2];W[t]=(W[t-16]+(rr(x,7)^rr(x,18)^(x>>>3))+W[t-7]+(rr(y,17)^rr(y,19)^(y>>>10)))>>>0}
+    let a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+    for(let t=0;t<64;t++){
+      const t1=(h+(rr(e,6)^rr(e,11)^rr(e,25))+((e&f)^(~e&g))+SHA_K[t]+W[t])>>>0;
+      const t2=((rr(a,2)^rr(a,13)^rr(a,22))+((a&b)^(a&c)^(b&c)))>>>0;
+      h=g;g=f;f=e;e=(d+t1)>>>0;d=c;c=b;b=a;a=(t1+t2)>>>0;
+    }
+    H[0]=(H[0]+a)>>>0;H[1]=(H[1]+b)>>>0;H[2]=(H[2]+c)>>>0;H[3]=(H[3]+d)>>>0;H[4]=(H[4]+e)>>>0;H[5]=(H[5]+f)>>>0;H[6]=(H[6]+g)>>>0;H[7]=(H[7]+h)>>>0;
+  }
+  return H.map(x=>x.toString(16).padStart(8,'0')).join('');
+}
+window.__sha256=sha256;
+
+LABS.caesar={title:'Caesar and Vigenère machine',mount(el,id){
+  el.innerHTML=`<div class="f-row">
+    <label class="f" for="${id}-t">Message<input id="${id}-t" type="text" value="LIFE FINDS A WAY" maxlength="60" autocomplete="off" spellcheck="false"></label>
+    <label class="f f-s" for="${id}-k">Key<input id="${id}-k" type="text" value="3" maxlength="16" autocomplete="off" spellcheck="false"></label>
+    <label class="f f-s" for="${id}-d">Direction<select id="${id}-d"><option value="e">Encrypt</option><option value="d">Decrypt</option></select></label>
+  </div>
+  <p class="hint">A number from 0 to 25 as the key runs a Caesar shift. A word (try KEY or ALICE) runs Vigenère.</p>
+  <div class="out" aria-live="polite"></div>`;
+  const t=$('#'+id+'-t',el),k=$('#'+id+'-k',el),d=$('#'+id+'-d',el),o=$('.out',el);
+  const run=()=>{
+    const raw=k.value.trim();let key,mode;
+    if(/^\d+$/.test(raw)&&+raw<26){key=[+raw];mode='Caesar cipher, shift '+key[0]}
+    else{const kw=raw.toUpperCase().replace(/[^A-Z]/g,'');
+      if(!kw||/\d/.test(raw)){o.innerHTML='<p class="err">Use a number from 0 to 25, or a keyword made only of letters.</p>';return}
+      key=Array.from(kw).map(c=>c.charCodeAt(0)-65);mode='Vigenère cipher, keyword '+kw}
+    const dec=d.value==='d';let j=0;const cols=[];
+    const res=t.value.toUpperCase().replace(/[A-Z]/g,c=>{
+      const p=c.charCodeAt(0)-65,kk=key[j%key.length];j++;
+      const raw2=dec?p-kk:p+kk,r=((raw2%26)+26)%26,ch=String.fromCharCode(65+r);
+      if(cols.length<8)cols.push([c+' ('+p+')',kk,raw2+(raw2>25?' − 26':raw2<0?' + 26':''),ch+' ('+r+')']);
+      return ch});
+    const names=['Letter in','Key number',dec?'Subtract':'Add','Letter out'];
+    o.innerHTML='<p class="out-main">'+esc(res||' ')+'</p><p class="out-sub">'+mode+(dec?', decrypting':', encrypting')+'. A=0 … Z=25.</p>'+
+      (cols.length?'<div class="tw"><table><tbody>'+names.map((nm,r)=>'<tr><th scope="row">'+nm+'</th>'+cols.map(c=>'<td>'+c[r]+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>':'');
+  };
+  onAll([t,k,d],run);d.addEventListener('change',run);
+}};
+
+LABS.xor={title:'XOR, bit by bit',mount(el,id){
+  const P=[1,1,0,1,1,0,1,1],K=[1,1,0,0,0,1,0,1];
+  const draw=()=>{
+    const Cc=P.map((b,i)=>b^K[i]);
+    const row=(lab,arr,name)=>'<span class="bl">'+lab+'</span>'+arr.map((b,i)=>name?
+      '<button type="button" class="bit" id="'+id+'-'+name+i+'" data-r="'+name+'" data-i="'+i+'" aria-pressed="'+(b?'true':'false')+'" aria-label="'+lab+' bit '+(i+1)+', currently '+b+'">'+b+'</button>':
+      '<span class="bit res">'+b+'</span>').join('');
+    el.innerHTML='<p class="hint">Click any plaintext or key bit to flip it. The output is 1 only where the two bits differ.</p>'+
+      '<div class="bits">'+row('P',P,'p')+row('K',K,'k')+row('P ⊕ K = C',Cc)+row('C ⊕ K',Cc.map((b,i)=>b^K[i]))+'</div>'+
+      '<p class="out-sub">The last row is always the plaintext again: XOR with the same key twice cancels out.</p>';
+    $$('button.bit',el).forEach(b=>{b.onclick=()=>{const a=b.dataset.r==='p'?P:K,i=+b.dataset.i;a[i]^=1;draw();const f=$('#'+id+'-'+b.dataset.r+i,el);if(f)f.focus()}});
+  };
+  draw();
+}};
+
+LABS.risk={title:'Risk matrix and risk statement',mount(el,id){
+  const LK=['Rare','Unlikely','Possible','Likely','Certain'],IM=['Insignificant','Minor','Moderate','Major','Critical'];
+  const band=s=>s<=4?1:s<=9?2:s<=15?3:4,NAMES=['','Low','Medium','High','Most urgent'];
+  let sel=[3,3];
+  el.innerHTML=`<p class="hint">Pick where the risk sits. This is a simplified scale (likelihood × impact, 1 to 25); your lecturer may band it differently.</p>
+  <div class="grid-wrap"><div class="matrix"></div></div>
+  <p class="out-main rk-out"></p>
+  <div class="f-row">
+    <label class="f" for="${id}-a">Threat<input id="${id}-a" type="text" value="Malicious actor"></label>
+    <label class="f" for="${id}-b">Vulnerability<input id="${id}-b" type="text" value="weak password"></label>
+    <label class="f" for="${id}-c">Impact<input id="${id}-c" type="text" value="sensitive information exposed"></label>
+  </div>
+  <p class="rk-st"></p>`;
+  const mx=$('.matrix',el);
+  const A=$('#'+id+'-a',el),B=$('#'+id+'-b',el),Cc=$('#'+id+'-c',el);
+  const st=()=>{$('.rk-st',el).innerHTML='<strong>Risk statement:</strong> '+esc(A.value||'<threat>')+' exploiting '+esc(B.value||'<vulnerability>')+' resulting in '+esc(Cc.value||'<impact>')+'.'};
+  const draw=()=>{
+    let h='<span></span>'+LK.map(x=>'<span>'+x+'</span>').join('');
+    for(let im=4;im>=0;im--){h+='<span class="ml">'+IM[im]+'</span>';
+      for(let lk=0;lk<5;lk++){const s=(lk+1)*(im+1),on=sel[0]===lk&&sel[1]===im;
+        h+='<button type="button" class="cell l'+band(s)+'" data-l="'+lk+'" data-m="'+im+'" aria-pressed="'+on+'" aria-label="'+LK[lk]+' likelihood, '+IM[im]+' impact">'+(on?'X':s)+'</button>'}}
+    mx.innerHTML=h;
+    $$('.cell',mx).forEach(b=>{b.onclick=()=>{sel=[+b.dataset.l,+b.dataset.m];draw()}});
+    const s=(sel[0]+1)*(sel[1]+1);
+    $('.rk-out',el).textContent=LK[sel[0]]+' × '+IM[sel[1]]+' = '+s+' → '+NAMES[band(s)];
+    st();
+  };
+  [A,B,Cc].forEach(x=>x.addEventListener('input',st));
+  draw();
+}};
+
+LABS.hash={title:'SHA-256 fingerprints',mount(el,id){
+  el.innerHTML=`<div class="f-row">
+    <label class="f" for="${id}-a">Input 1<input id="${id}-a" type="text" value="this is an arbitrary length string" autocomplete="off" spellcheck="false"></label>
+    <label class="f" for="${id}-b">Input 2<input id="${id}-b" type="text" value="this is an arbitrary length strinG" autocomplete="off" spellcheck="false"></label>
+  </div><div class="out" aria-live="polite"></div>`;
+  const a=$('#'+id+'-a',el),b=$('#'+id+'-b',el),o=$('.out',el);
+  onAll([a,b],()=>{
+    const ha=sha256(a.value),hb=sha256(b.value);let diff=0;
+    for(let i=0;i<64;i++){let x=parseInt(ha[i],16)^parseInt(hb[i],16);while(x){diff+=x&1;x>>=1}}
+    o.innerHTML='<p class="hex">'+ha.toUpperCase()+'</p><p class="hex">'+hb.toUpperCase()+'</p>'+
+      '<p>'+(a.value===b.value?'Same input, same digest every time. That is <strong>deterministic</strong>.':
+      '<strong>'+diff+' of 256 bits differ.</strong> A tiny change to the input changes about half the digest, and both digests are always 64 hex characters long.')+'</p>';
+  });
+}};
+
+LABS.rsa={title:'Toy RSA calculator',mount(el,id){
+  el.innerHTML=`<div class="f-row">
+    <label class="f f-s" for="${id}-p">Prime p<input id="${id}-p" type="text" inputmode="numeric" value="5"></label>
+    <label class="f f-s" for="${id}-q">Prime q<input id="${id}-q" type="text" inputmode="numeric" value="11"></label>
+    <label class="f f-s" for="${id}-e">Public e<input id="${id}-e" type="text" inputmode="numeric" value="7"></label>
+    <label class="f f-s" for="${id}-b">Block B<input id="${id}-b" type="text" inputmode="numeric" value="2"></label>
+  </div><div class="out" aria-live="polite"></div>`;
+  const f=k=>$('#'+id+'-'+k,el),o=$('.out',el);
+  onAll(['p','q','e','b'].map(f),()=>{
+    const p=intOf(f('p')),q=intOf(f('q')),e=intOf(f('e')),B=intOf(f('b'));
+    const bad=m=>{o.innerHTML='<p class="err">'+m+'</p>'};
+    if(!isPrime(p)||!isPrime(q)||p>9973||q>9973)return bad('p and q must both be prime numbers (up to 9973).');
+    if(p===q)return bad('p and q must be different primes.');
+    const n=p*q,phi=(p-1)*(q-1);
+    if(!(e>1&&e<phi)||gcd(e,phi)!==1)return bad('e must be between 2 and '+(phi-1)+' and share no factor with φ(n) = '+phi+'.');
+    if(!(B>=0&&B<n))return bad('The block B must be a number smaller than n = '+n+'.');
+    let d=1;while((d*e)%phi!==1)d++;
+    const c=modpow(B,e,n),back=modpow(c,d,n);
+    o.innerHTML='<ol class="steps">'+
+      '<li>n = p × q = '+p+' × '+q+' = <b>'+n+'</b></li>'+
+      '<li>φ(n) = (p − 1)(q − 1) = '+(p-1)+' × '+(q-1)+' = <b>'+phi+'</b></li>'+
+      '<li>e = '+e+' shares no factor with '+phi+'</li>'+
+      '<li>d = <b>'+d+'</b>, because '+e+' × '+d+' = '+(e*d)+' = '+Math.floor(e*d/phi)+' × '+phi+' + 1</li>'+
+      '<li>Public key (e, n) = <b>('+e+', '+n+')</b> · Private key (d, n) = <b>('+d+', '+n+')</b></li>'+
+      '<li>Encrypt: C = '+B+'^'+e+' mod '+n+' = <b>'+c+'</b></li>'+
+      '<li>Decrypt: '+c+'^'+d+' mod '+n+' = <b>'+back+'</b></li></ol>';
+  });
+}};
+
+LABS.dh={title:'Diffie-Hellman exchange',mount(el,id){
+  el.innerHTML=`<div class="f-row">
+    <label class="f f-s" for="${id}-p">Prime p<input id="${id}-p" type="text" inputmode="numeric" value="23"></label>
+    <label class="f f-s" for="${id}-g">Generator g<input id="${id}-g" type="text" inputmode="numeric" value="5"></label>
+    <label class="f f-s" for="${id}-a">Alice's secret a<input id="${id}-a" type="text" inputmode="numeric" value="6"></label>
+    <label class="f f-s" for="${id}-b">Bob's secret b<input id="${id}-b" type="text" inputmode="numeric" value="15"></label>
+  </div><div class="out" aria-live="polite"></div>`;
+  const f=k=>$('#'+id+'-'+k,el),o=$('.out',el);
+  onAll(['p','g','a','b'].map(f),()=>{
+    const p=intOf(f('p')),g=intOf(f('g')),a=intOf(f('a')),b=intOf(f('b'));
+    const bad=m=>{o.innerHTML='<p class="err">'+m+'</p>'};
+    if(!isPrime(p)||p>99991)return bad('p must be a prime number (up to 99991).');
+    if(!(g>1&&g<p))return bad('g must be between 2 and '+(p-1)+'.');
+    if(!(a>0)||!(b>0))return bad('The secrets a and b must be whole numbers above 0.');
+    const A=modpow(g,a,p),B=modpow(g,b,p),ka=modpow(B,a,p),kb=modpow(A,b,p);
+    let root='';
+    if(p<=5000){const seen=new Set();let x=1;for(let i=1;i<p;i++){x=x*g%p;seen.add(x)}
+      root=seen.size===p-1?g+' is a primitive root of '+p+': its powers hit every value from 1 to '+(p-1)+'.':
+        g+' is not a primitive root of '+p+': its powers only reach '+seen.size+' of the '+(p-1)+' possible values.'}
+    o.innerHTML='<div class="dh">'+
+      '<div><h5>Alice</h5><span>secret a = '+a+'</span><span>A = '+g+'^'+a+' mod '+p+' = <b>'+A+'</b></span><span>K = '+B+'^'+a+' mod '+p+' = <b>'+ka+'</b></span></div>'+
+      '<div><h5>Public (Eve sees)</h5><span>p = '+p+', g = '+g+'</span><span>A = '+A+'</span><span>B = '+B+'</span></div>'+
+      '<div><h5>Bob</h5><span>secret b = '+b+'</span><span>B = '+g+'^'+b+' mod '+p+' = <b>'+B+'</b></span><span>K = '+A+'^'+b+' mod '+p+' = <b>'+kb+'</b></span></div></div>'+
+      '<p class="out-main">Shared key: '+ka+'</p>'+(root?'<p class="out-sub">'+root+'</p>':'');
+  });
+}};
+
+LABS.entropy={title:'Password entropy calculator',mount(el,id){
+  el.innerHTML=`<div class="f-row"><label class="f" for="${id}-t">Example password<input id="${id}-t" type="text" value="password123" maxlength="64" autocomplete="off" spellcheck="false"></label></div>
+  <p class="hint">Use a made-up example, not a real password. Nothing typed here leaves this page.</p><div class="out" aria-live="polite"></div>`;
+  const t=$('#'+id+'-t',el),o=$('.out',el);
+  onAll([t],()=>{
+    const s=t.value,l=Array.from(s).length;
+    if(!l){o.innerHTML='<p class="err">Type an example password.</p>';return}
+    const parts=[];let n=0;
+    if(/[a-z]/.test(s)){n+=26;parts.push('lowercase 26')}
+    if(/[A-Z]/.test(s)){n+=26;parts.push('uppercase 26')}
+    if(/[0-9]/.test(s)){n+=10;parts.push('digits 10')}
+    if(/[^a-zA-Z0-9]/.test(s)){n+=32;parts.push('symbols 32')}
+    const bits=l*Math.log2(n),sh=4.7+2.3*Math.min(l-1,7)+1.5*Math.max(l-8,0);
+    const m=Math.max(0,l-8),mid=Math.min(l-1,7);
+    o.innerHTML='<ol class="steps">'+
+      '<li>Length l = <b>'+l+'</b> · alphabet n = '+parts.join(' + ')+' = <b>'+n+'</b></li>'+
+      '<li>Formula: l × log₂(n) = '+l+' × '+Math.log2(n).toFixed(2)+' = <b>'+bits.toFixed(1)+' bits</b> (about '+Math.pow(2,bits).toExponential(1).replace('e+',' × 10^')+' possible passwords)</li>'+
+      '<li>Shannon: 4.7'+(mid?' + ('+mid+' × 2.3)':'')+(m?' + ('+m+' × 1.5)':'')+' = <b>'+sh.toFixed(1)+' bits</b></li></ol>'+
+      '<p class="out-sub">The formula assumes every character was picked at random. A common password scores well here and is still one of the first an attacker tries.</p>';
+  });
+}};
+
+LABS.chmod={title:'Unix permissions, letters and numbers',mount(el,id){
+  let bits=[1,1,1,1,1,0,1,0,0];
+  const WHO=['Owner','Group','World'],L=['r','w','x'],NM=['read','write','execute'];
+  const draw=(focus)=>{
+    const str=bits.map((b,i)=>b?L[i%3]:'-').join('');
+    const oct=[0,1,2].map(g=>bits[g*3]*4+bits[g*3+1]*2+bits[g*3+2]).join('');
+    el.innerHTML='<p class="hint">Click a letter to switch that permission on or off.</p><div class="perm">'+WHO.map((w,g)=>
+      '<div><h5>'+w+'</h5><div class="pb">'+L.map((c,k)=>{const i=g*3+k;return '<button type="button" class="bit" id="'+id+'-'+i+'" data-i="'+i+'" aria-pressed="'+(bits[i]?'true':'false')+'" aria-label="'+w+' '+NM[k]+'">'+(bits[i]?c:'-')+'</button>'}).join('')+
+      '</div><span class="out-sub">'+[4,2,1].map((v,k)=>bits[g*3+k]?v:0).join(' + ')+' = '+oct[g]+'</span></div>').join('')+'</div>'+
+      '<p class="out-main">'+str+' = '+oct+'</p><p><code>chmod '+oct+' filename</code></p>';
+    $$('button.bit',el).forEach(b=>{b.onclick=()=>{bits[+b.dataset.i]^=1;draw(+b.dataset.i)}});
+    if(focus!=null){const f=$('#'+id+'-'+focus,el);if(f)f.focus()}
+  };
+  draw();
+}};
+
+LABS.lsb={title:'Hide a byte with LSB',mount(el,id){
+  const cover=[164,180,91,202,54,111,145,226],pay=[1,0,1,0,1,1,0,1];
+  const draw=(focus)=>{
+    const stego=cover.map((c,i)=>(c&~1)|pay[i]);
+    const hl=s=>s.slice(0,7)+'<span class="lsb-hl">'+s[7]+'</span>';
+    el.innerHTML='<p class="hint">Click the payload bits to change the secret byte. Each one replaces the last bit of one cover byte.</p>'+
+      '<div class="bits"><span class="bl">Payload</span>'+pay.map((b,i)=>'<button type="button" class="bit" id="'+id+'-'+i+'" data-i="'+i+'" aria-pressed="'+(b?'true':'false')+'" aria-label="Payload bit '+(i+1)+', currently '+b+'">'+b+'</button>').join('')+'</div>'+
+      '<div class="tw"><table><thead><tr><th>#</th><th>Cover byte</th><th>Value</th><th>Bit</th><th>Stego byte</th><th>Value</th><th>Change</th><th>Before / after</th></tr></thead><tbody>'+
+      cover.map((c,i)=>{const s=stego[i],d=s-c;return '<tr><th scope="row">'+(i+1)+'</th><td><code>'+hl(b8(c))+'</code></td><td>'+c+'</td><td>'+pay[i]+'</td><td><code>'+hl(b8(s))+'</code></td><td>'+s+'</td><td>'+(d>0?'+1':d<0?'−1':'0')+
+        '</td><td><span class="sw" style="background:rgb('+c+','+c+','+c+')"></span> <span class="sw" style="background:rgb('+s+','+s+','+s+')"></span></td></tr>'}).join('')+
+      '</tbody></table></div>'+
+      '<p>Read the last bit of each stego byte in order: <strong>'+stego.map(s=>s&1).join('')+'</strong>. That is the payload back. No value moved by more than 1, so the grey swatches look the same.</p>'+
+      '<p class="out-sub">Compare a flipped top bit: <span class="sw" style="background:rgb(165,0,0)"></span> 165 → <span class="sw" style="background:rgb(164,0,0)"></span> 164 (LSB) → <span class="sw" style="background:rgb(37,0,0)"></span> 37 (MSB).</p>';
+    $$('button.bit',el).forEach(b=>{b.onclick=()=>{pay[+b.dataset.i]^=1;draw(+b.dataset.i)}});
+    if(focus!=null){const f=$('#'+id+'-'+focus,el);if(f)f.focus()}
+  };
+  draw();
+}};
+
+/* ================= start ================= */
+ensureMissions();
+hud();
+render(location.hash.replace(/^#/,''));
+setTimeout(checkBadges,600);
+})();
+</script>
+</body>
+</html>
