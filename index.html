@@ -317,6 +317,35 @@ button.bit[aria-pressed="true"]{background:var(--wk);border-color:var(--wk);colo
 .perm .bit{flex:1 1 0;min-width:0}
 .sw{display:inline-block;width:26px;height:18px;border-radius:3px;border:1px solid var(--line);vertical-align:middle}
 .lsb-hl{color:var(--wk-ink);font-weight:700;text-decoration:underline}
+.verdict{display:flex;align-items:center;gap:10px;font:800 1.25rem/1.2 var(--font-display);padding:12px 14px;border-radius:8px;border:1px solid}
+.verdict svg{width:22px;height:22px;flex:none}
+.verdict.allow{color:var(--good);background:var(--good-soft);border-color:var(--good)}
+.verdict.deny{color:var(--bad);background:var(--bad-soft);border-color:var(--bad)}
+.verdict small{display:block;font:400 .82rem/1.3 var(--font-mono);color:var(--muted);margin-top:2px}
+.rules{overflow-x:auto}
+.rules table{border-collapse:collapse;width:100%;font:400 .86rem/1.4 var(--font-mono);min-width:420px}
+.rules th,.rules td{border:1px solid var(--line);padding:.4rem .55rem;text-align:left;white-space:nowrap}
+.rules thead th{background:var(--sunk);font-weight:700;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.rules tr.hit td{background:var(--wk-soft)}
+.rules .pol-deny{color:var(--bad);font-weight:700}.rules .pol-allow{color:var(--good);font-weight:700}
+.flow{display:flex;flex-direction:column;gap:8px}
+.msg{display:grid;grid-template-columns:76px minmax(0,1fr) 76px;align-items:center;gap:8px;opacity:.32;transition:opacity .3s}
+.msg.on{opacity:1}
+.msg .ep{font:700 .72rem/1.2 var(--font-mono);letter-spacing:.03em;text-transform:uppercase;color:var(--muted);text-align:center}
+.msg .arr{position:relative;height:34px;border-radius:6px;background:var(--sunk);display:flex;align-items:center;justify-content:center;font:600 .8rem/1.2 var(--font-mono);padding:0 8px;overflow:hidden;text-align:center}
+.msg.on .arr{background:var(--wk-soft);color:var(--wk-ink)}
+.msg.rev .arr::before,.msg .arr::after{content:"";position:absolute;top:50%;width:0;height:0;border:6px solid transparent}
+.msg .arr::after{right:4px;transform:translateY(-50%);border-left-color:var(--wk-line)}
+.msg.rev .arr::before{left:4px;transform:translateY(-50%);border-right-color:var(--wk-line)}
+.msg.rev .arr::after{display:none}
+.flood-stack{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.flood-stack i{width:14px;height:22px;border-radius:3px;background:var(--bad);opacity:.8}
+.kstep{border:1px solid var(--wk-line);border-radius:8px;padding:14px;background:var(--wk-soft);display:flex;flex-direction:column;gap:8px}
+.kstep .msg{grid-template-columns:90px minmax(0,1fr) 90px}
+.kv{font:400 .82rem/1.5 var(--font-mono);overflow-wrap:anywhere}
+.kv b{color:var(--wk-ink)}
+.lab-steps{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.lab-steps .dotn{font:600 .8rem var(--font-mono);color:var(--muted)}
 
 /* quiz */
 .modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;max-width:980px}
@@ -522,6 +551,8 @@ function lab(id){return '<div data-lab="'+id+'"></div>'}
 <script src="weeks/week1.js"></script>
 <script src="weeks/week2.js"></script>
 <script src="weeks/week3.js"></script>
+<script src="weeks/week4.js"></script>
+<script src="weeks/week5.js"></script>
 <script>
 (function(){
 'use strict';
@@ -1806,6 +1837,218 @@ LABS.lsb={title:'Hide a byte with LSB',mount(el,id){
       '<p class="out-sub">Compare a flipped top bit: <span class="sw" style="background:rgb(165,0,0)"></span> 165 → <span class="sw" style="background:rgb(164,0,0)"></span> 164 (LSB) → <span class="sw" style="background:rgb(37,0,0)"></span> 37 (MSB).</p>';
     $$('button.bit',el).forEach(b=>{b.onclick=()=>{pay[+b.dataset.i]^=1;draw(+b.dataset.i)}});
     if(focus!=null){const f=$('#'+id+'-'+focus,el);if(f)f.focus()}
+  };
+  draw();
+}};
+
+LABS.firewall={title:'Firewall rule tester',mount(el,id){
+  // First-match rule set from the slide: block HTTP to the web server, allow the rest.
+  const RULES=[
+    {name:'Block web server',proto:'TCP',sp:'any',dip:'24.180.49.139',dp:'80',act:'deny'},
+    {name:'Allow SSH admin',proto:'TCP',sp:'any',dip:'10.0.0.5',dp:'22',act:'allow'},
+    {name:'Block Telnet',proto:'TCP',sp:'any',dip:'any',dp:'23',act:'deny'},
+    {name:'Default',proto:'any',sp:'any',dip:'any',dp:'any',act:'allow'}
+  ];
+  const presets=[
+    ['HTTP to web server','TCP','49512','24.180.49.139','80'],
+    ['SSH to admin box','TCP','51000','10.0.0.5','22'],
+    ['Telnet anywhere','TCP','48001','10.0.0.9','23'],
+    ['HTTPS to web server','TCP','52000','24.180.49.139','443']
+  ];
+  el.innerHTML=`<p class="hint">Send a packet and see which rule catches it. Rules are checked top to bottom and the <strong>first match wins</strong>. "any" matches anything.</p>
+    <div class="f-row">
+      <label class="f f-s" for="${id}-pr">Protocol<select id="${id}-pr"><option>TCP</option><option>UDP</option></select></label>
+      <label class="f f-s" for="${id}-sp">Source port<input id="${id}-sp" inputmode="numeric" value="49512"></label>
+      <label class="f" for="${id}-dip">Destination IP<input id="${id}-dip" value="24.180.49.139"></label>
+      <label class="f f-s" for="${id}-dp">Dest port<input id="${id}-dp" inputmode="numeric" value="80"></label>
+    </div>
+    <div class="lab-steps"><span class="dotn">Try:</span>${presets.map((p,i)=>'<button type="button" class="btn small" data-pre="'+i+'">'+p[0]+'</button>').join('')}</div>
+    <div class="out" aria-live="polite"></div>
+    <div class="rules"><table><thead><tr><th>#</th><th>Rule</th><th>Proto</th><th>Src port</th><th>Dest IP</th><th>Dest port</th><th>Action</th></tr></thead><tbody></tbody></table></div>`;
+  const g=k=>$('#'+id+'-'+k,el),o=$('.out',el),tb=$('.rules tbody',el);
+  const match=(rule,pkt)=>(rule.proto==='any'||rule.proto===pkt.proto)&&(rule.sp==='any'||rule.sp===pkt.sp)&&(rule.dip==='any'||rule.dip===pkt.dip)&&(rule.dp==='any'||rule.dp===pkt.dp);
+  const run=()=>{
+    const pkt={proto:g('pr').value,sp:g('sp').value.trim(),dip:g('dip').value.trim(),dp:g('dp').value.trim()};
+    let hit=-1;for(let i=0;i<RULES.length;i++){if(match(RULES[i],pkt)){hit=i;break}}
+    const r=RULES[hit],allow=r.act==='allow';
+    o.innerHTML='<div class="verdict '+(allow?'allow':'deny')+'">'+(allow?ICON.check:ICON.lock)+'<span>'+(allow?'ACCEPTED':'DENIED')+'<small>Matched rule '+(hit+1)+': '+esc(r.name)+'</small></span></div>';
+    tb.innerHTML=RULES.map((rl,i)=>'<tr class="'+(i===hit?'hit':'')+'"><td>'+(i+1)+'</td><td>'+esc(rl.name)+'</td><td>'+rl.proto+'</td><td>'+rl.sp+'</td><td>'+rl.dip+'</td><td>'+rl.dp+'</td><td class="pol-'+rl.act+'">'+rl.act.toUpperCase()+'</td></tr>').join('');
+  };
+  $$('[data-pre]',el).forEach(b=>{b.onclick=()=>{const p=presets[+b.dataset.pre];g('pr').value=p[1];g('sp').value=p[2];g('dip').value=p[3];g('dp').value=p[4];run()}});
+  onAll(['pr','sp','dip','dp'].map(g),run);
+}};
+
+LABS.handshake={title:'TCP handshake vs SYN flood',mount(el,id){
+  let flood=false;
+  const draw=()=>{
+    const normal=[['Client','SYN','Server',0],['Server','SYN-ACK','Client',1],['Client','ACK','Server',0]];
+    el.innerHTML='<div class="lab-steps"><span class="dotn">Mode:</span><button type="button" class="btn small" data-m="0" aria-pressed="'+(!flood)+'">Normal handshake</button><button type="button" class="btn small" data-m="1" aria-pressed="'+flood+'">SYN flood</button></div>'+
+      '<div class="flow">'+normal.map(m=>'<div class="msg on'+(m[3]?' rev':'')+'"><span class="ep">'+m[0]+'</span><span class="arr">'+m[1]+'</span><span class="ep">'+m[2]+'</span></div>').join('')+'</div>'+
+      (flood?
+        '<p class="err">The attacker sends SYN after SYN but never the final ACK.</p><div class="flood-stack" aria-hidden="true">'+Array(14).fill('<i></i>').join('')+'</div>'+
+        '<p class="out-sub">Each half-open connection stays open waiting for an ACK that never comes. Enough of them and the server can’t accept real connections — a denial of service.</p>'
+        :'<p class="out-sub">SYN, then SYN-ACK back, then ACK: the connection is open and data can flow. A SYN flood breaks this by never sending the last ACK.</p>');
+    $$('[data-m]',el).forEach(b=>{b.onclick=()=>{flood=b.dataset.m==='1';draw()}});
+  };
+  draw();
+}};
+
+LABS.portscan={title:'Port scanner and firewall',mount(el,id){
+  let fw=false;
+  const ports=[[22,'SSH',true],[25,'SMTP',false],[80,'HTTP',true],[443,'HTTPS',true],[3306,'MySQL',true],[8080,'HTTP-alt',false]];
+  const draw=()=>{
+    el.innerHTML='<div class="lab-steps"><span class="dotn">Firewall:</span><button type="button" class="btn small" data-f="0" aria-pressed="'+(!fw)+'">Off</button><button type="button" class="btn small" data-f="1" aria-pressed="'+fw+'">On (blocks all but 80 & 443)</button></div>'+
+      '<p class="hint">A port scan reports each port’s state. A listening service shows <strong>open</strong>; nothing listening shows <strong>closed</strong>; a firewall blocking the probe shows <strong>filtered</strong>.</p>'+
+      '<div class="rules"><table><thead><tr><th>Port</th><th>Service</th><th>State</th></tr></thead><tbody>'+
+      ports.map(p=>{const open=p[2];let state,cls;
+        if(fw&&p[0]!==80&&p[0]!==443){state='filtered';cls='pol-deny'}
+        else if(open){state='open';cls='pol-allow'}
+        else{state='closed';cls=''}
+        return '<tr><td>'+p[0]+'/tcp</td><td>'+p[1]+'</td><td class="'+cls+'">'+state+'</td></tr>'}).join('')+
+      '</tbody></table></div>'+
+      '<p class="out-sub">'+(fw?'With the firewall on, most ports read as <strong>filtered</strong> — the scanner can’t even tell if a service is there. That is a filter doing its job.':'With no firewall, the scanner sees exactly what is listening. This is the reconnaissance step before an attack.')+'</p>';
+    $$('[data-f]',el).forEach(b=>{b.onclick=()=>{fw=b.dataset.f==='1';draw()}});
+  };
+  draw();
+}};
+
+LABS.kerberos={title:'Kerberos ticket flow',mount(el,id){
+  const steps=[
+    {t:'1. Ask the AS',rows:[['Client','User ID, TGS ID','AS',0],['AS','ClientKey( TGSkey(TGT) )','Client',1]],
+      kv:'The <b>Authentication Server</b> derives your key from your password and sends back a <b>ticket-granting ticket (TGT)</b>, wrapped so only you can open the outer layer. Your password never travels.'},
+    {t:'2. Ask the TGS for a service',rows:[['Client','TGSkey(TGT), service ID','TGS',0],['TGS','ServiceServerKey(ticket), sessionKey','Client',1]],
+      kv:'You hand the <b>TGT</b> to the <b>Ticket-Granting Server</b>, which gives you a <b>service ticket</b> (readable only by that service) plus a <b>session key</b>.'},
+    {t:'3. Use the service',rows:[['Client','ServiceServerKey(ticket), authenticator','Service',0],['Service','sessionKey(response)','Client',1]],
+      kv:'You send the service ticket and a fresh <b>authenticator</b> (your ID + a timestamp). The service replies using the session key, which proves <b>mutual authentication</b> — and the timestamp blocks replay.'}
+  ];
+  let i=0;
+  const draw=()=>{
+    const s=steps[i];
+    el.innerHTML='<div class="lab-steps"><button type="button" class="btn small" data-a="prev"'+(i===0?' disabled':'')+'>← Back</button><span class="dotn">Step '+(i+1)+' of '+steps.length+'</span><button type="button" class="btn small primary" data-a="next"'+(i===steps.length-1?' disabled':'')+'>Next →</button></div>'+
+      '<div class="kstep"><strong>'+s.t+'</strong><div class="flow">'+
+      s.rows.map(m=>'<div class="msg on'+(m[3]?' rev':'')+'"><span class="ep">'+m[0]+'</span><span class="arr">'+m[1]+'</span><span class="ep">'+m[2]+'</span></div>').join('')+
+      '</div><p class="kv">'+s.kv+'</p></div>'+
+      (i===steps.length-1?'<p class="out-sub">You authenticated your password <strong>once</strong> (step 1) and reused tickets after that. The AS + TGS together are the <strong>KDC</strong> — a single point of failure, and every machine must be time synced.</p>':'');
+    const p=$('[data-a="prev"]',el),n=$('[data-a="next"]',el);
+    if(p)p.onclick=()=>{if(i>0){i--;draw()}};
+    if(n)n.onclick=()=>{if(i<steps.length-1){i++;draw()}};
+  };
+  draw();
+}};
+
+LABS.malware={title:'Classify the malware',mount(el,id){
+  const items=[
+    {s:'A program that attaches itself to a .exe and only runs when you open that file.',a:'Virus',why:'It needs a host file and human interaction to run — that’s a virus.'},
+    {s:'Standalone code that spreads across the network on its own, with no user action, by exploiting a vulnerability.',a:'Worm',why:'Self-propagating across a network with no user interaction is a worm.'},
+    {s:'A free game that looks harmless but secretly installs a key logger.',a:'Trojan',why:'It hides malicious code inside something innocuous and doesn’t propagate — a trojan.'},
+    {s:'The Morris program, which spread itself and brought down the network at MIT by consuming resources.',a:'Worm',why:'It self-propagated across the network — a worm, even though its harm was resource consumption.'},
+    {s:'Malicious code in a Word macro that copies itself into other documents when they are opened.',a:'Virus',why:'A macro virus still needs the document to be opened, so it’s a virus.'},
+    {s:'A program offering a free screensaver that opens a backdoor for remote control (a RAT).',a:'Trojan',why:'A Remote Access Trojan hides a backdoor inside a harmless-looking program.'}
+  ];
+  let order=shuffle(items.map((_,i)=>i)),pos=0,score=0,done=0;
+  const TYPES=['Virus','Worm','Trojan'];
+  const draw=()=>{
+    const it=items[order[pos]];
+    el.innerHTML='<p class="hint">Read each scenario and pick the malware type. Score: <strong>'+score+' / '+done+'</strong></p>'+
+      '<p style="font-size:1.05rem;line-height:1.5">'+esc(it.s)+'</p>'+
+      '<div class="actions">'+TYPES.map(t=>'<button type="button" class="btn" data-t="'+t+'">'+t+'</button>').join('')+'</div>'+
+      '<div class="out" aria-live="polite"></div>';
+    $$('[data-t]',el).forEach(b=>{b.onclick=()=>pick(b.dataset.t,it)});
+  };
+  const pick=(t,it)=>{
+    const ok=t===it.a;done++;if(ok)score++;
+    $$('[data-t]',el).forEach(b=>b.disabled=true);
+    $('.out',el).innerHTML='<div class="verdict '+(ok?'allow':'deny')+'">'+(ok?ICON.check:ICON.lock)+'<span>'+(ok?'Correct — '+it.a:'It’s a '+it.a)+'<small>'+esc(it.why)+'</small></span></div>'+
+      '<div class="actions" style="margin-top:4px"><button type="button" class="btn small primary" data-n>'+(pos<order.length-1?'Next scenario':'Shuffle and go again')+'</button></div>';
+    $('[data-n]',el).onclick=()=>{pos++;if(pos>=order.length){order=shuffle(order);pos=0}draw()};
+  };
+  draw();
+}};
+
+LABS.sqli={title:'SQL injection and the fix',mount(el,id){
+  // Self-contained teaching simulation of a login query. No real database.
+  const USERS=[{u:'alice',p:'correcthorse'},{u:'bob',p:'hunter2'}];
+  let mode='vuln';
+  const presets=[
+    ['Normal login','alice','correcthorse'],
+    ["Injection: ' OR '1'='1","alice' OR '1'='1",'anything'],
+    ["Comment attack","' OR 1=1--",'ignored']
+  ];
+  el.innerHTML=`<div class="lab-steps"><span class="dotn">Code:</span><button type="button" class="btn small" data-m="vuln" aria-pressed="true">Vulnerable (string built from input)</button><button type="button" class="btn small" data-m="param" aria-pressed="false">Parameterised (bound input)</button></div>
+    <div class="f-row">
+      <label class="f" for="${id}-u">Username<input id="${id}-u" value="alice' OR '1'='1" autocomplete="off" spellcheck="false"></label>
+      <label class="f" for="${id}-p">Password<input id="${id}-p" value="anything" autocomplete="off" spellcheck="false"></label>
+    </div>
+    <div class="lab-steps"><span class="dotn">Try:</span>${presets.map((p,i)=>'<button type="button" class="btn small" data-pre="'+i+'">'+esc(p[0])+'</button>').join('')}</div>
+    <div class="out" aria-live="polite"></div>
+    <p class="out-sub">A made-up login with users <code>alice</code> and <code>bob</code>. Nothing here touches a real database — it shows how the query is built and why binding input stops the attack.</p>`;
+  const u=$('#'+id+'-u',el),p=$('#'+id+'-p',el),o=$('.out',el);
+  const injected=s=>/('|")\s*or\s*('?\d+'?\s*=\s*'?\d+'?|'[^']*'\s*=\s*'[^']*')/i.test(s)||/'\s*or\s+1\s*=\s*1/i.test(s)||/--/.test(s);
+  const run=()=>{
+    const uv=u.value,pv=p.value;
+    if(mode==='vuln'){
+      const q='SELECT * FROM accounts\nWHERE username = \''+uv+'\' AND password = \''+pv+'\'';
+      const bypass=injected(uv)||injected(pv);
+      const real=USERS.some(x=>x.u===uv&&x.p===pv);
+      const granted=bypass||real;
+      o.innerHTML='<pre class="code"><code>'+esc(q)+'</code></pre>'+
+        '<div class="verdict '+(granted?'deny':'allow')+'">'+(granted?ICON.lock:ICON.check)+'<span>'+(granted?'ACCESS GRANTED':'Access denied')+
+        '<small>'+(bypass?'The input broke out of the string and made the WHERE always true, so a row is returned — logged in without a valid password.':real?'A genuine matching row was returned.':'No matching row.')+'</small></span></div>';
+    }else{
+      const q='SELECT * FROM accounts\nWHERE username = ? AND password = ?\n-- ? bound to: '+JSON.stringify(uv)+', '+JSON.stringify(pv);
+      const real=USERS.some(x=>x.u===uv&&x.p===pv);
+      o.innerHTML='<pre class="code"><code>'+esc(q)+'</code></pre>'+
+        '<div class="verdict '+(real?'allow':'deny')+'">'+(real?ICON.check:ICON.lock)+'<span>'+(real?'ACCESS GRANTED':'Access denied')+
+        '<small>'+(real?'A genuine username and password matched.':'The whole input is treated as a value, so it only matches a user literally named that. The injection does nothing.')+'</small></span></div>';
+    }
+  };
+  $$('[data-m]',el).forEach(b=>{b.onclick=()=>{mode=b.dataset.m;$$('[data-m]',el).forEach(x=>x.setAttribute('aria-pressed',x===b));run()}});
+  $$('[data-pre]',el).forEach(b=>{b.onclick=()=>{const pr=presets[+b.dataset.pre];u.value=pr[1];p.value=pr[2];run()}});
+  onAll([u,p],run);
+}};
+
+LABS.xss={title:'Stopping XSS with encoding',mount(el,id){
+  const presets=[
+    ['Plain comment','Great article, thanks!'],
+    ['Script injection','<scr'+'ipt>window.open("http://evil.example")<\/scr'+'ipt>'],
+    ['Image onerror','<img src=x onerror="steal()">']
+  ];
+  el.innerHTML=`<div class="f-row"><label class="f" for="${id}-c">A comment a user submits<input id="${id}-c" value='&lt;script&gt;window.open("http://evil.example")&lt;/script&gt;' autocomplete="off" spellcheck="false"></label></div>
+    <div class="lab-steps"><span class="dotn">Try:</span>${presets.map((p,i)=>'<button type="button" class="btn small" data-pre="'+i+'">'+esc(p[0])+'</button>').join('')}</div>
+    <div class="out" aria-live="polite"></div>`;
+  const c=$('#'+id+'-c',el),o=$('.out',el);
+  const run=()=>{
+    const raw=c.value,enc=esc(raw);
+    const dangerous=/[<>]/.test(raw);
+    o.innerHTML='<p class="out-sub"><strong>Stored and inserted as raw HTML (vulnerable):</strong></p>'+
+      '<pre class="code"><code>'+enc+'</code></pre>'+
+      '<div class="verdict '+(dangerous?'deny':'allow')+'">'+(dangerous?ICON.lock:ICON.check)+'<span>'+(dangerous?'The browser would run this':'Nothing to run')+
+      '<small>'+(dangerous?'Any <script> or event handler executes in every viewer’s browser — that is stored XSS.':'No tags, so there is nothing for the browser to execute.')+'</small></span></div>'+
+      '<p class="out-sub" style="margin-top:6px"><strong>HTML-encoded before display (safe):</strong></p>'+
+      '<pre class="code"><code>'+esc(enc)+'</code></pre>'+
+      '<div class="verdict allow">'+ICON.check+'<span>Shown as text<small>&lt; becomes &amp;lt; and so on, so the browser prints the characters instead of running them.</small></span></div>';
+  };
+  $$('[data-pre]',el).forEach(b=>{b.onclick=()=>{c.value=presets[+b.dataset.pre][1];run()}});
+  onAll([c],run);
+}};
+
+LABS.pentest={title:'Penetration test phases',mount(el,id){
+  const steps=[
+    {t:'1. Reconnaissance',d:'Gather information about the target. <b>Passive</b>: public websites, social media, a site’s code via developer tools. <b>Active</b>: ping the system, use it as a normal customer. Goal: understand its structure, technologies and likely weak spots.'},
+    {t:'2. Scanning',d:'Use tools to find live hosts, open ports, services and vulnerabilities. Includes <b>network mapping</b> (finding devices and the network structure), supported by tools like <b>Nmap</b> (Week 4).'},
+    {t:'3. Exploitation',d:'Attempt to exploit the vulnerabilities found to gain unauthorised access, e.g. via <b>SQL injection</b>. Goal: demonstrate the real effect, such as reaching sensitive customer data.'},
+    {t:'4. Post-exploitation',d:'Assess the impact: escalate privileges, collect more data, establish <b>persistent access</b> and explore <b>lateral movement</b> to other systems. Shows how much damage a real attacker could do. Everything is documented.'},
+    {t:'5. Reporting',d:'Summarise findings in an <b>executive summary</b> (plain language, business impact) and a <b>detailed technical report</b> (vulnerabilities, how they were exploited, fixes, supporting logs). The main deliverable — clear communication is as vital as the hacking.'}
+  ];
+  let i=0;
+  const draw=()=>{
+    const s=steps[i];
+    el.innerHTML='<div class="lab-steps"><button type="button" class="btn small" data-a="prev"'+(i===0?' disabled':'')+'>← Back</button><span class="dotn">Phase '+(i+1)+' of '+steps.length+'</span><button type="button" class="btn small primary" data-a="next"'+(i===steps.length-1?' disabled':'')+'>Next →</button></div>'+
+      '<div class="kstep"><strong>'+s.t+'</strong><p class="kv">'+s.d+'</p></div>'+
+      '<p class="out-sub">Ethical hacking is legal and authorised: scope and limits are agreed in a signed contract before any of this begins.</p>';
+    const pv=$('[data-a="prev"]',el),nx=$('[data-a="next"]',el);
+    if(pv)pv.onclick=()=>{if(i>0){i--;draw()}};
+    if(nx)nx.onclick=()=>{if(i<steps.length-1){i++;draw()}};
   };
   draw();
 }};

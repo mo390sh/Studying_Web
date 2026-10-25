@@ -11,15 +11,17 @@ Files
   weeks/week1.js       Week 1 content: notes, quiz, practice, glossary, checklist
   weeks/week2.js       Week 2 content
   weeks/week3.js       Week 3 content
+  weeks/week4.js       Week 4 content (Network Security)
+  weeks/week5.js       Week 5 content (Malware and Web Application Security)
   vendor/three.min.js  three.js r128 (the 3D library), so the vault works offline
 
 Adding a week
-  1. Copy weeks/week3.js to weeks/week4.js and change n to 4.
+  1. Copy weeks/week5.js to weeks/week6.js and change n to 6.
   2. Replace the title, blurb, topics, parts, quiz, practice, glossary and checklist.
      In each quiz question the first option is the correct one (a:0); the page
      shuffles the options when it shows them.
   3. In index.html, add this line under the other week files:
-       <script src="weeks/week4.js"></script>
+       <script src="weeks/week6.js"></script>
   The new ring, missions, quiz arena, badges and glossary pick it up automatically.
   "labs" lists interactive tools by id; those are written in index.html (search for LABS.).
 
