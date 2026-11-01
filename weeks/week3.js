@@ -541,3 +541,154 @@ checklist:[
 "Hide and extract bits using the LSB algorithm, and explain why LSB changes are invisible"
 ]
 });
+
+/* ---------- Hands-on: practice terminal, challenges, real-tool guides, exam scenarios ---------- */
+COURSE.hands(3,{
+  title:'Week 3 workbench (logs, permissions, passwords, LSB)',
+  intro:`<p>This lab is a pretend web server called <code>web01</code>. You are a junior analyst: read its login log, tighten file permissions, look at how passwords are stored, and pull a hidden message out of an image's pixel values. Everything is made up and stays in this page.</p>`,
+  env:{
+    hostname:'web01',
+    date:'Sat Mar 08 09:00:00 UTC 2025',
+    fs:{
+      '/home/student/README.txt':'Week 3 workbench\n================\nThe login log is  /var/log/auth.log   (try: less is not available, use cat, grep, head, tail)\nProject files are in ~/project, password files in ~/passwords, the image data is ~/image/cover.txt\nTip: ls -l shows permissions.\n',
+      '/var/log/auth.log':"Mar 04 02:20:13 web01 sshd[2001]: Failed password for invalid user test from 203.0.113.50 port 46176 ssh2\nMar 04 02:20:14 web01 sshd[2006]: Failed password for invalid user guest from 203.0.113.50 port 59008 ssh2\nMar 04 02:20:15 web01 sshd[2011]: Failed password for invalid user ubuntu from 203.0.113.50 port 50944 ssh2\nMar 04 02:20:16 web01 sshd[2012]: Failed password for invalid user oracle from 203.0.113.50 port 58848 ssh2\nMar 04 02:20:17 web01 sshd[2017]: Failed password for invalid user postgres from 203.0.113.50 port 44704 ssh2\nMar 04 02:20:18 web01 sshd[2018]: Failed password for admin from 203.0.113.50 port 53280 ssh2\nMar 04 08:02:11 web01 sshd[2023]: Accepted password for jsmith from 10.0.0.15 port 51022 ssh2\nMar 04 08:30:45 web01 sshd[2026]: Accepted publickey for adurand from 10.0.0.22 port 49871 ssh2\nMar 04 09:14:03 web01 sshd[2029]: Failed password for rkhan from 10.0.0.31 port 50210 ssh2\nMar 04 09:14:09 web01 sshd[2034]: Accepted password for rkhan from 10.0.0.31 port 50212 ssh2\nMar 05 09:00:01 web01 sshd[2037]: Failed password for jsmith from 203.0.113.42 port 56288 ssh2\nMar 05 09:00:04 web01 sshd[2038]: Failed password for adurand from 203.0.113.42 port 57856 ssh2\nMar 05 09:00:07 web01 sshd[2043]: Failed password for rkhan from 203.0.113.42 port 45952 ssh2\nMar 05 09:00:10 web01 sshd[2046]: Failed password for mlee from 203.0.113.42 port 49248 ssh2\nMar 05 09:00:13 web01 sshd[2049]: Failed password for tpatel from 203.0.113.42 port 45664 ssh2\nMar 05 09:00:16 web01 sshd[2054]: Failed password for jsmith from 203.0.113.42 port 53248 ssh2\nMar 05 09:00:47 web01 sshd[2055]: Failed password for adurand from 203.0.113.42 port 50016 ssh2\nMar 05 09:01:18 web01 sshd[2060]: Failed password for rkhan from 203.0.113.42 port 50880 ssh2\nMar 05 09:01:49 web01 sshd[2061]: Failed password for mlee from 203.0.113.42 port 56096 ssh2\nMar 05 09:02:20 web01 sshd[2066]: Failed password for tpatel from 203.0.113.42 port 46400 ssh2\nMar 05 13:40:21 web01 sshd[2071]: Accepted publickey for mlee from 10.0.0.18 port 52311 ssh2\nMar 06 01:11:20 web01 sshd[2076]: Failed password for admin from 198.51.100.7 port 44256 ssh2\nMar 06 01:11:51 web01 sshd[2077]: Failed password for admin from 198.51.100.7 port 40544 ssh2\nMar 06 01:12:22 web01 sshd[2082]: Failed password for admin from 198.51.100.7 port 53184 ssh2\nMar 06 01:12:53 web01 sshd[2083]: Failed password for admin from 198.51.100.7 port 56320 ssh2\nMar 06 01:13:24 web01 sshd[2086]: Failed password for admin from 198.51.100.7 port 54048 ssh2\nMar 06 01:13:55 web01 sshd[2089]: Failed password for admin from 198.51.100.7 port 58592 ssh2\nMar 06 01:14:26 web01 sshd[2094]: Failed password for admin from 198.51.100.7 port 46816 ssh2\nMar 06 01:14:57 web01 sshd[2099]: Failed password for admin from 198.51.100.7 port 49312 ssh2\nMar 06 01:15:28 web01 sshd[2100]: Failed password for admin from 198.51.100.7 port 40576 ssh2\nMar 06 01:15:59 web01 sshd[2101]: Failed password for admin from 198.51.100.7 port 58496 ssh2\nMar 06 01:16:30 web01 sshd[2102]: Failed password for admin from 198.51.100.7 port 53472 ssh2\nMar 06 01:17:01 web01 sshd[2103]: Failed password for admin from 198.51.100.7 port 55064 ssh2\nMar 06 01:17:32 web01 sshd[2106]: Failed password for admin from 198.51.100.7 port 46848 ssh2\nMar 06 01:18:03 web01 sshd[2111]: Failed password for admin from 198.51.100.7 port 40024 ssh2\nMar 06 01:18:34 web01 sshd[2116]: Failed password for admin from 198.51.100.7 port 50368 ssh2\nMar 06 01:19:05 web01 sshd[2117]: Failed password for admin from 198.51.100.7 port 45760 ssh2\nMar 06 01:19:54 web01 sshd[2118]: Accepted password for admin from 198.51.100.7 port 44320 ssh2\nMar 06 17:05:50 web01 sshd[2121]: Accepted password for tpatel from 10.0.0.27 port 53109 ssh2\nMar 07 22:03:10 web01 sshd[2124]: Accepted password for jsmith from 203.0.113.99 port 40832 ssh2\nMar 07 22:04:55 web01 sshd[2129]: Accepted password for adurand from 203.0.113.99 port 40960 ssh2\nMar 07 22:07:31 web01 sshd[2134]: Accepted password for rkhan from 203.0.113.99 port 56640 ssh2\n",
+      '/home/student/project/payroll.csv':'name,salary\nA. Jones,41000\nB. Singh,39500\nC. Okafor,44200\n',
+      '/home/student/project/token.txt':{c:'ST-4471\n',m:'000'},
+      '/home/student/project/deploy.sh':'#!/bin/bash\necho "Deployed build 7731 OK"\n',
+      '/home/student/passwords/common.txt':'password\n123456\nqwerty\nletmein\ndragon\nsunshine\nmonkey\niloveyou\nwelcome\nfootball\nadmin\nprincess\n',
+      '/home/student/passwords/shadow.txt':'alice:1c8bfe8f801d79745c4631d09fff36c82aa37fc4cce4fc946683d7b336b63032\nbob:a941a4c4fd0c01cddef61b8be963bf4c1e2b0811c037ce3f1835fddf6ef6c223\ncarol:a9c43be948c5cabd56ef2bacffb77cdaa5eec49dd5eb0cc4129cf3eda5f0e74c\ndave:a941a4c4fd0c01cddef61b8be963bf4c1e2b0811c037ce3f1835fddf6ef6c223\nerin:2c1456e4fa2409f458fe438fb2f25da9f96513a960fd01952ea12f2ee7a131c4\n',
+      '/home/student/passwords/shadow-salted.txt':'# user:salt:hash   where hash = sha256(salt followed by the password)\nbob:5d01:f20aa20b8245df796d5109539981538efe7d7cbecf88c30e36bb3eacef319de4\ndave:a9f3:37293c93cb439c2752eccecd755aee0b39f769dccb4aa41d26beb7a18d2bdee9\nerin:7c2e:47df3cb883b5674eac285da2f6504648147ca1ee162916ebb3d8e79a749b2b9d\n',
+      '/home/student/image/cover.txt':"01011010\n01110111\n11010100\n00111110\n01110001\n00010101\n01101110\n00001100\n01011000\n00011111\n11100110\n01011011\n11111010\n00000000\n10110001\n10110111\n11001110\n00100101\n00010110\n01101010\n00110100\n01110010\n11110101\n01111100\n"
+    },
+    exec:{'/home/student/project/deploy.sh':'Deployed build 7731 OK\n'}
+  },
+  try:['ls -l project','cat README.txt','grep -c "Failed password" /var/log/auth.log','head -5 /var/log/auth.log','cat passwords/common.txt','man ascii'],
+  tasks:[
+    {id:'topip',title:'Who is hammering the server?',level:'Easy',xp:20,
+     brief:`<p>Open <code>/var/log/auth.log</code>. Count the failed password lines for every source IP address. <strong>Which IP has the most failed logins?</strong></p><p>Tools: <code>grep "Failed password"</code> picks the lines; <code>grep -oE "from [0-9.]+"</code> keeps just the "from IP" part; <code>cut -d' ' -f2</code> keeps the IP; then <code>sort | uniq -c | sort -rn</code> counts and ranks.</p>`,
+     hints:[`<code>grep "Failed password" /var/log/auth.log | grep -oE "from [0-9.]+" | cut -d' ' -f2 | sort | uniq -c | sort -rn</code>`],
+     answer:['198.51.100.7'],
+     why:`<p>The top IP made 16 failures, all against the account <code>admin</code>. A count is a <strong>finding</strong>, not yet a risk: next you ask what the attacker achieved. (The slides stress that a log line is only a clue, never proof.)</p>`},
+    {id:'brute',title:'Did the brute force succeed?',level:'Medium',xp:30,
+     brief:`<p>Look at the activity of the IP from the last challenge, <code>198.51.100.7</code>. After all those failures, there is one more line from it. <strong>At what time (HH:MM:SS) did that IP get a successful login?</strong></p>`,
+     hints:[`<code>grep 198.51.100.7 /var/log/auth.log | grep Accepted</code>`],
+     answer:['01:19:54'],
+     why:`<p>The attacker guessed the password of <code>admin</code> after 16 tries about 30 seconds apart. That is the classic <strong>brute-force</strong> pattern: many failures against <em>one</em> account from one IP, ending in an <code>Accepted</code> line. Defences: account lockout or rate limiting, a strong password, and MFA.</p>`},
+    {id:'spray',title:'Name that attack',level:'Medium',xp:30,
+     brief:`<p>Now study <code>203.0.113.42</code> with <code>grep 203.0.113.42 /var/log/auth.log</code>. Many failures, but spread over different accounts, one or two each. <strong>Which attack pattern is this?</strong> Choose one: brute force, password spraying, credential stuffing, account enumeration.</p>`,
+     hints:[`Ask: is it many guesses at <em>one</em> account, or one or two guesses at <em>many</em> accounts? Do the accounts exist (no "invalid user")?`],
+     answer:['password spraying','spraying'],
+     why:`<p><strong>Password spraying</strong> tries one or two common passwords against many <em>valid</em> accounts, staying under lockout limits. Compare: brute force (many guesses, one account), <strong>enumeration</strong> (guessing which usernames exist, shown as "invalid user"), and <strong>credential stuffing</strong> (using stolen username-password pairs, so there are few failures).</p>`},
+    {id:'stuff',title:'The login with no failures',level:'Hard',xp:40,
+     brief:`<p>One external IP logged in successfully as <strong>three different users</strong> within a few minutes, with <strong>no failed attempts at all</strong>. <strong>Which IP is it?</strong> (The internal 10.0.0.x addresses are normal staff.) Look at the <code>Accepted</code> lines.</p>`,
+     hints:[`<code>grep Accepted /var/log/auth.log | grep -v "10.0.0."</code>`,`Ignore <code>198.51.100.7</code>: it had 16 failures first. Look for the IP with several accepted users and no failures.`],
+     answer:['203.0.113.99'],
+     why:`<p>This is typical of <strong>credential stuffing</strong>: the attacker already had working username-password pairs from another breach, so nothing fails. It is the hardest pattern to spot because it looks like normal logins. Clues: a new external IP, several accounts in minutes, an odd hour. Still a clue, not proof, but worth an immediate check and password resets.</p>`},
+    {id:'payroll',title:'Lock down the payroll file',level:'Easy',xp:20,kind:'state',
+     brief:`<p><code>~/project/payroll.csv</code> is readable by everyone on the machine. Change its permissions so that only <strong>you (the owner) can read and write it</strong>, and the group and everyone else get nothing. Check with <code>ls -l project</code>, then press <em>Check my work</em>.</p>`,
+     hints:[`Numbers: read=4, write=2, execute=1. Owner gets 4+2 = 6, group 0, others 0.`,`<code>chmod 600 project/payroll.csv</code> (or <code>chmod go-rwx</code> on the file)`],
+     expect:{files:[{path:'/home/student/project/payroll.csv',mode:'600'}]},
+     why:`<p>Mode <code>600</code> is <code>rw-------</code>. This follows the <strong>principle of least privilege</strong>: nobody gets more access than they need. A mode of <code>644</code> would let every user read salaries.</p>`},
+    {id:'token',title:'Read a locked file, with least privilege',level:'Medium',xp:30,
+     brief:`<p><code>~/project/token.txt</code> has no permissions at all (<code>----------</code>). You own it, so you can change that. Give <strong>only yourself</strong> the read permission it needs, then read it. <strong>What is the token?</strong></p><p>Do not use <code>chmod 777</code>. That would let everyone read, write and run it.</p>`,
+     hints:[`<code>chmod u+r project/token.txt</code> then <code>cat project/token.txt</code>`],
+     answer:['ST-4471','st4471'],
+     why:`<p><code>u+r</code> adds read for the <strong>u</strong>ser (owner) only. Only the owner (or an administrator) can change permissions. Granting <code>777</code> would fix the error but break least privilege badly.</p>`},
+    {id:'deploy',title:'Run the deploy script',level:'Medium',xp:30,
+     brief:`<p>Run <code>./project/deploy.sh</code>. It fails with "Permission denied". Look at <code>ls -l project</code>, see what is missing, and give <strong>the owner only</strong> the execute permission. Run the script again. <strong>Which build number does it deploy?</strong></p>`,
+     hints:[`<code>chmod u+x project/deploy.sh</code> then <code>./project/deploy.sh</code>`],
+     answer:['7731','build 7731'],
+     why:`<p>A file can be read without being <em>executable</em>. On Unix the <code>x</code> bit decides whether it can run. <code>u+x</code> gives that right to the owner only.</p>`},
+    {id:'shared',title:'Who reuses a password?',level:'Medium',xp:30,
+     brief:`<p><code>~/passwords/shadow.txt</code> stores each user's password as an <strong>unsalted</strong> SHA-256 hash (<code>user:hash</code>). Two users picked the same password. <strong>Which two?</strong> (Type the two names.)</p>`,
+     hints:[`Print just the hashes with <code>cut -d: -f2 passwords/shadow.txt</code>. Find the repeated one with <code>sort | uniq -d</code>, then <code>grep</code> that hash in the file.`],
+     answer:['bob dave'],set:true,
+     why:`<p>Without a salt, the same password always gives the same hash, so identical hashes reveal identical passwords, and a precomputed table (a <strong>rainbow table</strong>) cracks every copy at once. A unique random <strong>salt</strong> per user fixes this.</p>`},
+    {id:'crack',title:'Crack a weak password with a word list',level:'Hard',xp:40,
+     brief:`<p>Carol's hash is in <code>passwords/shadow.txt</code>. A <strong>dictionary attack</strong> tries likely passwords: hash every word in <code>passwords/common.txt</code> and see which one matches. <strong>What is Carol's password?</strong></p><p>One way: <code>for w in $(cat passwords/common.txt); do echo "$(echo -n $w | sha256sum | cut -d' ' -f1):$w"; done</code> prints <code>hash:word</code> for every candidate. Then search for Carol's hash.</p>`,
+     hints:[`Fetch Carol's hash with <code>grep ^carol passwords/shadow.txt | cut -d: -f2</code>.`,`Put it together: <code>for w in $(cat passwords/common.txt); do echo "$(echo -n $w | sha256sum | cut -d' ' -f1):$w"; done | grep -F "$(grep ^carol passwords/shadow.txt | cut -d: -f2)"</code>`],
+     answer:['dragon'],
+     why:`<p>Because the hash is fast and unsalted, twelve guesses took a blink. Real attackers try billions. Defences from the notes: <strong>long, unpredictable passwords</strong>, <strong>salting</strong>, and <strong>slow hashes</strong> (bcrypt, scrypt, Argon2) designed to make each guess expensive. Never loop this against real accounts: this is a made-up file.</p>`},
+    {id:'salted',title:'Salting: does it stop a targeted attack?',level:'Hard',xp:40,
+     brief:`<p>Look at <code>passwords/shadow-salted.txt</code>. Each line is <code>user:salt:hash</code> where <code>hash = SHA-256(salt + password)</code>. Notice that <code>bob</code> and <code>dave</code> have different hashes even though both use the same password. Erin's password is also in <code>common.txt</code>. <strong>Find it.</strong> (Her salt is <code>7c2e</code>.)</p>`,
+     hints:[`Put the salt in front of every candidate: <code>echo -n 7c2e$w | sha256sum</code>.`,`<code>for w in $(cat passwords/common.txt); do echo "$(echo -n 7c2e$w | sha256sum | cut -d' ' -f1):$w"; done | grep -F "$(grep ^erin passwords/shadow-salted.txt | cut -d: -f3)"</code>`],
+     answer:['monkey'],
+     why:`<p>Salting makes identical passwords look different and <strong>kills precomputed tables</strong>, but an attacker can still guess passwords for <em>one</em> account at a time. That is why you also need strong passwords and slow hashing: the salt stops mass cracking, it does not make a weak password strong.</p>`},
+    {id:'space',title:'How big is the search space?',level:'Easy',xp:20,
+     brief:`<p>A site only allows lowercase letters and digits (36 symbols) and an 8-character password. <strong>How many different passwords are possible?</strong> Use <code>echo "36^8" | bc</code>.</p>`,
+     hints:[`The number of possibilities is (symbols)<sup>length</sup>.`],
+     answer:['2821109907456','2,821,109,907,456'],
+     why:`<p>That is about 2.8 trillion, or roughly 41 bits of entropy (8 × log<sub>2</sub> 36). It sounds large, but a fast offline attack tries billions of guesses per second. Adding length helps far more than adding symbols: each extra character multiplies the space by 36.</p>`},
+    {id:'lsb',title:'Pull a hidden message out of pixel values',level:'Hard',xp:40,
+     brief:`<p><code>image/cover.txt</code> holds 24 pixel values as 8-bit binary, one per line. A message is hidden in their <strong>least significant bits</strong> (the last bit of each value), eight bits per letter. <strong>What is the hidden word?</strong></p><ol><li>Take the last bit of each line: <code>cut -c8 image/cover.txt | tr -d '\\n'</code></li><li>Split into 8-bit groups with <code>fold -w 8</code>.</li><li>Convert each group to a number: <code>echo "ibase=2; 01001100" | bc</code> (use your own bits).</li><li>Look the numbers up in ASCII (<code>man ascii</code> uses hex, so convert: 76 = 0x4C).</li></ol>`,
+     hints:[`All at once: <code>for b in $(cut -c8 image/cover.txt | tr -d '\\n' | fold -w 8); do echo "ibase=2;$b" | bc; done</code> prints three numbers.`,`Convert each number to hex (<code>printf '%x ' 76 83 66</code>) and look them up in <code>man ascii</code>.`],
+     answer:['lsb'],
+     why:`<p>Changing the last bit of an 8-bit colour value changes the colour by at most 1 part in 256, which the eye cannot see, so each pixel carries one hidden bit. That is why <strong>LSB steganography</strong> hides the very <em>existence</em> of a message, unlike encryption, which hides its <em>content</em>. A real image of 400×300 pixels with 3 colour channels could hide about 45,000 bytes.</p>`}
+  ],
+  guides:[
+    {id:'perms',title:'Unix permissions playground',time:'10 min',tags:['Mac','Linux','WSL'],
+     intro:`<p>Real permissions need a real Unix file system. On <strong>Mac or Linux</strong> use Terminal. On <strong>Windows</strong> use <strong>WSL</strong> (install with <code>wsl --install</code> in an admin PowerShell, then open "Ubuntu") and work in your Linux home folder: Git Bash on a normal Windows folder does not enforce Unix permissions.</p>`,
+     steps:[
+      {t:'Make some files',cmd:`mkdir perms-lab && cd perms-lab\necho "secret" > secret.txt\necho '#!/bin/bash\necho hello from a script' > run.sh\nls -l`,see:`<code>-rw-r--r--</code> for both files: owner can read and write, group and others can only read.`},
+      {t:'Lock the secret',cmd:`chmod 600 secret.txt\nls -l secret.txt\nstat -c '%a %A %U' secret.txt`,see:`<code>-rw-------</code> and <code>600</code>.`},
+      {t:'Make the script runnable, and see it fail first',cmd:`./run.sh\nchmod u+x run.sh\n./run.sh`,see:`first "Permission denied", then "hello from a script".`},
+      {t:'Read the letters',say:`<p>Take <code>-rwxr-x---</code>: owner <code>rwx</code> (7), group <code>r-x</code> (5), others <code>---</code> (0), which is <code>750</code>. Try <code>chmod 750 run.sh</code> and <code>chmod 640 secret.txt</code> and predict the number before you run <code>stat -c '%a' file</code>.</p>`},
+      {t:'See what the default is',cmd:`umask\ntouch newfile && ls -l newfile`,say:`<p>The <strong>umask</strong> removes permissions from new files. A umask of 022 gives new files 644.</p>`}
+     ]},
+    {id:'pwned',title:'Check a password without revealing it (k-anonymity)',time:'10 min',tags:['Mac','Linux','Git Bash','WSL'],
+     intro:`<p>The free <em>Have I Been Pwned</em> service lets you test whether a password appears in known breaches <strong>without sending the password</strong>. It uses the first 5 characters of a hash only. <strong>Use a throw-away test password such as "password123", never a real one.</strong></p>`,
+     steps:[
+      {t:'Hash the password with SHA-1',cmd:`printf '%s' 'password123' | sha1sum        # on a Mac: shasum`,see:`<code>cbfdac6008f9cab4083784cbd1874f76618d2a97</code>`},
+      {t:'Send only the first five characters',cmd:`curl -s https://api.pwnedpasswords.com/range/CBFDA | head`,see:`a list of lines such as <code>suffix:count</code>. The server never learns the full hash.`},
+      {t:'Look for your suffix locally',cmd:`curl -s https://api.pwnedpasswords.com/range/CBFDA | grep -i C6008F9CAB4083784CBD1874F76618D2A97`,see:`a line with a large number: that password has appeared in breaches that many times.`},
+      {t:'Think',say:`<p>Why is it OK to send 5 hex characters? Because many different hashes share that prefix, so the server cannot tell which one you hold. This is called <strong>k-anonymity</strong>. Also notice SHA-1 is fine <em>here</em> (it is used as a lookup key) but not for storing passwords.</p>`}
+     ]},
+    {id:'zxcvbn',title:'Measure real password strength with zxcvbn',time:'10 min',tags:['Windows','Mac','Linux'],
+     intro:`<p>The entropy formula assumes random characters. Real people do not pick random characters. <code>zxcvbn</code> is an open-source estimator that models how people actually choose passwords. Install Python 3 first if you do not have it.</p>`,
+     steps:[
+      {t:'Install it',cmd:`pip install zxcvbn`},
+      {t:'Compare two famous passwords',cmd:`python3 -c "from zxcvbn import zxcvbn as z; print(z('Tr0ub4dor&3')['guesses_log10'], z('correct horse battery staple')['guesses_log10'])"`,see:`two numbers: the base-10 logarithm of the estimated guesses. The long phrase of ordinary words usually beats the short "clever" one, which matches the lecture point that length wins and predictable tricks (a swapped letter, a trailing symbol) add little.`},
+      {t:'Try your own patterns',say:`<p>Test patterns, not real passwords: <code>Summer2025!</code>, <code>qwertyuiop</code>, a four-word phrase. Read the <code>feedback</code> field too: <code>z('Summer2025!')['feedback']</code>.</p>`}
+     ]},
+    {id:'steghide',title:'Hide a message in an image (steganography)',time:'15 min',tags:['Linux','WSL'],
+     intro:`<p>Do real steganography with <code>steghide</code>, a classic tool that hides data in JPEG and BMP files. You need any JPEG picture of your own, which we will call <code>cover.jpg</code>.</p>`,
+     steps:[
+      {t:'Install',cmd:`sudo apt update && sudo apt install steghide`},
+      {t:'Write a secret and embed it',cmd:`echo "meet at noon" > secret.txt\nsteghide embed -cf cover.jpg -ef secret.txt -p "practice-pass"`,see:`<code>embedding "secret.txt" in "cover.jpg"... done</code>`},
+      {t:'Compare',cmd:`ls -l cover.jpg\nsteghide info cover.jpg -p "practice-pass"`,say:`<p>Open the picture. Can you see any difference? Probably not, which is the point: the <strong>stego-object</strong> looks like the <strong>cover</strong>.</p>`},
+      {t:'Extract it',cmd:`rm secret.txt\nsteghide extract -sf cover.jpg -p "practice-pass"\ncat secret.txt`,see:`<code>meet at noon</code>`},
+      {t:'Reflect',say:`<p>Steganography hides that a message exists; encryption hides what it says. Here steghide also encrypts the payload with your passphrase. Why is it a good idea to do both?</p>`}
+     ]}
+  ],
+  scenarios:[
+    {id:'alert',title:'The 2 a.m. alert',
+     setup:`<p>Your monitoring tool alerts you at 2 a.m. Here is an excerpt from <code>web01</code>:</p><pre class="code"><code>Mar 09 03:10:01 web01 sshd[7001]: Failed password for invalid user test from 203.0.113.50 port 40011 ssh2
+Mar 09 03:10:02 web01 sshd[7002]: Failed password for invalid user guest from 203.0.113.50 port 40012 ssh2
+Mar 09 03:10:03 web01 sshd[7003]: Failed password for invalid user ubuntu from 203.0.113.50 port 40013 ssh2
+Mar 09 03:10:04 web01 sshd[7004]: Failed password for admin from 203.0.113.50 port 40014 ssh2</code></pre>`,
+     tasks:[
+      {q:`<p>Which pattern is this? What does it tell you, and why is it only a clue and not proof?</p>`,
+       model:`<p>This is <strong>account enumeration</strong>: one source IP tries many different usernames in a few seconds. The words "invalid user" show the account does not exist, while <code>admin</code> has no such label, which hints that it <em>does</em> exist. The attacker is probing for valid accounts before guessing passwords.</p><p>It is only a clue: an IP address can be shared or spoofed or belong to a scanner, a misconfigured script could cause similar lines, and you have not yet seen whether anything succeeded.</p>`,
+       points:[`Name the pattern as account enumeration (many usernames, one IP)`,`Explain "invalid user" versus a real account such as admin`,`Say it is a clue, not proof, and why (shared IPs, scanners, misconfigurations)`]},
+      {q:`<p>List the next investigation steps. What would you check before deciding this is an incident?</p>`,
+       model:`<p>Check the <strong>source IP</strong> (internal or external, known scanner, reputation); whether the attempts <strong>continue</strong> or stop; whether there is any later <strong>Accepted</strong> login from the same IP or for the <code>admin</code> account; the time against normal activity; other systems the IP touched; and whether this matches known behaviour such as a vulnerability scan. Preserve the logs as evidence. Questions come before conclusions.</p>`,
+       points:[`Check the source IP`,`Look for any successful login afterwards`,`Compare with normal activity and time of day`,`Preserve the evidence`]},
+      {q:`<p>Suggest three controls that would reduce this risk, and say which are technical and which are human.</p>`,
+       model:`<p>Technical: <strong>rate limiting or temporary lockout</strong> after repeated failures (and alerting on it); <strong>multi-factor authentication</strong> or key-based SSH instead of passwords; blocking or restricting SSH to known networks; not using a default account name like <code>admin</code>. Human: a password policy and user training, an incident response procedure, and someone responsible for reviewing alerts.</p>`,
+       points:[`A technical control such as lockout or rate limiting`,`MFA or key-based login`,`Restricting who can reach the service`,`A human control such as policy, training or a response procedure`]}
+     ]},
+    {id:'hospital',title:'Logging in at the hospital',
+     setup:`<p>A hospital wants staff to open patient records quickly on shared ward computers. The vendor proposes a <strong>fingerprint reader</strong>. In a test, 1000 genuine staff attempts were run: 950 were accepted. Then 2000 impostor attempts were run: 10 were wrongly accepted.</p>`,
+     tasks:[
+      {q:`<p>Calculate TAR, FRR, FAR and TRR from these numbers. What happens to FAR and FRR if the sensor threshold is made stricter?</p>`,
+       model:`<p><strong>TAR</strong> (true acceptance) = 950 / 1000 = <strong>95%</strong>. <strong>FRR</strong> (false rejection) = 50 / 1000 = <strong>5%</strong> (genuine staff turned away). <strong>FAR</strong> (false acceptance) = 10 / 2000 = <strong>0.5%</strong> (impostors let in). <strong>TRR</strong> (true rejection) = 1990 / 2000 = <strong>99.5%</strong>.</p><p>A stricter threshold lowers FAR (fewer impostors) but raises FRR (more genuine staff rejected). The ROC curve plots that trade-off, and you choose a point based on the risk: a hospital may accept a slightly higher FRR for safety, but too many rejections slows urgent care.</p>`,
+       points:[`TAR 95% and FRR 5%`,`FAR 0.5% and TRR 99.5%`,`Stricter threshold: FAR falls, FRR rises`,`The trade-off is shown on the ROC curve and chosen by the risk`]},
+      {q:`<p>Why might the hospital still want a second factor, and which would you suggest? Identify the factor types.</p>`,
+       model:`<p>A fingerprint is "something you are" and has a non-zero FAR, cannot be changed if leaked, and can be affected by wet or damaged fingers. Add <strong>"something you have"</strong>, such as a hospital ID card or a hardware security key, or <strong>"something you know"</strong>, such as a PIN. Two <em>different</em> factor types give real MFA: a fingerprint plus a PIN, or a card plus a fingerprint. Two passwords would be one factor twice.</p>`,
+       points:[`Fingerprint is the inherence factor (something you are)`,`Add a different factor type (have or know)`,`Real MFA needs two different kinds of factor`,`Mention a limit of biometrics (cannot be revoked, error rates, injury)`]},
+      {q:`<p>A patient file shows <code>-rw-r-----  1 nurse  ward  patient42.pdf</code>. Say who can do what, and which Unix principle is in use.</p>`,
+       model:`<p>Owner <code>nurse</code>: read and write (<code>rw-</code>). Group <code>ward</code>: read only (<code>r--</code>). Everyone else: nothing (<code>---</code>). That is mode <code>640</code>. It follows <strong>least privilege</strong> (and fits the Lampson access-control model: a subject, an object and a permission): only the people who need access get it, and only the access they need.</p>`,
+       points:[`Owner rw, group r, others none (640)`,`Link to least privilege`,`Subject, object and permission as in the Lampson model`]}
+     ]}
+  ]
+});

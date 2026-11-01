@@ -431,3 +431,124 @@ checklist:[
 "Explain hybrid encryption and why it's used"
 ]
 });
+
+/* ---------- Hands-on: practice terminal, challenges, real-tool guides, exam scenarios ---------- */
+COURSE.hands(2,{
+  title:'Week 2 workbench (hashes, MACs, RSA, Diffie-Hellman)',
+  intro:`<p>This week's lab has the same practice shell, now with <code>sha256sum</code>, <code>openssl dgst</code> and <code>bc</code> (a calculator that handles huge numbers, ideal for RSA and Diffie-Hellman). Everything is made up and stays in this page.</p>`,
+  env:{
+    hostname:'lab02',
+    date:'Sat Mar 15 10:00:00 UTC 2025',
+    fs:{
+      '/home/student/README.txt':'Week 2 workbench\n================\nFiles to practise on: contract.txt invoice.txt price-list.txt SHA256SUMS, msgA/msgB, rsa-notes.txt, dh-notes.txt, otp.txt\nTip: bc does big-number arithmetic:   echo "7^13 % 33" | bc\n',
+      '/home/student/contract.txt':'SERVICE CONTRACT\nSupplier: Northwind Ltd\nCustomer: Harbour Cafe\nTerm: 12 months\nPrice: 1200 GBP per month\n',
+      '/home/student/invoice.txt':'INVOICE 2025-0317\nPay to: Northwind Ltd\nAccount: 87654321\nAmount due: 1200 GBP\n',
+      '/home/student/price-list.txt':'PRICE LIST\nStandard plan: 1200 GBP\nPremium plan: 1800 GBP\n',
+      '/home/student/SHA256SUMS':'70f968894ddc54d99a54bd9314b9a1467ed765b3356360545d30a0973d8c7a91  contract.txt\n3372931c3f4e887f3eed34f3908efef0b5ce1d3dea38ce3e72e5def6614e2da6  invoice.txt\nfceec550ade4ecd869f04af13daad09e82eee92dde9e18f6dacbbf271aef8bb3  price-list.txt\n',
+      '/home/student/mac-notes.txt':'Alice and Bob share the secret key  s3cret  (never sent over the network).\nAlice sends a message and a tag. Mallory can change messages in transit.\nA tag is valid only if it equals HMAC-SHA256 of the message under the shared key.\nOne of the two messages below really came from Alice.\n',
+      '/home/student/msgA.txt':'From: Alice\nTo: Bob\nPay Carol 100 GBP for the books.\n',
+      '/home/student/tagA.txt':'fff2476424db7ca9f42dd7351bb2a1e3a5c2de37e61392cac7d89d9d7f09301f\n',
+      '/home/student/msgB.txt':'From: Alice\nTo: Bob\nPay Mallory 900 GBP for the books.\n',
+      '/home/student/tagB.txt':'4cf685899d33ac8ae11c506c74515e94633ba4f2c273100fa02f1d9453da6fc8\n',
+      '/home/student/rsa-notes.txt':'Alice\'s public key:   n = 3233   e = 17\nAlice\'s private key:  d = 2753   (kept secret)\nBob encrypted a number m with the public key and sent the ciphertext  c = 2790\nRSA decryption:  m = c^d mod n\n',
+      '/home/student/rsa-eve.txt':'Eve only knows the public key:  n = 3233   e = 17\nn is the product of two primes p and q, both below 100.\nShe wants the private exponent d, where  e * d mod phi = 1  and  phi = (p-1)*(q-1).\n',
+      '/home/student/dh-notes.txt':'Public values everyone can see:  p = 23   g = 5\nAlice picked a secret number a = 6.   Bob picked a secret b and sent B = g^b mod p = 19.\nAlice computes the shared secret as  B^a mod p.\n',
+      '/home/student/otp.txt':'Two messages were encrypted with the SAME one-time-pad key (a mistake).\nMessage 1 (known to Eve) is HELLO = 48 45 4C 4C 4F\nCiphertext 1: 63 D4 10 42 98\nCiphertext 2: 7C DE 0E 42 93\nEve wants message 2. Remember  C1 xor C2 = P1 xor P2.\n'
+    }
+  },
+  try:['ls','cat README.txt','sha256sum -c SHA256SUMS','echo "7^13 % 33" | bc','openssl dgst -sha256 -hmac s3cret msgA.txt','man ascii'],
+  tasks:[
+    {id:'sums',title:'Which file was tampered with?',level:'Easy',xp:20,
+     brief:`<p>A supplier published <code>SHA256SUMS</code>, a list of the correct SHA-256 hash for each file. Check the three downloaded files against it with <code>sha256sum -c SHA256SUMS</code>. <strong>Which file fails the check?</strong></p>`,
+     hints:[`Run <code>sha256sum -c SHA256SUMS</code> and look for the word FAILED.`],
+     answer:['invoice.txt','invoice'],
+     why:`<p>The hash of <code>invoice.txt</code> no longer matches, so something in the file changed (look: the account number was swapped). Hash functions show the <strong>avalanche effect</strong>: a tiny change gives a completely different hash. Note the limit: this proves the file differs from the listed hash, but if an attacker can also edit <code>SHA256SUMS</code>, a plain hash cannot protect you. You need a MAC or a signature.</p>`},
+    {id:'mac',title:'Real or forged? Use the MAC',level:'Medium',xp:30,
+     brief:`<p>Read <code>mac-notes.txt</code>. Bob received two messages, <code>msgA.txt</code> and <code>msgB.txt</code>, each with a tag file. Compute the real HMAC-SHA256 of each message using the shared key <code>s3cret</code>: <code>openssl dgst -sha256 -hmac s3cret msgA.txt</code>, and compare with the tag files. <strong>Which message really came from Alice? (answer A or B)</strong></p>`,
+     hints:[`Run the <code>openssl dgst</code> command on both messages, then <code>cat tagA.txt tagB.txt</code> and compare the long hex strings.`,`The HMAC of <code>msgB.txt</code> does not match <code>tagB.txt</code>. Try plain <code>sha256sum msgB.txt</code> and see what you notice.`],
+     answer:['a','msga','msga.txt','message a'],
+     why:`<p>Message A's tag equals HMAC(key, message), so only someone with the key could have made it. Message B's tag is just the <strong>plain SHA-256</strong> of the changed message: Mallory could compute that without any secret. This is the difference between a hash (anyone can compute it) and a <strong>MAC</strong> (needs the key), which gives integrity <em>and</em> authenticity.</p>`},
+    {id:'rsa',title:'Decrypt an RSA message',level:'Medium',xp:30,
+     brief:`<p>Open <code>rsa-notes.txt</code>. Decrypt the ciphertext with <code>m = c^d mod n</code>. In the shell: <code>echo "2790^2753 % 3233" | bc</code> (type the right numbers). <strong>What is the plaintext number m?</strong></p>`,
+     hints:[`Use the numbers from the file: c = 2790, d = 2753, n = 3233. The <code>^</code> in <code>bc</code> means power and <code>%</code> means remainder.`],
+     answer:['65'],
+     why:`<p>65 is the ASCII code of "A". You can check the other direction too: <code>echo "65^17 % 3233" | bc</code> gives 2790 again (encrypt with the public key <code>e</code>). Only the holder of <code>d</code> can go back. In real RSA the numbers have 2048 bits or more, and <code>bc</code> would still manage it.</p>`},
+    {id:'dh',title:'Compute the Diffie-Hellman shared secret',level:'Medium',xp:30,
+     brief:`<p>See <code>dh-notes.txt</code>. Alice and Bob have never met, yet they will end up with the same secret number. <strong>What shared secret does Alice compute?</strong> Use <code>bc</code> with <code>B^a mod p</code>.</p>`,
+     hints:[`<code>echo "19^6 % 23" | bc</code>`],
+     answer:['2'],
+     why:`<p>Alice computes <code>19^6 mod 23 = 2</code>. Bob computes <code>A^b mod 23</code> with Alice's public value <code>A = 5^6 mod 23 = 8</code> and gets the same 2. An eavesdropper sees only p, g, A and B, and would have to solve the discrete logarithm problem. Remember the weakness: plain Diffie-Hellman is <strong>not authenticated</strong>, so a man in the middle can run two exchanges.</p>`},
+    {id:'otp',title:'Break a reused one-time pad',level:'Medium',xp:30,
+     brief:`<p><code>otp.txt</code> shows a classic mistake: the same one-time-pad key was used for two messages. Eve knows message 1 is HELLO. Work out message 2 with <code>P2 = C1 xor C2 xor P1</code>, one byte at a time, for example <code>printf '%x ' $((0x63 ^ 0x7C ^ 0x48))</code>. Then use <code>man ascii</code> to turn the bytes into letters. <strong>What is message 2?</strong></p>`,
+     hints:[`Do the first byte: <code>printf '%x ' $((0x63 ^ 0x7C ^ 0x48))</code> prints <code>57</code>, which is the letter W in <code>man ascii</code>.`,`Do all five bytes: <code>printf '%x %x %x %x %x\\n' $((0x63^0x7C^0x48)) $((0xD4^0xDE^0x45)) $((0x10^0x0E^0x4C)) $((0x42^0x42^0x4C)) $((0x98^0x93^0x4F))</code>`],
+     answer:['world'],
+     why:`<p>XORing the two ciphertexts cancels the key, leaving <code>P1 ⊕ P2</code>. If the attacker knows or can guess one plaintext, the other falls out, and the key stream is revealed too. This is why the four one-time-pad rules include <strong>never reuse the key</strong>.</p>`},
+    {id:'crack',title:'Why tiny RSA keys are useless',level:'Hard',xp:40,
+     brief:`<p>Eve (see <code>rsa-eve.txt</code>) knows only the public key <code>n = 3233, e = 17</code>. <strong>Recover the private exponent d.</strong></p><ol><li>Find the primes: try every small number and keep those that divide n. <code>for i in $(seq 2 100); do echo "$i $((3233 % i))"; done | grep " 0$"</code></li><li>Compute phi = (p−1)(q−1).</li><li>Find d with <code>(17 * d) mod phi = 1</code>. Loop through every d from 1 to phi−1 and keep the one that gives 1.</li></ol>`,
+     hints:[`Step 1 prints 53 and 61, so phi = 52 × 60 = 3120.`,`Step 3: <code>for d in $(seq 1 3119); do echo "$d $(( (17*d) % 3120 ))"; done | grep " 1$"</code>`],
+     answer:['2753'],
+     why:`<p>Factoring 3233 took a fraction of a second, and from p and q the whole private key follows. RSA's security rests on the <strong>difficulty of factoring a huge n</strong>. With 2048-bit keys (617 digits) this loop would never finish in the lifetime of the universe, which is why key size matters.</p>`}
+  ],
+  guides:[
+    {id:'hash',title:'Check a file hash like a professional',time:'8 min',tags:['Windows','Mac','Linux'],
+     intro:`<p>Whenever you download a program, the site may list its SHA-256 hash. Here you will see how it works and watch the avalanche effect.</p>`,
+     steps:[
+      {t:'Make a file and hash it',say:`<p><strong>Mac/Linux/Git Bash:</strong></p>`,cmd:`echo "Pay Carol 100 GBP" > pay.txt\nsha256sum pay.txt        # on a Mac: shasum -a 256 pay.txt`,see:`a 64-character hex string followed by the file name.`},
+      {t:'Windows alternatives',say:`<p>In PowerShell or Command Prompt:</p>`,cmd:`Get-FileHash pay.txt -Algorithm SHA256\ncertutil -hashfile pay.txt SHA256`},
+      {t:'Change one letter',cmd:`echo "Pay Carol 900 GBP" > pay2.txt\nsha256sum pay2.txt`,see:`a completely different hash from step 1, even though only one character differs. That is the avalanche effect.`},
+      {t:'Check against a saved hash',cmd:`sha256sum pay.txt > SHA256SUMS\nsha256sum -c SHA256SUMS\necho "tampered" >> pay.txt\nsha256sum -c SHA256SUMS`,see:`first <code>pay.txt: OK</code>, then <code>pay.txt: FAILED</code>.`},
+      {t:'The echo trap',say:`<p>Compare <code>echo hello | sha256sum</code> with <code>echo -n hello | sha256sum</code>. They differ because plain <code>echo</code> adds a newline character to the data. Hashes see every byte, which is a classic source of "my hash does not match" confusion.</p>`}
+     ]},
+    {id:'hmac',title:'Hash versus MAC with OpenSSL',time:'8 min',tags:['Mac','Linux','Git Bash','WSL'],
+     intro:`<p>A hash needs no key, so anyone can recompute it. A MAC (here HMAC) needs a shared secret key. See the difference in your own terminal.</p>`,
+     steps:[
+      {t:'Plain hash',cmd:`echo -n "Pay Carol 100 GBP" | openssl dgst -sha256`,see:`the same output whoever runs it.`},
+      {t:'HMAC with a key',cmd:`echo -n "Pay Carol 100 GBP" | openssl dgst -sha256 -hmac "s3cret"\necho -n "Pay Carol 100 GBP" | openssl dgst -sha256 -hmac "other-key"`,see:`two different tags for the same message, because the keys differ.`},
+      {t:'Play Mallory',say:`<p>Change the message to <code>Pay Mallory 900 GBP</code> and compute its plain hash. Can you produce a valid HMAC tag for it <em>without</em> knowing the key? Try, and notice you cannot. That is what a MAC adds: <strong>authenticity</strong> as well as integrity.</p>`}
+     ]},
+    {id:'sign',title:'Create an RSA key pair and sign a file',time:'15 min',tags:['Mac','Linux','Git Bash','WSL'],
+     intro:`<p>A digital signature is made with the <strong>private key</strong> and checked with the <strong>public key</strong>. Do it for real with OpenSSL. Keys created here are throw-away practice keys: delete them afterwards and never reuse them.</p>`,
+     steps:[
+      {t:'Make a key pair',cmd:`openssl genrsa -out private.pem 2048\nopenssl rsa -in private.pem -pubout -out public.pem`,see:`two files. <code>public.pem</code> is safe to share; <code>private.pem</code> is not.`},
+      {t:'Sign a message',cmd:`echo "I agree to the contract" > contract.txt\nopenssl dgst -sha256 -sign private.pem -out contract.sig contract.txt`,see:`a binary file <code>contract.sig</code>: the signature (a hash of the file, transformed with the private key).`},
+      {t:'Verify it with the public key',cmd:`openssl dgst -sha256 -verify public.pem -signature contract.sig contract.txt`,see:`<code>Verified OK</code>`},
+      {t:'Tamper and verify again',cmd:`echo "I agree to pay double" > contract.txt\nopenssl dgst -sha256 -verify public.pem -signature contract.sig contract.txt`,see:`<code>Verification failure</code>. Change one character and the signature no longer fits.`},
+      {t:'Clean up',cmd:`rm private.pem public.pem contract.sig contract.txt`,say:`<p>Which key signs? Which key verifies? Who must keep which one secret?</p>`}
+     ]},
+    {id:'rand',title:'Good randomness versus bad randomness',time:'6 min',tags:['Mac','Linux','Windows'],
+     intro:`<p>Keys are only as good as the randomness behind them. See where secure random numbers come from on a real computer.</p>`,
+     steps:[
+      {t:'Ask the operating system for secure random bytes',cmd:`openssl rand -hex 16`,see:`32 hex characters that differ every time. This comes from a cryptographically secure generator (a CSPRNG).`},
+      {t:'In Python',cmd:`python3 -c "import secrets; print(secrets.token_hex(16))"`},
+      {t:'In PowerShell',cmd:`-join ((1..16) | ForEach-Object { '{0:x2}' -f (Get-Random -Maximum 256) })`,say:`<p><code>Get-Random</code> is a convenience generator, not meant for secrets. For keys prefer a CSPRNG such as <code>[System.Security.Cryptography.RandomNumberGenerator]</code>. Ordinary generators like <code>random</code> in many languages are <em>pseudo-random</em> and predictable if you learn their seed.</p>`}
+     ]}
+  ],
+  scenarios:[
+    {id:'update',title:'The software update server',
+     setup:`<p>A company ships a desktop app. Updates are downloaded from <code>downloads.example.com</code> and the page shows the SHA-256 hash of each file next to the download link. An attacker breaks into the web server and replaces the update file with a malicious one.</p>`,
+     tasks:[
+      {q:`<p>Would the hash on the download page protect users? Explain what a hash gives you and what it cannot give you here.</p>`,
+       model:`<p>A hash detects <strong>accidental corruption</strong> and lets users check they got the file the page describes. It does <strong>not</strong> prove who made the file. The attacker who controls the web server can replace the file <em>and</em> change the hash on the page to match. A hash is public: anyone can compute it, so there is no authenticity.</p>`,
+       points:[`A hash is keyless, so anyone can recompute it for a new file`,`If the attacker controls the page they can change the hash as well`,`A hash gives integrity against accidents but not authenticity`]},
+      {q:`<p>Recommend a better design using a digital signature. Say who signs, which key signs, which key verifies, and why a stolen web server no longer breaks it.</p>`,
+       model:`<p>The company signs each update file with its <strong>private key</strong>, kept offline or in a hardware security module and never on the web server. The app (or the user) holds the company's <strong>public key</strong> and verifies the signature before installing. The attacker can swap the file but cannot make a valid signature without the private key, so verification fails and the update is rejected. The public key itself must be obtained in a trusted way (built into the app, or via a certificate).</p>`,
+       points:[`Sign with the private key, verify with the public key`,`The private key is not stored on the web server`,`A tampered file fails verification`,`The public key must reach the user in a trusted way`]},
+      {q:`<p>Where does <strong>TLS</strong> (HTTPS) fit in? Does it replace the signature?</p>`,
+       model:`<p>TLS protects the <strong>connection</strong>: it encrypts and authenticates the channel between the user and the server, so nobody on the path can read or alter the download in transit. It does not protect against a compromised server that serves a bad file over a perfectly good TLS connection. So TLS and signatures solve different problems and are used together: TLS for the journey, a signature for the origin of the file.</p>`,
+       points:[`TLS protects data in transit between client and server`,`It does not help if the server itself serves a malicious file`,`Use both: TLS for the channel and a signature for the file`]}
+     ]},
+    {id:'chat',title:'Designing a private chat app',
+     setup:`<p>A start-up wants "WhisperChat". Messages travel through its server. The founders say: "We encrypt everything with RSA, and users agree keys using Diffie-Hellman, so it is totally secure."</p>`,
+     tasks:[
+      {q:`<p>Why would a real design not encrypt whole messages with RSA? What is used instead?</p>`,
+       model:`<p>RSA is slow and limited to short messages (smaller than the key). Real systems use <strong>hybrid encryption</strong>: a fast symmetric cipher (such as AES) encrypts the message with a random session key, and public-key cryptography (RSA or Diffie-Hellman) is used only to share or agree that small key.</p>`,
+       points:[`Public-key encryption is slow and size-limited`,`Use a symmetric cipher for the message data`,`Use public-key methods only to exchange the session key (hybrid encryption)`]},
+      {q:`<p>Plain Diffie-Hellman is not authenticated. Describe the attack this allows and one way to defend against it.</p>`,
+       model:`<p>A <strong>man in the middle</strong> sits between Alice and Bob and runs two separate Diffie-Hellman exchanges: one with Alice and one with Bob. Each side thinks it shares a key with the other, but both actually share keys with the attacker, who can read and change everything while relaying it. Defences: <strong>authenticate</strong> the exchanged values, for example by signing them with long-term keys whose public halves are verified through certificates, or by comparing a "safety number" or fingerprint in person.</p>`,
+       points:[`The attacker performs one exchange with each person`,`Both victims end up with keys known to the attacker`,`Defend by authenticating the values (signatures and certificates)`,`Or users compare a fingerprint or safety number out of band`]},
+      {q:`<p>What is the difference between <strong>end-to-end encryption</strong> and a service that merely encrypts traffic between each user and the server?</p>`,
+       model:`<p>With end-to-end encryption only the two endpoints hold the keys, so the server relays ciphertext it cannot read. If the server merely encrypts the link to each user (as TLS does), the server decrypts and re-encrypts the messages and therefore holds the plaintext (and sometimes the keys). That server can read them, be forced to hand them over, or be breached. E2EE removes the server from the circle of trust for message content.</p>`,
+       points:[`E2EE: only the endpoints hold the keys`,`Otherwise the server sees the plaintext`,`So a server breach or legal demand can expose messages unless E2EE is used`]}
+     ]}
+  ]
+});

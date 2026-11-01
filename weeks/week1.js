@@ -443,3 +443,103 @@ checklist:[
 "Explain ECB vs CBC and the weakness of ECB"
 ]
 });
+
+/* ---------- Hands-on: practice terminal, challenges, real-tool guides, exam scenarios ---------- */
+COURSE.hands(1,{
+  title:'Week 1 workbench (a pretend Linux machine)',
+  intro:`<p>Your notes are theory; this is where you use them. The terminal on the right is a <strong>practice shell</strong>: it looks and behaves like Linux, but every file, network and key is made up and nothing leaves this page. Read a challenge, work it out in the terminal, then type the answer in the box.</p>`,
+  env:{
+    hostname:'lab01',
+    date:'Sat Mar 15 10:00:00 UTC 2025',
+    fs:{
+      '/home/student/README.txt':'Week 1 workbench\n================\nEverything here is made up. Start with:  ls -l\nThen read each challenge on the page and use the files in this folder.\n',
+      '/home/student/intercepted.txt':'TLLA HA AOL OHYIVBY HA UPUL. IYPUN AOL RLF.\n',
+      '/home/student/note.b64':'YmFja3VwIHBhc3N3b3JkOiB0dWxpcC0yMDI0\n',
+      '/home/student/xor-task.txt':'Key byte (hex): 5A\nCiphertext bytes (hex): 2C 3B 2F 36 2E\nEach ciphertext byte = plaintext byte XOR key byte.\n',
+      '/home/student/risks.csv':'asset,likelihood,impact\ncustomer-database,3,5\npublic-website,4,2\npayroll-system,2,5\noffice-printer,4,1\nbackup-server,2,4\n',
+      '/home/student/ecb.hex':'d3b1f5f2c845ec3662bd031d7b75ef852fd5dcd7452026a9fc26dd7b059aac2fd3b1f5f2c845ec3662bd031d7b75ef859f7bba32fa31bd42d86b55553c7a7d78d3b1f5f2c845ec3662bd031d7b75ef8529fc0bac9b55054bc2716b7a57b58a31a47caa7e7b0913e0323b623287979f70d3b1f5f2c845ec3662bd031d7b75ef8553a44047e2a4ee205e7588b18dce2985d3b1f5f2c845ec3662bd031d7b75ef85\n',
+      '/home/student/cbc.hex':'3e55b037a399bc79b1c885a027cc2a39b39198e5f9322c72605dc34181a5b47c4695c36d93df4dbbc753cd7055e782771f69276609eb073b59b8f6001325b658e3c74ee4e7a1257f0ddfd89fad9f91e6745daf93545ffb88a52a408a980c4896b6150a213cb577239f4fd4044a71085a0a5d6b54b85b83becd5e099a7d3746b00eaaedda8a9406205efad3c954cbffd2c28de36e77d2d875d1cda99ca8aad383\n'
+    }
+  },
+  try:['ls -l','cat README.txt','cat intercepted.txt','man ascii','echo $((0x41 ^ 0x20))','help'],
+  tasks:[
+    {id:'caesar',title:'Break a Caesar cipher',level:'Easy',xp:20,
+     brief:`<p>Someone intercepted <code>intercepted.txt</code>. It is a Caesar cipher (every letter moved along the alphabet by the same amount). <strong>Where is the meeting?</strong></p><p>The <code>tr</code> command swaps letters for you: <code>tr 'A-Z' 'B-ZA'</code> turns every letter into the next one along.</p>`,
+     hints:[`Shift the text back by one with <code>cat intercepted.txt | tr 'B-ZA' 'A-Z'</code>, read the result, and repeat with a different starting letter until words appear. There are only 25 shifts to try.`,`The text was shifted forward by 7. To undo it, map H to A: <code>cat intercepted.txt | tr 'H-ZA-G' 'A-Z'</code>.`],
+     answer:['harbour','the harbour','harbor','the harbor'],
+     why:`<p>A Caesar cipher has only 25 usable keys, so you can simply try them all (a <strong>brute-force</strong> attack). The message also keeps its word lengths and letter patterns, so even without brute force you could guess that <code>AOL</code> is <code>THE</code>. This is why the key space of a cipher matters.</p>`},
+    {id:'base64',title:'Encoding is not encryption',level:'Easy',xp:20,
+     brief:`<p>A colleague "protected" a note by saving it as <code>note.b64</code>. It is Base64. Decode it with <code>base64 -d note.b64</code>. <strong>What is the backup password it contains?</strong></p>`,
+     hints:[`Run <code>base64 -d note.b64</code>. No key is needed.`],
+     answer:['tulip-2024','tulip2024'],
+     why:`<p>Base64 only changes how bytes are written down so they survive in text. There is no key, so anyone can reverse it. It gives <strong>no confidentiality</strong>. Real encryption needs a key that the attacker does not have.</p>`},
+    {id:'xor',title:'Decrypt with XOR',level:'Medium',xp:30,
+     brief:`<p><code>xor-task.txt</code> holds five ciphertext bytes and the key byte. XOR each ciphertext byte with the key to get the plaintext bytes, then turn the bytes into letters. <strong>What is the secret word?</strong></p><p>The shell can do XOR for you: <code>printf '%x\\n' $((0x2C ^ 0x5A))</code> prints one result in hex. Use <code>man ascii</code> to look up letters (column digit first, then row digit, so 0x41 is A).</p>`,
+     hints:[`Do all five at once with a loop: <code>for c in 2C 3B 2F 36 2E; do printf "%x " $((0x$c ^ 0x5A)); done</code>`,`The result is <code>76 61 75 6c 74</code>. In <code>man ascii</code>, column 7 row 6 is v, column 6 row 1 is a, and so on.`],
+     answer:['vault'],
+     why:`<p>XOR undoes itself: <code>(P ⊕ K) ⊕ K = P</code>. That is why a stream cipher uses the same operation to encrypt and decrypt. It is only safe if the key bytes are random, as long as the message and <strong>never reused</strong>.</p>`},
+    {id:'risk',title:'Score the risks',level:'Medium',xp:30,
+     brief:`<p><code>risks.csv</code> lists assets with a <strong>likelihood</strong> (1 to 5) and an <strong>impact</strong> (1 to 5). Risk score = likelihood × impact. <strong>Which asset has the highest score?</strong></p><p>Hint for the tools: <code>tail -n +2</code> skips the header line, and <code>awk -F, '{print $1, $2*$3}'</code> multiplies columns 2 and 3 for each comma-separated line.</p>`,
+     hints:[`Run <code>tail -n +2 risks.csv | awk -F, '{print $1, $2*$3}'</code> to see every score.`,`Add <code>| sort -k2 -n -r | head -1</code> to show only the top one.`],
+     answer:['customer-database','customer database'],
+     why:`<p>Customer-database scores 3 × 5 = 15. Notice that the public website is <em>more likely</em> to be attacked (4) but matters less (impact 2), so it scores only 8. Risk is the combination of likelihood and impact, not either one alone, and it is a risk to an <strong>asset</strong>.</p>`},
+    {id:'ecb',title:'Spot the ECB pattern leak',level:'Medium',xp:30,
+     brief:`<p><code>ecb.hex</code> is a ten-block message encrypted with AES in <strong>ECB</strong> mode. <code>cbc.hex</code> is the same message in <strong>CBC</strong> mode. AES blocks are 16 bytes, which is 32 hex characters. Split <code>ecb.hex</code> into blocks and count them. <strong>How many times does the most common block appear?</strong></p>`,
+     hints:[`<code>fold -w 32 ecb.hex</code> prints one block per line.`,`Count identical lines with <code>fold -w 32 ecb.hex | sort | uniq -c | sort -rn | head -3</code>. Do the same on <code>cbc.hex</code> and compare.`],
+     answer:['5'],
+     why:`<p>In ECB, <strong>identical plaintext blocks always give identical ciphertext blocks</strong>, so patterns in the data show through (the famous "ECB penguin"). In CBC, each block is XORed with the previous ciphertext block first, so the same plaintext gives different blocks and you see no repeats in <code>cbc.hex</code>.</p>`}
+  ],
+  guides:[
+    {id:'b64',title:'Base64 is not encryption',time:'3 min',tags:['Windows','Mac','Linux'],
+     intro:`<p>See for yourself that encoding hides nothing. You need a terminal: <strong>Mac/Linux</strong> use Terminal; <strong>Windows</strong> use Git Bash (installed with Git) or PowerShell.</p>`,
+     steps:[
+      {t:'Encode a secret',say:`<p>Mac, Linux or Git Bash:</p>`,cmd:`echo -n 'my secret' | base64`,see:`<code>bXkgc2VjcmV0</code>`},
+      {t:'Decode it again',say:`<p>No key, no password.</p>`,cmd:`echo 'bXkgc2VjcmV0' | base64 -d`,see:`<code>my secret</code>`},
+      {t:'The PowerShell version',say:`<p>Windows PowerShell has no <code>base64</code> command, so use .NET:</p>`,cmd:`[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('my secret'))`,see:`<code>bXkgc2VjcmV0</code>`},
+      {t:'Think',say:`<p>Which of the three CIA properties did Base64 give you? (None. It is formatting, not security.) Find a place you have seen Base64 used, such as email attachments or the long string in a web token.</p>`}
+     ]},
+    {id:'aes',title:'Encrypt a file with AES, then see why ECB is dangerous',time:'15 min',tags:['Mac','Linux','Git Bash','WSL'],
+     intro:`<p>OpenSSL is a real cryptography toolkit. You will encrypt the same repeating message in two modes and compare. The key and IV are typed on the command line <em>only for this experiment</em>; real keys never go in your shell history.</p>`,
+     steps:[
+      {t:'Make a message with repeated blocks',say:`<p>"ATTACK AT DAWN!!" is exactly 16 bytes, one AES block. Three copies in a row give three identical plaintext blocks.</p>`,cmd:`printf 'ATTACK AT DAWN!!ATTACK AT DAWN!!ATTACK AT DAWN!!' > msg.txt`},
+      {t:'Encrypt in ECB mode',cmd:`openssl enc -aes-128-ecb -K 000102030405060708090a0b0c0d0e0f -in msg.txt -out msg.ecb`,see:`no output means success. OpenSSL may print a warning about the key; that is fine here.`},
+      {t:'Look at the bytes',say:`<p><code>xxd</code> ships with Git Bash and most Linux/Mac systems. If you do not have it, use <code>od -An -tx1 -w16 msg.ecb</code>.</p>`,cmd:`xxd -c 16 msg.ecb`,see:`the <strong>first three lines are identical</strong>, because the three plaintext blocks were identical. The fourth line is the padding block.`},
+      {t:'Encrypt the same message in CBC mode',cmd:`openssl enc -aes-128-cbc -K 000102030405060708090a0b0c0d0e0f -iv 000102030405060708090a0b0c0d0e0f -in msg.txt -out msg.cbc\nxxd -c 16 msg.cbc`,see:`four lines that are all different, although the plaintext blocks were the same.`},
+      {t:'Decrypt it',cmd:`openssl enc -d -aes-128-cbc -K 000102030405060708090a0b0c0d0e0f -iv 000102030405060708090a0b0c0d0e0f -in msg.cbc`,see:`<code>ATTACK AT DAWN!!ATTACK AT DAWN!!ATTACK AT DAWN!!</code>`},
+      {t:'Do it the normal way',say:`<p>In real use you give a password and let OpenSSL derive the key, with a random salt:</p>`,cmd:`openssl enc -aes-256-cbc -pbkdf2 -salt -in msg.txt -out msg.enc\nopenssl enc -d -aes-256-cbc -pbkdf2 -in msg.enc`,see:`it asks for a password twice when encrypting and once when decrypting. Run the encrypt command twice and compare the two output files: they differ, because the salt is random.`}
+     ]},
+    {id:'surface',title:'Map the attack surface of your own computer',time:'10 min',tags:['Windows','Mac','Linux'],
+     intro:`<p>Your <strong>attack surface</strong> is every point where an attacker could try to get in. On a computer, a big part of that is the network services listening for connections. This guide lists them <strong>on your own machine only</strong>.</p>`,
+     steps:[
+      {t:'List what is listening',say:`<p><strong>Windows (PowerShell):</strong></p>`,cmd:`Get-NetTCPConnection -State Listen | Sort-Object LocalPort | Select-Object LocalAddress,LocalPort,OwningProcess`},
+      {t:'Mac or Linux',cmd:`# Mac\nlsof -nP -iTCP -sTCP:LISTEN\n# Linux\nss -tulpn`},
+      {t:'Name the process behind one port',say:`<p>Take a process id from the list and look it up. On Windows:</p>`,cmd:`Get-Process -Id 1234`,see:`replace 1234 with a real number from your list.`},
+      {t:'Reason about it',say:`<p>For three entries ask: <em>Do I need this? Who can reach it?</em> An address of <code>127.0.0.1</code> means only this computer; <code>0.0.0.0</code> or <code>::</code> means anyone who can reach the machine. Each reachable service is a possible <strong>attack vector</strong> and a place a <strong>vulnerability</strong> could hide. Fewer services, smaller attack surface.</p>`}
+     ]}
+  ],
+  scenarios:[
+    {id:'clinic',title:'Greenfield Dental: a small clinic review',
+     setup:`<p>Greenfield Dental has three staff. Patient records sit in a booking program on a front-desk PC that still runs an old, unpatched version of Windows. Visitors use the same Wi-Fi as the staff. Backups are copied nightly to a USB stick that lives, unencrypted, in a desk drawer. The owner asks you for a short security review.</p>`,
+     tasks:[
+      {q:`<p>Which part of the CIA triad does each incident break? (a) A receptionist's laptop is stolen and patient letters are read from its unencrypted disk. (b) Ransomware locks the appointment database. (c) An intruder quietly changes the allergy field on a patient record.</p>`,
+       model:`<p>(a) <strong>Confidentiality</strong>: information was disclosed to someone not allowed to see it. (b) <strong>Availability</strong>: the clinic cannot use its own data when needed. (c) <strong>Integrity</strong>: data was changed without authorisation, and this one is dangerous because nobody notices.</p><p>Real incidents often break more than one: the stolen laptop also costs the clinic availability of the laptop and the files that were only on it.</p>`,
+       points:[`Theft of readable data is a breach of confidentiality`,`Ransomware is an availability attack`,`Silent modification is an integrity attack`,`Noting that one incident can break more than one property`]},
+      {q:`<p>From the story, name one <strong>asset</strong>, one <strong>vulnerability</strong>, one <strong>threat</strong> and one <strong>attack</strong>, and describe the <strong>attack surface</strong>.</p>`,
+       model:`<p><strong>Asset:</strong> the patient records. <strong>Vulnerability:</strong> the unpatched operating system on the front-desk PC (or the unencrypted USB backup). <strong>Threat:</strong> a criminal group who want to run ransomware or steal data. <strong>Attack:</strong> an actual attempt, such as a phishing email that installs ransomware on the unpatched PC.</p><p><strong>Attack surface:</strong> every place an attacker could try: the shared Wi-Fi, the internet-facing and email-reachable PCs, the USB stick in the drawer, the people at the desk who can be tricked, and the physical premises.</p>`,
+       points:[`Asset = something of value, such as the patient records`,`Vulnerability = a weakness, such as unpatched software or an unencrypted backup`,`Threat = someone or something that could cause harm`,`Attack = an actual attempt to exploit it`,`Attack surface = all the points where an attacker could try, including Wi-Fi, people and physical access`]},
+      {q:`<p>Write a <strong>risk statement</strong> for the USB backup stick, then give one technical and one human control.</p>`,
+       model:`<p>Template: <em>&lt;threat&gt; exploiting &lt;vulnerability&gt; resulting in &lt;impact&gt;</em>.</p><p><strong>Risk statement:</strong> "A thief or cleaner exploiting an unencrypted backup stick left in an unlocked drawer, resulting in patient records being exposed." (Notice it is a statement about <em>possible consequence</em>, not just the finding "the stick is unencrypted".)</p><p><strong>Technical control:</strong> encrypt the backup drive, or send encrypted backups to a protected location. <strong>Human control:</strong> a policy and training that backups are kept locked away, with a named person responsible, plus periodic checks that the policy is followed.</p>`,
+       points:[`A risk statement names a threat, a vulnerability and an impact`,`It describes a possible consequence for an asset, not just the finding`,`A technical control such as encrypting the drive`,`A human control such as policy, training or locked storage`]}
+     ]},
+    {id:'logo',title:'The ECB logo',
+     setup:`<p>A developer encrypts every customer's logo (a simple black-and-white bitmap) with AES in ECB mode before storing it. The key is strong and kept secret. The developer says: "AES is unbroken, so the logos are safe."</p>`,
+     tasks:[
+      {q:`<p>What can an attacker who steals the encrypted files still learn, even without the key? Why?</p>`,
+       model:`<p>They can see the <strong>shape of the logo</strong>. In ECB, identical plaintext blocks encrypt to identical ciphertext blocks. In a bitmap, large areas of the same colour make many identical blocks, so the encrypted image shows the same outline in scrambled colours. The attacker also learns which blocks repeat.</p><p>AES itself is not broken; the <em>mode</em> leaks the pattern.</p>`,
+       points:[`Identical plaintext blocks give identical ciphertext blocks in ECB`,`Repeated areas in the image make repeated blocks, so the outline is visible`,`The weakness is the mode, not the AES algorithm`]},
+      {q:`<p>What should the developer change, and how does the replacement stop the leak? Mention the extra value it needs.</p>`,
+       model:`<p>Use a chaining mode such as <strong>CBC</strong> (or a modern authenticated mode). In CBC, each plaintext block is XORed with the <em>previous ciphertext block</em> before encryption, so the same plaintext block gives a different result each time. The first block is XORed with a random <strong>initialisation vector (IV)</strong>, which must be unpredictable and different for each message and is sent along with the ciphertext (it is not secret).</p>`,
+       points:[`Switch to CBC or another chaining mode`,`Each block is XORed with the previous ciphertext block, hiding repeats`,`A random, unique IV is needed for the first block`,`The IV does not need to be secret`]}
+     ]}
+  ]
+});

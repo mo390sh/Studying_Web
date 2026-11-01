@@ -475,6 +475,107 @@ button.bit[aria-pressed="true"]{background:var(--wk);border-color:var(--wk);colo
 .modal-card p{color:var(--muted)}
 @keyframes pop{from{transform:scale(.7) rotateX(30deg);opacity:0}}
 
+
+/* hands-on: practice terminal, challenges, real-tool guides, exam scenarios */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:root{--term-bg:#0b1118;--term-fg:#d9e2ee;--term-dim:#8a98ab;--term-ps:#7fe3a8;--term-line:#243245;--term-note:#f2c777;--term-chip:#162131}
+.hands{display:flex;flex-direction:column;gap:20px}
+.hands-top{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.hseg{max-width:560px;flex:1 1 380px}
+.hands-count{font:600 .8rem var(--font-mono);color:var(--muted)}
+.hands-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,540px);gap:28px;align-items:start}
+.hands-side{position:sticky;top:70px;min-width:0}
+.hands-main{min-width:0;display:flex;flex-direction:column;gap:18px}
+.hands-main>.intro{margin:0;max-width:68ch}
+.term{background:var(--term-bg);color:var(--term-fg);border-radius:12px;overflow:hidden;border:1px solid var(--term-line);box-shadow:var(--shadow);font:400 .86rem/1.5 var(--font-mono)}
+.term-bar{display:flex;align-items:center;gap:8px;padding:8px 10px 8px 14px;border-bottom:1px solid var(--term-line);color:var(--term-dim);font:600 .74rem var(--font-mono);letter-spacing:.05em}
+.term-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.term-bar .btn{background:transparent;color:var(--term-fg);border-color:var(--term-line);padding:.25rem .55rem;font-size:.74rem}
+.term-bar .btn:hover{border-color:var(--term-dim)}
+.term-screen{height:clamp(260px,50vh,430px);overflow:auto;padding:12px 14px;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:8}
+.term-screen:focus-visible{outline-offset:-3px}
+.t-cmd{color:var(--term-fg)}
+.t-ps{color:var(--term-ps);margin-right:.5ch}
+.t-out{color:var(--term-fg);margin-bottom:6px}
+.t-note{color:var(--term-note);margin:4px 0 8px}
+.term-in{display:flex;align-items:center;gap:8px;border-top:1px solid var(--term-line);padding:6px 10px 6px 14px}
+.term-ps{color:var(--term-ps);white-space:nowrap;max-width:55%;overflow:hidden;text-overflow:ellipsis}
+.term-in input{flex:1;min-width:0;background:transparent;border:0;outline:none;color:var(--term-fg);font:inherit;padding:.4rem 0}
+.term-in:focus-within{box-shadow:inset 0 0 0 2px var(--brass)}
+.term-try{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 12px;border-top:1px solid var(--term-line);align-items:center}
+.term-try .hint{color:var(--term-dim);font-size:.78rem}
+.term-try button{font:500 .76rem var(--font-mono);color:var(--term-fg);background:var(--term-chip);border:1px solid var(--term-line);border-radius:5px;padding:.25rem .5rem;cursor:pointer}
+.term-try button:hover{border-color:var(--term-dim)}
+
+.tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px;counter-reset:tk}
+.task{counter-increment:tk;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:16px 18px 18px;min-width:0}
+.task>article{display:flex;flex-direction:column;gap:12px;min-width:0}
+.task.is-done{border-color:var(--good)}
+.tk-head{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
+.tk-head h3{font:700 1.08rem/1.25 var(--font-display);flex:1 1 220px}
+.tk-head h3::before{content:counter(tk) ". ";color:var(--wk-ink);font-family:var(--font-mono)}
+.chip.lvl-easy{background:var(--good-soft);color:var(--good)}
+.chip.lvl-medium{background:var(--brass-soft);color:var(--brass)}
+.chip.lvl-hard{background:var(--bad-soft);color:var(--bad)}
+.tk-brief{line-height:1.55;max-width:72ch}
+.tk-brief p{margin:.4em 0}
+.tk-brief code,.g-say code,.sc-q code,.sc-setup code,.hands-main .intro code{font:600 .88em var(--font-mono);background:var(--sunk);padding:.08em .35em;border-radius:4px;overflow-wrap:anywhere}
+.tk-brief pre.code,.sc-setup pre.code{margin:.5em 0;font-size:.8rem}
+.tk-hint{display:flex;flex-direction:column;gap:6px}
+.tk-hint p{background:var(--brass-soft);border-radius:8px;padding:8px 12px;font-size:.94rem}
+.tk-hint b{font:700 .68rem var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--brass);margin-right:.6em}
+.tk-hint code{font:600 .88em var(--font-mono);background:var(--sunk);padding:.08em .35em;border-radius:4px;overflow-wrap:anywhere}
+.tk-form{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.tk-form .f{flex:1 1 220px}
+.tk-msg{min-height:1.3em;font-weight:600;font-size:.94rem}
+.tk-msg.bad{color:var(--bad)}
+.tk-msg.good{color:var(--good)}
+.tk-why{margin-top:2px}
+.tk-why[hidden]{display:none}
+
+.safety{margin-bottom:6px}
+.guide{border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:14px;min-width:0}
+.guide>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;padding:14px 18px;font:700 1.06rem/1.3 var(--font-display)}
+.guide>summary::-webkit-details-marker{display:none}
+.guide>summary::before{content:"";width:.6em;height:.6em;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .15s;margin-right:.3em;flex:none}
+.guide[open]>summary::before{transform:rotate(45deg)}
+.guide[open]>summary{border-bottom:1px solid var(--line)}
+.g-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.g-steps{margin:0;padding-left:1.5em;display:flex;flex-direction:column;gap:18px}
+.g-steps>li::marker{font:700 .9rem var(--font-mono);color:var(--wk-ink)}
+.g-steps h4{font:700 1rem/1.3 var(--font-display);margin-bottom:4px}
+.g-say{line-height:1.55;max-width:70ch}
+.g-say p{margin:.3em 0}
+.g-cmd{display:flex;gap:8px;align-items:flex-start;margin-top:8px}
+.g-cmd pre.code{flex:1;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.g-see{margin-top:6px;font-size:.92rem;color:var(--muted)}
+.g-see b{color:var(--ink)}
+.g-done{padding-top:6px;border-top:1px dashed var(--line)}
+
+.scen{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:18px 20px 22px;margin-bottom:22px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.scen>h3{font:700 1.2rem/1.25 var(--font-display)}
+.sc-setup{line-height:1.55;max-width:74ch}
+.sc-setup p{margin:.4em 0}
+.sc-tasks{margin:0;padding-left:1.5em;display:flex;flex-direction:column;gap:22px}
+.sc-tasks>li{min-width:0;display:flex;flex-direction:column;gap:10px}
+.sc-tasks>li::marker{font:700 .9rem var(--font-mono);color:var(--wk-ink)}
+.sc-q{font-weight:600;line-height:1.5;max-width:70ch}
+.sc-tasks .f textarea{min-height:96px;font-size:.92rem}
+.sc-model{display:flex;flex-direction:column;gap:12px}
+.sc-model[hidden]{display:none}
+.sc-model .ans{background:var(--wk-soft);border-radius:8px;padding:12px 14px;line-height:1.55}
+.sc-model .ans p{margin:.4em 0}
+.sc-pts{border:1px solid var(--line);border-radius:8px;padding:10px 14px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.sc-pts legend{font:700 .72rem var(--font-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding-inline:6px}
+.sc-pts label{display:flex;gap:10px;align-items:flex-start;line-height:1.45;cursor:pointer}
+.sc-pts input{margin-top:.28em;width:1.05rem;height:1.05rem;accent-color:var(--brass);flex:none}
+.sc-score{font:700 .86rem var(--font-mono);color:var(--brass)}
+
+@media (max-width:980px){
+  .hands-grid{grid-template-columns:minmax(0,1fr)}
+  .hands-side{position:static;order:-1}
+}
+
 @media (max-width:980px){
   .run{grid-template-columns:repeat(2,minmax(0,1fr))}
   .modes{grid-template-columns:minmax(0,1fr);max-width:640px}
@@ -536,7 +637,7 @@ button.bit[aria-pressed="true"]{background:var(--wk);border-color:var(--wk);colo
 <script src="vendor/three.min.js"></script>
 <script>
 /* Content helpers used by the week files. */
-window.COURSE={weeks:[],add:function(w){this.weeks.push(w)}};
+window.COURSE={weeks:[],handsData:{},add:function(w){this.weeks.push(w)},hands:function(n,h){this.handsData[n]=h}};
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function tbl(head,rows){
   return '<div class="tw"><table class="c'+head.length+'"><thead><tr>'+head.map(function(h){return '<th scope="col">'+h+'</th>'}).join('')+
@@ -547,6 +648,7 @@ var NOTE_LABELS={key:'Key idea',warn:'Watch out',link:'Connects to',tip:'Tip',an
 function note(kind,html){return '<aside class="note note-'+kind+'"><p class="note-k">'+(NOTE_LABELS[kind]||kind)+'</p><div>'+html+'</div></aside>'}
 function lab(id){return '<div data-lab="'+id+'"></div>'}
 </script>
+<script src="shell.js"></script>
 <!-- One file per week. To add a week: add weeks/weekN.js and one line here. -->
 <script src="weeks/week1.js"></script>
 <script src="weeks/week2.js"></script>
@@ -566,6 +668,9 @@ weeks.forEach(w=>{
   w.parts.forEach((p,i)=>{p.id='p'+i});
   w.quiz.forEach((q,i)=>{q.wk=w;q.id='w'+w.n+'-'+i});
   w.labs=w.labs||[];
+  const hd=(C.handsData||{})[w.n];
+  w.hands=hd?Object.assign({tasks:[],guides:[],scenarios:[]},hd):null;
+  if(w.hands)w.hands.tasks.forEach(t=>{t.id=String(t.id)});
 });
 const ALL_LABS=Array.from(new Set([].concat.apply([],weeks.map(w=>w.labs))));
 const $=(s,r)=>(r||document).querySelector(s);
@@ -600,7 +705,8 @@ const ICON={
   lock:ic('<path d="M6 11h12v9H6z"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'),
   crown:ic('<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/>'),
   cards:ic('<path d="M7 4h11a2 2 0 0 1 2 2v12"/><path d="M4 8h11a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/>'),
-  play:ic('<path d="M7 4v16l13-8z"/>')
+  play:ic('<path d="M7 4v16l13-8z"/>'),
+  term:ic('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M12 15h5"/>')
 };
 function coin(inner,opts){
   opts=opts||{};
@@ -615,15 +721,15 @@ function ringSVG(p,size,sw){
 
 /* ================= saved state (this browser only) ================= */
 const KEY='csweekbook.v1';
-const fresh=()=>({quiz:{},check:{},read:{},last:'',xp:0,log:{},badges:{},seen:{part:{},chk:{},lab:{}},mistakes:{},speed:{},
+const fresh=()=>({quiz:{},check:{},read:{},last:'',xp:0,log:{},badges:{},seen:{part:{},chk:{},lab:{},guide:{},sc:{},cmd:{}},hands:{},mistakes:{},speed:{},
   bestCombo:0,focus:{end:null,mins:25,done:0},goal:100,missions:null,name:'',sound:false,
-  stats:{answered:0,correct:0,rounds:0,perfect:0,fixed:0,sweeps:0,decks:0,owl:0,lark:0}});
+  stats:{answered:0,correct:0,rounds:0,perfect:0,fixed:0,sweeps:0,decks:0,owl:0,lark:0,cmds:0,guides:0,scDone:0}});
 let mem=fresh();
 function load(raw){
   const m=fresh(),s=raw||{};
   Object.keys(m).forEach(k=>{if(s[k]===undefined)return;
     m[k]=(m[k]&&typeof m[k]==='object'&&!Array.isArray(m[k])&&s[k]&&typeof s[k]==='object')?Object.assign(m[k],s[k]):s[k]});
-  m.seen=Object.assign({part:{},chk:{},lab:{}},m.seen);
+  m.seen=Object.assign({part:{},chk:{},lab:{},guide:{},sc:{},cmd:{}},m.seen);
   return m;
 }
 try{const s=localStorage.getItem(KEY);if(s)mem=load(JSON.parse(s))}catch(e){}
@@ -753,6 +859,13 @@ const BADGES=[
   {id:'lark',name:'Early Bird',desc:'Earn XP between 5am and 7am',icon:'sun',test:()=>mem.stats.lark>0},
   {id:'aligned',name:'Ring Aligned',desc:'Master a week ('+ALIGN+'% or more)',icon:'ring',test:()=>weeks.some(w=>progress(w)>=ALIGN)},
   {id:'vault',name:'Vault Cracked',desc:'Align every ring on the disk',icon:'key',test:()=>weeks.every(w=>progress(w)>=ALIGN)},
+  {id:'sh1',name:'First Shell',desc:'Solve a hands-on terminal challenge',icon:'term',test:()=>Object.keys(mem.hands).length>=1},
+  {id:'sh10',name:'Terminal Native',desc:'Solve 10 hands-on challenges',icon:'term',test:()=>Object.keys(mem.hands).length>=10},
+  {id:'shlab',name:'Lab Cleared',desc:'Solve every hands-on challenge in one week',icon:'shield',test:()=>weeks.some(w=>w.hands&&w.hands.tasks.length>0&&w.hands.tasks.every(t=>mem.hands[solvedKey(w,t)]))},
+  {id:'nohint',name:'No Hints Needed',desc:'Solve 5 challenges without using a hint',icon:'bolt',test:()=>Object.keys(mem.hands).filter(k=>!mem.hands[k].h).length>=5},
+  {id:'cmds',name:'Command Collector',desc:'Use 20 different commands in the practice terminal',icon:'list',test:()=>Object.keys(mem.seen.cmd).length>=20},
+  {id:'guide',name:'Real World',desc:'Try a real-tool guide on your own machine',icon:'wrench',test:()=>(mem.stats.guides||0)>0},
+  {id:'exam',name:'Exam Ready',desc:'Cover every key point in 3 scenario questions',icon:'target',test:()=>(mem.stats.scDone||0)>=3},
   {id:'lvl5',name:'Level 5',desc:'Reach level 5',icon:'crown',test:()=>level(mem.xp).L>=5},
   {id:'lvl10',name:'Level 10',desc:'Reach level 10',icon:'crown',test:()=>level(mem.xp).L>=10}
 ];
@@ -773,6 +886,8 @@ function ensureMissions(){
     if(p){c.push({k:'read',w:w.n,p:p.id,text:'Read Week '+w.n+', Part '+p.tag+': '+p.title,href:'#w'+w.n,xp:30,need:1});break}}
   const weak=weeks.map(w=>{const b=mem.quiz['w'+w.n];return{w:w,pct:b?b.s/b.t:-1}}).sort((a,b)=>a.pct-b.pct)[0].w;
   c.push({k:'quiz',w:weak.n,text:'Score 7 or more in a 10-question Week '+weak.n+' practice round',href:'#w'+weak.n+'-quiz',xp:40,need:1});
+  const hw=weeks.find(w=>w.hands&&w.hands.tasks.some(t=>!mem.hands[solvedKey(w,t)]));
+  if(hw&&new Date().getDate()%2===0)c.push({k:'hands',text:'Solve a hands-on challenge in Week '+hw.n,href:'#w'+hw.n+'-hands',xp:40,need:1});
   const nm=Object.keys(mem.mistakes).length,odd=new Date().getDate()%2;
   if(nm>=3)c.push({k:'fix',text:'Clear 3 questions from your mistakes',href:'#mix',xp:35,need:3});
   c.push(odd?{k:'speed',text:'Score 8 or more in any speed round',href:'#mix',xp:35,need:1}:{k:'focus',text:'Finish a focus session',href:'',xp:35,need:1});
@@ -853,7 +968,7 @@ setInterval(()=>{
 let route=null,cleanup=[];
 function parse(r){
   r=String(r||'').replace(/^#/,'');
-  const m=/^w(\d+)(?:-(labs|quiz|cards|practice|check))?$/.exec(r);
+  const m=/^w(\d+)(?:-(labs|hands|quiz|cards|practice|check))?$/.exec(r);
   if(m){const w=weeks.find(x=>x.n===+m[1]);if(w)return{view:'week',w:w,tab:m[2]||'notes'}}
   if(r==='glossary'||r==='mix'||r==='me')return{view:r};
   return{view:'home'};
@@ -948,7 +1063,7 @@ function viewHome(){
         <span class="row-num" aria-hidden="true">${w.n}</span>
         <a class="row-main" href="#w${w.n}"><span class="row-title">Week ${w.n}: ${w.title}</span><span class="row-topics">${w.topics.join(' · ')}</span></a>
         <span class="row-side">
-          <span class="row-links"><a href="#w${w.n}-quiz">Quiz</a><a href="#w${w.n}-cards">Flashcards</a>${w.labs.length?`<a href="#w${w.n}-labs">Labs</a>`:''}</span>
+          <span class="row-links"><a href="#w${w.n}-quiz">Quiz</a><a href="#w${w.n}-cards">Flashcards</a>${w.labs.length?`<a href="#w${w.n}-labs">Labs</a>`:''}${w.hands?`<a href="#w${w.n}-hands">Hands-on</a>`:''}</span>
           <span class="meter">${pr>=ALIGN?'<span class="chip gold">Aligned</span>':''}<i><b style="width:${pr}%"></b></i>${pr}% mastered${q?' · best '+q.s+'/'+q.t:''}</span>
         </span>
       </li>`}).join('')}</ol>
@@ -1216,9 +1331,9 @@ function makeStage(){
 }
 
 /* ================= week pages ================= */
-const TABS=[['notes','Notes'],['labs','Labs'],['quiz','Quiz'],['cards','Flashcards'],['practice','Practice'],['check','Checklist']];
+const TABS=[['notes','Notes'],['labs','Labs'],['hands','Hands-on'],['quiz','Quiz'],['cards','Flashcards'],['practice','Practice'],['check','Checklist']];
 function viewWeek(w,tab){
-  const has={notes:1,labs:w.labs.length,quiz:w.quiz.length,cards:w.glossary.length,practice:w.practice.length,check:w.checklist.length};
+  const has={notes:1,labs:w.labs.length,hands:w.hands?1:0,quiz:w.quiz.length,cards:w.glossary.length,practice:w.practice.length,check:w.checklist.length};
   if(!has[tab])tab='notes';
   const i=weeks.indexOf(w),pv=weeks[i-1],nx=weeks[i+1];
   app.innerHTML=`<div class="wk week" style="--h:${w.h}">
@@ -1237,7 +1352,7 @@ function viewWeek(w,tab){
     </nav>
   </div>`;
   weekStats(w);
-  ({notes:tabNotes,labs:tabLabs,quiz:tabQuiz,cards:tabCards,practice:tabPractice,check:tabCheck})[tab](w,$('.wk-body',app));
+  ({notes:tabNotes,labs:tabLabs,hands:tabHands,quiz:tabQuiz,cards:tabCards,practice:tabPractice,check:tabCheck})[tab](w,$('.wk-body',app));
 }
 function weekStats(w){
   const el=$('.wk-stats',app);if(!el)return;
@@ -1245,6 +1360,7 @@ function weekStats(w){
   el.innerHTML=`<span class="ms"><span class="mring-wrap">${ringSVG(pr,46,5)}</span><span><b>${pr}%</b><small>${pr>=ALIGN?'Ring aligned':'mastered · '+ALIGN+'% aligns the ring'}</small></span></span>
     <span class="chip">Read ${(mem.read[w.n]||[]).length}/${w.parts.length}</span>
     <span class="chip">Checklist ${(mem.check[w.n]||[]).length}/${w.checklist.length}</span>
+    ${w.hands&&w.hands.tasks.length?`<span class="chip">Hands-on ${solvedCount(w)}/${handsTotal(w)}</span>`:''}
     <span class="chip">Quiz best ${q?q.s+'/'+q.t:'none yet'}</span>`;
 }
 
@@ -1350,6 +1466,224 @@ function tabCheck(w,el){
     if(c.checked&&done.size===w.checklist.length)fx.burst(null,null,120);
   }));
   count();
+}
+
+/* ================= hands-on: practice terminal, challenges, real-tool guides, exam scenarios ================= */
+const shells={};
+let handsSeg='term';
+function normAns(s){return String(s).toLowerCase().replace(/[`"']/g,'').trim().replace(/\s+/g,' ').replace(/[.,;:!]+$/,'')}
+function tokSet(s){return normAns(s).split(/[\s,;\/&+]+/).filter(x=>x&&x!=='and').sort().join('|')}
+function answerOK(t,input){
+  const x=normAns(input);if(!x)return false;
+  const list=[].concat(t.answer==null?[]:t.answer);
+  if(list.some(a=>normAns(a)===x))return true;
+  if(t.set&&list.length&&tokSet(list[0])===tokSet(input))return true;
+  if(t.re){try{if(new RegExp(t.re,'i').test(String(input).trim()))return true}catch(e){}}
+  return false;
+}
+const solvedKey=(w,t)=>w.n+':'+t.id;
+const solvedCount=w=>w.hands?w.hands.tasks.filter(t=>mem.hands[solvedKey(w,t)]).length:0;
+const handsTotal=w=>w.hands?w.hands.tasks.length:0;
+function stateCheck(t,S){
+  const msgs=[],ex=t.expect||{};
+  (ex.cases||[]).forEach(c=>{
+    Object.keys(c.ports).forEach(p=>{
+      const got=S.sh.portState(ex.host,+p,c.from);
+      if(got!==c.ports[p])msgs.push('Seen from '+c.from+': port '+p+' should be '+c.ports[p]+', but it is '+got+'.');
+    });
+  });
+  (ex.files||[]).forEach(f=>{
+    if(f.mode!==undefined){const m=S.sh.mode(f.path);if(m!==f.mode)msgs.push(f.path.split('/').pop()+' has mode '+(m||'(missing)')+', but should be '+f.mode+'.')}
+    if(f.contains!==undefined){const c=S.sh.readFile(f.path);if(c==null||c.indexOf(f.contains)<0)msgs.push(f.path.split('/').pop()+' does not contain what it should yet.')}
+    if(f.exists===false&&S.sh.exists(f.path))msgs.push(f.path.split('/').pop()+' should not exist any more.');
+  });
+  return msgs;
+}
+function getShell(w){
+  let S=shells[w.n];
+  if(!S){
+    S={sh:Shell.create(w.hands.env||{}),log:[],hi:-1,draft:''};
+    shells[w.n]=S;
+    S.log.push({k:'note',text:'Practice shell for Week '+w.n+'. Everything here is simulated and stays in this page. Type help to see the commands, or click an example below.'});
+  }
+  return S;
+}
+function mountTerm(box,w,S){
+  const H=w.hands;
+  box.innerHTML=`<section class="term" aria-label="Practice terminal, week ${w.n}">
+    <div class="term-bar"><span class="term-title">${esc(H.title||'Practice terminal')}</span>
+      <button type="button" class="btn small" data-a="help">help</button><button type="button" class="btn small" data-a="reset">Reset lab</button></div>
+    <div class="term-screen" role="log" aria-label="Terminal output" tabindex="0"></div>
+    <form class="term-in" autocomplete="off"><label class="sr" for="tin-${w.n}">Type a command and press Enter</label><span class="term-ps" aria-hidden="true"></span>
+      <input id="tin-${w.n}" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" enterkeyhint="send"><button type="submit" class="btn small gold">Run</button></form>
+    ${(H.try&&H.try.length)?`<div class="term-try"><span class="hint">Click to fill in:</span>${H.try.map(c=>'<button type="button" data-cmd="'+esc(c)+'">'+esc(c)+'</button>').join('')}</div>`:''}
+  </section>`;
+  const screen=$('.term-screen',box),form=$('.term-in',box),inp=$('input',form),ps=$('.term-ps',box);
+  function addLine(e){
+    const d=document.createElement('div');
+    if(e.k==='cmd'){d.className='t-cmd';const a=document.createElement('span');a.className='t-ps';a.textContent=e.ps;const b=document.createElement('span');b.textContent=e.text;d.appendChild(a);d.appendChild(b)}
+    else{d.className=e.k==='note'?'t-note':'t-out';d.textContent=e.text.replace(/\n$/,'')}
+    screen.appendChild(d);
+  }
+  function redraw(){screen.textContent='';S.log.forEach(addLine);screen.scrollTop=screen.scrollHeight;ps.textContent=S.sh.prompt()}
+  function exec(line){
+    const prompt=S.sh.prompt(),r=S.sh.run(line);
+    if(r.clear)S.log=[];
+    else{S.log.push({k:'cmd',ps:prompt,text:line});if(r.text)S.log.push({k:'out',text:r.text})}
+    (r.used||[]).forEach(nm=>{if(!mem.seen.cmd[nm]){mem.seen.cmd[nm]=1;S.log.push({k:'note',text:'New command discovered: '+nm+'  (+2 XP)'});gain(2,null,true)}});
+    mem.stats.cmds=(mem.stats.cmds||0)+1;if(mem.stats.cmds%10===0)save();
+    if(S.log.length>400)S.log=S.log.slice(-300);
+    redraw();
+  }
+  function complete(){
+    const c=S.sh.complete(inp.value);if(!c.opts.length)return;
+    let pre=c.opts[0];for(const o of c.opts){while(o.indexOf(pre)!==0)pre=pre.slice(0,-1)}
+    if(c.opts.length===1)inp.value=c.head+pre+(/\/$/.test(pre)?'':' ');
+    else if(pre.length>c.word.length)inp.value=c.head+pre;
+    else{S.log.push({k:'out',text:c.opts.join('  ')});redraw()}
+  }
+  form.addEventListener('submit',e=>{
+    e.preventDefault();const v=inp.value;inp.value='';S.hi=-1;
+    if(!v.trim()){S.log.push({k:'cmd',ps:S.sh.prompt(),text:''});redraw();return}
+    exec(v);
+  });
+  inp.addEventListener('keydown',e=>{
+    const hist=S.sh.history();
+    if(e.key==='ArrowUp'){e.preventDefault();if(!hist.length)return;if(S.hi<0){S.draft=inp.value;S.hi=hist.length}S.hi=Math.max(0,S.hi-1);inp.value=hist[S.hi]}
+    else if(e.key==='ArrowDown'){e.preventDefault();if(S.hi<0)return;S.hi++;if(S.hi>=hist.length){S.hi=-1;inp.value=S.draft||''}else inp.value=hist[S.hi]}
+    else if(e.key==='Tab'){e.preventDefault();complete()}
+    else if(e.ctrlKey&&(e.key==='l'||e.key==='L')){e.preventDefault();S.log=[];redraw()}
+    else if(e.ctrlKey&&(e.key==='c'||e.key==='C')&&!String(window.getSelection&&window.getSelection()).length){e.preventDefault();S.log.push({k:'cmd',ps:S.sh.prompt(),text:inp.value+'^C'});inp.value='';redraw()}
+  });
+  screen.addEventListener('click',()=>{if(!String(window.getSelection&&window.getSelection()).length)inp.focus({preventScroll:true})});
+  $$('[data-cmd]',box).forEach(b=>b.addEventListener('click',()=>{inp.value=b.dataset.cmd;inp.focus({preventScroll:true})}));
+  $('[data-a="help"]',box).addEventListener('click',()=>exec('help'));
+  $('[data-a="reset"]',box).addEventListener('click',()=>{
+    S.sh.reset();S.log=[{k:'note',text:'Lab reset. Files, permissions and firewall rules are back to how they started.'}];S.hi=-1;redraw();inp.focus({preventScroll:true});
+  });
+  redraw();
+}
+function taskHTML(w,t){
+  const done=mem.hands[solvedKey(w,t)],id='a-'+w.n+'-'+t.id,lvl=t.level||'Easy';
+  const check=t.kind==='state'||t.kind==='scan';
+  return `<li class="task${done?' is-done':''}" data-id="${esc(t.id)}"><article>
+    <header class="tk-head"><h3>${esc(t.title)}</h3><span class="chip lvl-${lvl.toLowerCase()}">${lvl}</span><span class="chip gold tk-xp">${done?'Solved · +'+done.xp+' XP':'+'+(t.xp||20)+' XP'}</span></header>
+    <div class="tk-brief">${t.brief}</div>
+    <div class="tk-hint" aria-live="polite"></div>
+    <form class="tk-form">${check?'':`<label class="f" for="${id}">Your answer<input id="${id}" type="text" autocomplete="off" spellcheck="false"${done?' disabled':''}></label>`}
+      <button type="submit" class="btn primary small"${done?' disabled':''}>${check?'Check my work':'Check answer'}</button>
+      ${(t.hints&&t.hints.length)?`<button type="button" class="btn small" data-hint${done?' disabled':''}>Hint</button>`:''}</form>
+    <p class="tk-msg" role="status"></p>
+    <div class="tk-why note note-ans"${done?'':' hidden'}><p class="note-k">Why this works</p><div>${t.why||''}</div></div>
+  </article></li>`;
+}
+function mountTasks(box,w,S){
+  const H=w.hands;
+  box.innerHTML=`<ol class="tasks">${H.tasks.map(t=>taskHTML(w,t)).join('')}</ol>`;
+  H.tasks.forEach(t=>{
+    const li=$('.task[data-id="'+t.id+'"]',box),form=$('.tk-form',li),msg=$('.tk-msg',li),hintBox=$('.tk-hint',li),hb=$('[data-hint]',li),submit=$('[type="submit"]',li);
+    let hints=0,wrong=0;
+    const done0=mem.hands[solvedKey(w,t)];
+    if(done0&&t.answer!=null){const ai=$('input',li);if(ai)ai.value=[].concat(t.answer)[0]}
+    if(hb)hb.addEventListener('click',()=>{
+      if(hints>=t.hints.length)return;
+      const p=document.createElement('p'),b=document.createElement('b');b.textContent='Hint '+(hints+1);p.appendChild(b);
+      const sp=document.createElement('span');sp.innerHTML=t.hints[hints];p.appendChild(sp);hintBox.appendChild(p);hints++;
+      const cur=Math.max(5,(t.xp||20)-5*hints);$('.tk-xp',li).textContent='+'+cur+' XP';
+      if(hints>=t.hints.length){hb.disabled=true;hb.textContent='No more hints'}
+    });
+    form.addEventListener('submit',e=>{
+      e.preventDefault();if(mem.hands[solvedKey(w,t)])return;
+      let ok,bad='';
+      if(t.kind==='state'||t.kind==='scan'){const m=stateCheck(t,S);ok=m.length===0;bad=m.join(' ')}
+      else{const v=$('input',form).value;if(!v.trim()){msg.className='tk-msg bad';msg.textContent='Type your answer first.';return}ok=answerOK(t,v)}
+      if(!ok){
+        wrong++;sound('no');msg.className='tk-msg bad';
+        msg.textContent=bad||('Not quite'+(wrong>=2&&hb&&!hb.disabled?'. Try a hint.':'. Check the output again and re-read the question.'));
+        return;
+      }
+      const xp=Math.max(5,(t.xp||20)-5*hints);
+      mem.hands[solvedKey(w,t)]={xp:xp,h:hints,at:Date.now()};save();
+      sound('ok');msg.className='tk-msg good';msg.textContent='Correct. +'+xp+' XP';
+      li.classList.add('is-done');$('.tk-xp',li).textContent='Solved · +'+xp+' XP';
+      $('.tk-why',li).hidden=false;
+      const ai=$('input',form);if(ai)ai.disabled=true;submit.disabled=true;if(hb)hb.disabled=true;
+      const r=submit.getBoundingClientRect();fx.burst(r.left+r.width/2,r.top,60);
+      gain(xp,submit);emit('hands',{w:w.n},submit);weekStats(w);
+      const c=$('.hands-count',app);if(c)c.textContent=solvedCount(w)+' of '+handsTotal(w)+' challenges solved';
+      if(solvedCount(w)===handsTotal(w)){toast('Lab cleared','Every Week '+w.n+' challenge solved.','<span class="t-ic">'+ICON.term+'</span>');fx.burst(null,null,170)}
+    });
+  });
+}
+function mountGuides(box,w){
+  const G=w.hands.guides||[];
+  box.innerHTML=`<aside class="note note-warn safety"><p class="note-k">Stay legal and safe</p><div><p>Only run these on your own computer, your own network or a practice machine you set up yourself. Never scan, probe or attack anyone else's system without written permission: in the UK that can be a crime under the Computer Misuse Act 1990. The guides are written so every target is your own machine or a site that invites testing.</p></div></aside>
+  ${G.map((g,gi)=>{
+    const did=mem.seen.guide[w.n+':'+g.id];
+    return `<details class="guide"${gi===0?' open':''} data-g="${esc(g.id)}"><summary>${esc(g.title)}<span class="chip">${esc(g.time||'')}</span>${(g.tags||[]).map(x=>'<span class="chip gold">'+esc(x)+'</span>').join('')}</summary>
+      <div class="g-body">${g.intro?'<div class="g-say">'+g.intro+'</div>':''}
+        <ol class="g-steps">${g.steps.map(s=>`<li><h4>${esc(s.t)}</h4>${s.say?'<div class="g-say">'+s.say+'</div>':''}${s.cmd?`<div class="g-cmd"><pre class="code"><code>${esc(s.cmd)}</code></pre><button type="button" class="btn small" data-copy>Copy</button></div>`:''}${s.see?'<p class="g-see"><b>You should see:</b> '+s.see+'</p>':''}</li>`).join('')}</ol>
+        <label class="toggle g-done"><input type="checkbox" data-did${did?' checked':''}> I tried this on my own machine${did?'':' (+15 XP)'}</label>
+      </div></details>`}).join('')}`;
+  $$('.guide',box).forEach(d=>{
+    const g=G.find(x=>x.id===d.dataset.g);
+    $$('[data-copy]',d).forEach((b,i)=>{const cmds=g.steps.filter(s=>s.cmd);b.addEventListener('click',()=>copyText(cmds[i].cmd,b))});
+    $('[data-did]',d).addEventListener('change',e=>{
+      const k=w.n+':'+g.id;
+      if(e.target.checked&&!mem.seen.guide[k]){mem.seen.guide[k]=1;mem.stats.guides=(mem.stats.guides||0)+1;save();e.target.parentNode.lastChild.textContent=' I tried this on my own machine';gain(15,e.target);fx.burst(null,null,60)}
+    });
+  });
+}
+function mountScenarios(box,w){
+  const SC=w.hands.scenarios||[];
+  box.innerHTML=`<p class="intro">Exam-style questions built from the Week ${w.n} material. Write your own answer first, then open the model answer and tick each key point you covered. Honest ticking is the whole point.</p>
+  ${SC.map(sc=>`<article class="scen" data-sc="${esc(sc.id)}"><h3>${esc(sc.title)}</h3><div class="sc-setup">${sc.setup}</div>
+    <ol class="sc-tasks">${sc.tasks.map((t,ti)=>`<li data-ti="${ti}"><div class="sc-q">${t.q}</div>
+      <label class="f" for="sc-${w.n}-${esc(sc.id)}-${ti}">Your answer (only you see this)<textarea id="sc-${w.n}-${esc(sc.id)}-${ti}" rows="4" spellcheck="true"></textarea></label>
+      <div><button type="button" class="btn small" data-reveal aria-expanded="false">Show model answer</button></div>
+      <div class="sc-model" hidden><div class="ans">${t.model}</div>
+        <fieldset class="sc-pts"><legend>Key points. Tick the ones your answer made (+3 XP each, first time)</legend>${t.points.map((p,pi)=>`<label><input type="checkbox" data-pi="${pi}"> <span>${p}</span></label>`).join('')}</fieldset>
+        <p class="sc-score" aria-live="polite"></p></div></li>`).join('')}</ol></article>`).join('')}`;
+  $$('.scen',box).forEach(art=>{
+    const sc=SC.find(x=>x.id===art.dataset.sc);
+    $$('.sc-tasks>li',art).forEach(li=>{
+      const t=sc.tasks[+li.dataset.ti],rev=$('[data-reveal]',li),model=$('.sc-model',li),score=$('.sc-score',li),boxes=$$('[data-pi]',li);
+      rev.addEventListener('click',()=>{const open=model.hidden;model.hidden=!open;rev.setAttribute('aria-expanded',String(open));rev.textContent=open?'Hide model answer':'Show model answer'});
+      boxes.forEach(cb=>cb.addEventListener('change',()=>{
+        const n=boxes.filter(x=>x.checked).length;
+        score.textContent=n+' of '+boxes.length+' key points';
+        const k=w.n+':'+sc.id+':'+li.dataset.ti+':'+cb.dataset.pi;
+        if(cb.checked&&!mem.seen.sc[k]){mem.seen.sc[k]=1;save();gain(3,cb)}
+        if(n===boxes.length&&!mem.seen.sc[w.n+':'+sc.id+':'+li.dataset.ti+':done']){
+          mem.seen.sc[w.n+':'+sc.id+':'+li.dataset.ti+':done']=1;mem.stats.scDone=(mem.stats.scDone||0)+1;save();
+          toast('Full marks','You covered every key point.','<span class="t-ic">'+ICON.target+'</span>');fx.burst(null,null,80);checkBadges();
+        }
+      }));
+    });
+  });
+}
+function tabHands(w,el){
+  const H=w.hands;
+  if(typeof Shell==='undefined'){el.innerHTML='<p class="intro">The practice terminal did not load (shell.js). Reload the page to try again.</p>';return}
+  const segs=[['term','Practice terminal',(H.tasks&&H.tasks.length)||H.env],['guides','Real tools',(H.guides||[]).length],['scen','Exam scenarios',(H.scenarios||[]).length]].filter(s=>s[2]);
+  if(!segs.some(s=>s[0]===handsSeg))handsSeg=segs[0][0];
+  el.innerHTML=`<div class="hands"><div class="hands-top"><div class="seg hseg" role="group" aria-label="Hands-on sections">${segs.map(s=>`<button type="button" data-s="${s[0]}" aria-pressed="${s[0]===handsSeg}">${s[1]}</button>`).join('')}</div>
+    <span class="hands-count"></span></div><div class="hands-body"></div></div>`;
+  const body=$('.hands-body',el);
+  function draw(){
+    $$('.hseg button',el).forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.s===handsSeg)));
+    const cnt=$('.hands-count',el);
+    cnt.textContent=handsSeg==='term'&&handsTotal(w)?solvedCount(w)+' of '+handsTotal(w)+' challenges solved':'';
+    if(handsSeg==='term'){
+      const S=getShell(w);
+      body.innerHTML=`<div class="hands-grid"><div class="hands-main">${H.intro?'<div class="intro">'+H.intro+'</div>':''}<div class="tasks-slot"></div></div><aside class="hands-side" aria-label="Terminal"><div class="term-slot"></div></aside></div>`;
+      mountTerm($('.term-slot',body),w,S);
+      mountTasks($('.tasks-slot',body),w,S);
+    }else if(handsSeg==='guides')mountGuides(body,w);
+    else mountScenarios(body,w);
+  }
+  $$('.hseg button',el).forEach(b=>b.addEventListener('click',()=>{handsSeg=b.dataset.s;draw()}));
+  draw();
 }
 
 /* ================= quiz engine: practice, speed, fix ================= */
@@ -1557,6 +1891,8 @@ function viewMe(){
       <div class="stat"><span class="t-k">Accuracy</span><b>${acc}%</b></div>
       <div class="stat"><span class="t-k">Best combo</span><b>×${mem.bestCombo}</b></div>
       <div class="stat"><span class="t-k">Focus sessions</span><b>${mem.focus.done||0}</b></div>
+      <div class="stat"><span class="t-k">Hands-on solved</span><b>${Object.keys(mem.hands).length}</b></div>
+      <div class="stat"><span class="t-k">Commands discovered</span><b>${Object.keys(mem.seen.cmd).length}</b></div>
       <div class="stat"><span class="t-k">Mistakes to fix</span><b>${Object.keys(mem.mistakes).length}</b></div>
       <div class="stat"><span class="t-k">Rings aligned</span><b>${weeks.filter(w=>progress(w)>=ALIGN).length} / ${weeks.length}</b></div>
     </section>
